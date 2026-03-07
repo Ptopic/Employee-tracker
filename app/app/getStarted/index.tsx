@@ -76,18 +76,6 @@ const index = () => {
 		handleAuthResponse();
 	}, [response, queryClient.clear]);
 
-	useEffect(() => {
-		OneSignal.initialize(process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID as string);
-
-		OneSignal.Notifications.requestPermission(true).then((response) => {
-			console.log("Permission", response);
-		});
-
-		OneSignal.Notifications.addEventListener("click", (event) => {
-			console.log("Notification opened:", event);
-		});
-	}, []);
-
 	return (
 		<SafeAreaView className="flex-1 gap-[20]">
 			<View className="flex-1 bg-gray400 items-center justify-center">

@@ -6,7 +6,7 @@
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
-		"scheme": "saveit",
+		"scheme": "etracker",
 		"userInterfaceStyle": "automatic",
 		"newArchEnabled": true,
 		"splash": {
@@ -57,12 +57,6 @@
 				"expo-image-picker",
 				{
 					"photosPermission": "The app accesses your photos to let you share them with your friends."
-				}
-			],
-			[
-				"onesignal-expo-plugin",
-				{
-					"mode": "development"
 				}
 			]
 		],

@@ -8,7 +8,6 @@ import React, { useEffect } from "react";
 import { Alert, Linking, StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
-import { OneSignal } from "react-native-onesignal";
 import SharedGroupPreferences from "react-native-shared-group-preferences";
 import { getQueryClient } from "@/shared/queryClient";
 import { CustomToastProvider } from "@/utils/toast";
@@ -84,7 +83,6 @@ function RootLayoutNav() {
 		if (isLoading) return;
 
 		if (!accessToken) {
-			OneSignal.logout();
 			router.navigate("/getStarted" as any);
 		} else {
 			// PROD: router.navigate('/' as any);
