@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email     String  @unique
+  // password String
+  fullName  String
+  picture   String?
+  pictureId String?
+  country   String?
+}
+
+// model UserScratchedCard {
+//   id          Int         @id @default(autoincrement())
+//   createdAt   DateTime    @default(now())
+//   user        User        @relation(fields: [userId], references: [id])
+//   userId      Int
+//   card        ScratchCard @relation(fields: [cardId], references: [id])
+//   cardId      Int
+//   isScratched Boolean?    @default(false)
+
+//   @@unique([userId, cardId])
+// }
+
+// model ScratchCard {
+//   id        Int      @id @default(autoincrement())
+//   createdAt DateTime @default(now())
+
+//   title         String
+//   description   String?
+//   picture       String
+//   category      Categories          @default(EASY)
+//   userScratches UserScratchedCard[]
+// }
+
+// enum Categories {
+//   EASY
+//   MEDIUM
+//   HARD
+// }
+
+// model User {
+//   id Int @id @default(autoincrement())
+//   username String @unique
+//   displayName String? @default("")
+//   userSettings UserSettings?
+//   posts Post[]
+//   groupPosts UserGroupPosts[]
+// }
+
+// model UserSettings {
+//   id Int @id @default(autoincrement())
+//   notificationsEnabled Boolean
+//   smsEnabled Boolean
+//   user User @relation(fields: [userId], references: [id])
+//   userId Int @unique
+// }
+
+// model GroupPost {
+//   id Int @id @default(autoincrement())
+//   title String
+//   description String
+//   users UserGroupPosts[]
+// }
+
+// model UserGroupPosts {
+//   user User @relation(fields: [userId], references: [id])
+//   userId Int
+//   groupPost GroupPost @relation(fields: [groupPostId], references: [id])
+//   groupPostId Int
+
+//   @@id ([userId, groupPostId])
+// }
+
+// model Post {
+//   id Int @id @default(autoincrement())
+//   title String
+//   description String
+//   user User @relation(fields: [userId], references: [id])
+//   userId Int
+// }

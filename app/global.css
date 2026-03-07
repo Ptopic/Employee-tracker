@@ -1,0 +1,160 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Typography ---------- */
+
+/* Headings */
+.heading-large {
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 36px;
+}
+
+.heading-medium {
+	font-size: 24px;
+	font-weight: 600;
+	line-height: 32px;
+}
+
+.heading-small {
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 28px;
+}
+
+.heading-xsmall {
+	font-size: 20px;
+	font-weight: 600;
+	line-height: 26px;
+}
+
+.heading-xxsmall {
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 24px;
+}
+
+.heading-import-title {
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 20px;
+}
+
+/* Body large */
+
+.body-xlarge-regular {
+	font-size: 22px;
+	font-weight: 400;
+	line-height: 28px;
+}
+
+.body-large-regular {
+	font-size: 18px;
+	font-weight: 400;
+	line-height: 24px;
+}
+
+.body-large-semibold {
+	font-size: 18px;
+	font-weight: 600;
+	line-height: 24px;
+}
+
+.body-large-bold {
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 24px;
+}
+
+/* Body medium */
+
+.body-medium-regular {
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 22px;
+	letter-spacing: 0.08px;
+}
+
+.body-medium-semibold {
+	font-size: 16px;
+	font-weight: 600;
+	line-height: 22px;
+	letter-spacing: 0.08px;
+}
+
+.body-medium-bold {
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 22px;
+	letter-spacing: 0.08px;
+}
+
+/* Body small */
+
+.body-small-regular {
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 16px;
+	letter-spacing: 0.07px;
+}
+
+.body-small-semibold {
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 20px;
+	letter-spacing: 0.07px;
+}
+
+.body-small-bold {
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 20px;
+	letter-spacing: 0.07px;
+}
+
+/* Body xsmall */
+
+.body-xsmall-regular {
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 16px;
+	letter-spacing: 0.06px;
+}
+
+.body-xsmall-semibold {
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 16px;
+	letter-spacing: 0.06px;
+}
+
+.body-xsmall-bold {
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 16px;
+	letter-spacing: 0.06px;
+}
+
+/* Body xxsmall */
+
+.body-xxsmall-regular {
+	font-size: 11px;
+	font-weight: 400;
+	line-height: 16px;
+	letter-spacing: 0.055px;
+}
+
+.body-xxsmall-semibold {
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 16px;
+	letter-spacing: 0.055px;
+}
+
+.body-xxsmall-bold {
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 16px;
+	letter-spacing: 0.055px;
+}
