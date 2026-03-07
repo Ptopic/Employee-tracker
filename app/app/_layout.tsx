@@ -93,8 +93,8 @@ function RootLayoutNav() {
 	useEffect(() => {
 		const handleDeepLink = (event: any) => {
 			const { url } = event;
-			if (url?.startsWith("etracker://")) {
-				Alert.alert("App Opened with custom URL", url);
+			if (url?.startsWith("saveit://")) {
+				return;
 			}
 		};
 

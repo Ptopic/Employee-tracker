@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
-import { makeRedirectUri } from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -20,28 +19,59 @@ import Title from "@/components/Title";
 import { AppleIcon, GoogleIcon } from "@/shared/svgs";
 
 const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
-const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.16:3002";
+const googleExpoRedirectUri = "https://auth.expo.io/@ghosty09/saveit";
+const googleExpoStartUri = "https://auth.expo.io/@ghosty09/saveit/start";
 
 const index = () => {
 	const queryClient = useQueryClient();
 	const [modalVisible, setModalVisible] = useState(false);
-	const [isLoading, _setIsLoading] = useState(false);
-	const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+	const [isLoading, setIsLoading] = useState(false);
+	const [request, response, promptAsync] = Google.useAuthRequest({
 		clientId: googleClientId,
-		iosClientId: iosClientId,
-		androidClientId: androidClientId,
-		redirectUri: makeRedirectUri({
-			native: "com.petartopic.etracker:/oauth2redirect/google",
-			scheme: "etracker",
-		}),
+		webClientId: googleClientId,
+		responseType: "token",
+		scopes: ["openid", "profile", "email"],
 	});
+
+	const handleGoogleSignIn = async () => {
+		if (!request?.url || !request.redirectUri) {
+			Alert.alert("Error", "Google sign-in is not ready yet. Please try again.");
+			return;
+		}
+
+		setIsLoading(true);
+
+		const authUrl = new URL(request.url);
+		authUrl.searchParams.set("redirect_uri", googleExpoRedirectUri);
+
+		const startUrl = `${googleExpoStartUri}?${new URLSearchParams({
+			authUrl: authUrl.toString(),
+			returnUrl: request.redirectUri,
+		}).toString()}`;
+
+		try {
+			await promptAsync({ url: startUrl });
+		} catch (error) {
+			console.error("Failed to open Google auth prompt:", error);
+			setIsLoading(false);
+			Alert.alert("Error", "Could not open Google sign in.");
+		}
+	};
 
 	useEffect(() => {
 		const handleAuthResponse = async () => {
 			if (response?.type === "success") {
-				const { access_token } = response.params;
+				const accessToken =
+					response.authentication?.accessToken ?? response.params?.access_token;
+
+				if (!accessToken) {
+					Alert.alert(
+						"Error",
+						"Google authentication did not return an access token.",
+					);
+					return;
+				}
 
 				try {
 					const apiResponse = await fetch(`${apiUrl}/auth/google`, {
@@ -50,22 +80,70 @@ const index = () => {
 							"Content-Type": "application/json",
 						},
 						body: JSON.stringify({
-							token: access_token,
+							token: accessToken,
 						}),
 					});
 
-					const data = await apiResponse.json();
-					if (data.token) {
+					const responseText = await apiResponse.text();
+					let data: { token?: string; message?: string } | null = null;
+
+					try {
+						data = responseText ? JSON.parse(responseText) : null;
+					} catch {
+						data = null;
+					}
+
+					if (!apiResponse.ok) {
+						console.error("Google auth API error", {
+							status: apiResponse.status,
+							body: responseText,
+						});
+						Alert.alert(
+							"Authentication failed",
+							data?.message ||
+								`Backend returned ${apiResponse.status}. Check console logs for details.`,
+						);
+						return;
+					}
+
+					const appToken = data?.token;
+
+					if (appToken) {
 						await queryClient.clear();
-						await AsyncStorage.setItem("accessToken", data.token);
+						await AsyncStorage.setItem("accessToken", appToken);
 						setModalVisible(false);
 						router.push("/");
 					} else {
-						Alert.alert("Error", "Authentication failed.");
+						console.error("Google auth succeeded without app token", {
+							body: responseText,
+						});
+						Alert.alert(
+							"Authentication failed",
+							data?.message || "No token returned by backend.",
+						);
 					}
-				} catch (_error) {
-					Alert.alert("Error", "An error occurred while exchanging the code.");
+				} catch (error) {
+					console.error("Google auth exchange failed:", error);
+					Alert.alert(
+						"Error",
+						"An error occurred while exchanging the code. Check console logs for details.",
+					);
+				} finally {
+					setIsLoading(false);
 				}
+			}
+
+			if (response?.type === "error") {
+				console.error("Google OAuth response error:", response.error);
+				setIsLoading(false);
+				Alert.alert(
+					"Google Login Failed",
+					response.error?.message ?? "Invalid OAuth request.",
+				);
+			}
+
+			if (response?.type === "dismiss" || response?.type === "cancel") {
+				setIsLoading(false);
 			}
 		};
 		handleAuthResponse();
@@ -94,7 +172,7 @@ const index = () => {
 						<>
 							<TouchableOpacity
 								className="w-full h-[50] bg-gray200 rounded-lg items-center justify-center"
-								onPress={() => promptAsync()}
+								onPress={handleGoogleSignIn}
 								disabled={!request || isLoading}
 							>
 								{isLoading ? (
@@ -114,7 +192,7 @@ const index = () => {
 
 					<TouchableOpacity
 						className="w-full h-[50] bg-gray200 rounded-lg items-center justify-center"
-						onPress={() => promptAsync()}
+						onPress={handleGoogleSignIn}
 						disabled={!request || isLoading}
 					>
 						{isLoading ? (
