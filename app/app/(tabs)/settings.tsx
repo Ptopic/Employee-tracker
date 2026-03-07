@@ -1,12 +1,10 @@
 import { View } from "react-native";
 import Text from "@/components/Text";
 
-const search = () => {
+export default function SettingsScreen() {
 	return (
 		<View className="flex-1 items-center justify-center">
-			<Text>Search</Text>
+			<Text>Settings</Text>
 		</View>
 	);
-};
-
-export default search;
+}
