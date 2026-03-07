@@ -12,8 +12,8 @@ async function bootstrap() {
 	app.useGlobalPipes(new ValidationPipe());
 
 	const config = new DocumentBuilder()
-		.setTitle("Scratch adventures api")
-		.setDescription("The API for the Scratch adventures project")
+		.setTitle("Employee Time Tracker API")
+		.setDescription("Backend API for manager-only employee scheduling and time tracking")
 		.addBearerAuth({
 			type: "http",
 			scheme: "bearer",

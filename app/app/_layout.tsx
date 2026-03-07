@@ -22,7 +22,7 @@ export const unstable_settings = {
 
 SplashScreen.preventAutoHideAsync();
 
-const appGroupIdentifier = "group.com.petartopic.saveit.data";
+const appGroupIdentifier = "group.com.ptopic.employeetimetracker.data";
 
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
@@ -93,7 +93,7 @@ function RootLayoutNav() {
 	useEffect(() => {
 		const handleDeepLink = (event: any) => {
 			const { url } = event;
-			if (url?.startsWith("saveit://")) {
+			if (url?.startsWith("employee-tracker://")) {
 				return;
 			}
 		};
@@ -117,11 +117,6 @@ function RootLayoutNav() {
 						}}
 					>
 						<Stack.Screen name="(tabs)" />
-						<Stack.Screen name="settings/index" />
-						<Stack.Screen name="profile/index" />
-						<Stack.Screen name="collection/[id]" />
-						<Stack.Screen name="collections/index" />
-						<Stack.Screen name="category/[slug]" />
 						<Stack.Screen name="getStarted/index" />
 					</Stack>
 				</GestureHandlerRootView>
