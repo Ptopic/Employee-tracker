@@ -12,8 +12,8 @@ async function bootstrap() {
 	app.useGlobalPipes(new ValidationPipe());
 
 	const config = new DocumentBuilder()
-		.setTitle("Employee Time Tracker API")
-		.setDescription("Backend API for manager-only employee scheduling and time tracking")
+		.setTitle("saveit API")
+		.setDescription("Backend API for saveit manager scheduling and time tracking")
 		.addBearerAuth({
 			type: "http",
 			scheme: "bearer",

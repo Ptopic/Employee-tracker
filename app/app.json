@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "Employee Time Tracker",
-    "slug": "employee-time-tracker",
+    "name": "saveit",
+    "slug": "saveit",
     "owner": "ptopic",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "employee-tracker",
+    "scheme": "saveit",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -39,7 +39,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Employee Time Tracker to access photos for company logo upload."
+          "photosPermission": "Allow saveit to access photos for company logo upload."
         }
       ]
     ],

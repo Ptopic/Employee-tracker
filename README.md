@@ -1,6 +1,6 @@
-# Employee Tracker
+# saveit
 
-Monorepo for the **Employee Time Management App (Manager-Only)**.
+Monorepo for the manager-only employee time management app.
 
 ## Current setup (PTO-257)
 
@@ -11,7 +11,7 @@ This branch establishes the project foundation:
   - `Employee`
   - `Shift`
   - `ShiftAssignment`
-- Mobile app identity renamed from legacy template values to Employee Tracker values.
+- Mobile app identity normalized to saveit values.
 - Router stack cleaned to only include currently available routes.
 
 ## Repository structure

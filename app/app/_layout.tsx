@@ -22,7 +22,7 @@ export const unstable_settings = {
 
 SplashScreen.preventAutoHideAsync();
 
-const appGroupIdentifier = "group.com.ptopic.employeetimetracker.data";
+const appGroupIdentifier = "group.com.petartopic.saveit.data";
 
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
@@ -93,7 +93,7 @@ function RootLayoutNav() {
 	useEffect(() => {
 		const handleDeepLink = (event: any) => {
 			const { url } = event;
-			if (url?.startsWith("employee-tracker://")) {
+			if (url?.startsWith("saveit://")) {
 				return;
 			}
 		};
