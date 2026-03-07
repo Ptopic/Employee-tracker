@@ -1,12 +1,12 @@
 {
 	"expo": {
-		"name": "etracker",
-		"slug": "etracker",
+		"name": "saveit",
+		"slug": "saveit",
 		"owner": "ghosty09",
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
-		"scheme": "etracker",
+		"scheme": "saveit",
 		"userInterfaceStyle": "automatic",
 		"newArchEnabled": true,
 		"splash": {
@@ -16,7 +16,7 @@
 		},
 		"ios": {
 			"supportsTablet": true,
-			"bundleIdentifier": "com.petartopic.etracker",
+			"bundleIdentifier": "com.petartopic.saveit",
 			"infoPlist": {
 				"NSAppTransportSecurity": {
 					"NSAllowsArbitraryLoads": true
@@ -37,7 +37,7 @@
 				"android.permission.ACCESS_FINE_LOCATION",
 				"android.permission.RECORD_AUDIO"
 			],
-			"package": "com.petartopic.etracker",
+			"package": "com.petartopic.saveit",
 			"usesCleartextTraffic": true
 		},
 		"web": {
@@ -50,7 +50,7 @@
 			[
 				"expo-location",
 				{
-					"locationAlwaysAndWhenInUsePermission": "Allow etracker to use your location."
+					"locationAlwaysAndWhenInUsePermission": "Allow saveit to use your location."
 				}
 			],
 			[

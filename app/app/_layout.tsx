@@ -5,7 +5,7 @@ import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
-import { Alert, Linking, StatusBar } from "react-native";
+import { Linking, StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
 import SharedGroupPreferences from "react-native-shared-group-preferences";
@@ -22,7 +22,7 @@ export const unstable_settings = {
 
 SplashScreen.preventAutoHideAsync();
 
-const appGroupIdentifier = "group.com.petartopic.etracker.data";
+const appGroupIdentifier = "group.com.petartopic.saveit.data";
 
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
