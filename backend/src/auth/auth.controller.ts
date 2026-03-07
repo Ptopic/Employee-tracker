@@ -18,16 +18,11 @@ export class AuthController {
 	// }
 
 	@Post("google")
-	async googleLogin(
-		@Body() body: { token: string; pushNotificationId: string },
-	) {
+	async googleLogin(@Body() body: { token: string }) {
 		if (!body.token) {
 			throw new Error("Authorization code is missing");
 		}
-		return this.authService.verifyGoogleToken(
-			body.token,
-			body.pushNotificationId,
-		);
+		return this.authService.verifyGoogleToken(body.token);
 	}
 
 	@Get("me")

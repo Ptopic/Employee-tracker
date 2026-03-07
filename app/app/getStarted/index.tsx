@@ -13,7 +13,6 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { OneSignal } from "react-native-onesignal";
 import Button from "@/components/Button";
 import ModalComponent from "@/components/ModalComponent";
 import Text from "@/components/Text";
@@ -44,9 +43,6 @@ const index = () => {
 			if (response?.type === "success") {
 				const { access_token } = response.params;
 
-				const pushNotificationId =
-					await OneSignal.User.pushSubscription.getIdAsync();
-
 				try {
 					const apiResponse = await fetch(`${apiUrl}/auth/google`, {
 						method: "POST",
@@ -55,7 +51,6 @@ const index = () => {
 						},
 						body: JSON.stringify({
 							token: access_token,
-							pushNotificationId,
 						}),
 					});
 
