@@ -1,12 +1,10 @@
 import { View } from "react-native";
 import Text from "@/components/Text";
 
-const add = () => {
+export default function CalendarScreen() {
 	return (
 		<View className="flex-1 items-center justify-center">
-			<Text>Add</Text>
+			<Text>Calendar</Text>
 		</View>
 	);
-};
-
-export default add;
+}

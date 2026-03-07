@@ -1,12 +1,10 @@
 import { View } from "react-native";
 import Text from "@/components/Text";
 
-const index = () => {
+export default function HomeScreen() {
 	return (
 		<View className="flex-1 items-center justify-center">
-			<Text>index</Text>
+			<Text>Home</Text>
 		</View>
 	);
-};
-
-export default index;
+}

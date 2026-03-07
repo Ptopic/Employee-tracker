@@ -117,11 +117,6 @@ function RootLayoutNav() {
 						}}
 					>
 						<Stack.Screen name="(tabs)" />
-						<Stack.Screen name="settings/index" />
-						<Stack.Screen name="profile/index" />
-						<Stack.Screen name="collection/[id]" />
-						<Stack.Screen name="collections/index" />
-						<Stack.Screen name="category/[slug]" />
 						<Stack.Screen name="getStarted/index" />
 					</Stack>
 				</GestureHandlerRootView>

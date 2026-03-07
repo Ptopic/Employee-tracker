@@ -1,134 +1,53 @@
-import { useQueryClient } from "@tanstack/react-query";
-import { Tabs, usePathname } from "expo-router";
-import { useEffect, useRef, useState } from "react";
-import { AppState, type AppStateStatus, Pressable } from "react-native";
-import { useToast } from "react-native-toast-notifications";
-import { IMPORTS, LOCATIONS } from "@/api/constants";
-import {
-	BookmarkIcon,
-	MapPinFullIcon,
-	MapPinIcon,
-	PlusIcon,
-	SearchIcon,
-	UserIcon,
-} from "@/shared/svgs";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Tabs } from "expo-router";
 
 export default function TabLayout() {
-	const _toast = useToast();
-	const _pathname = usePathname();
-	const queryClient = useQueryClient();
-	const [_sharedUrlData, _setSharedUrlData] = useState<string | null>(null);
-	const [isAppRefocused, setIsAppRefocused] = useState(false);
-
-	const appState = useRef(AppState.currentState);
-
-	useEffect(() => {
-		const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-			if (
-				appState.current.match(/inactive|background/) &&
-				nextAppState === "active"
-			) {
-				setIsAppRefocused(true);
-			}
-
-			appState.current = nextAppState;
-		};
-
-		const subscription = AppState.addEventListener(
-			"change",
-			handleAppStateChange,
-		);
-
-		return () => {
-			subscription.remove();
-		};
-	}, []);
-
-	useEffect(() => {
-		if (isAppRefocused) {
-			queryClient.invalidateQueries({
-				queryKey: [IMPORTS, "6", "", ""],
-			});
-			queryClient.invalidateQueries({
-				queryKey: [LOCATIONS],
-			});
-			setIsAppRefocused(false); // Reset the flag after handling
-		}
-	}, [isAppRefocused, queryClient]);
-
-	const [modalVisible, setModalVisible] = useState(false);
-
 	return (
 		<Tabs
 			screenOptions={{
 				tabBarActiveTintColor: "black",
-				// Disable the static render of the header on web
-				// to prevent a hydration error in React Navigation v6.
 				headerShown: false,
-				tabBarShowLabel: false,
+				tabBarShowLabel: true,
 				tabBarStyle: {
 					backgroundColor: "white",
-					// borderTopColor: 'white',
-					paddingTop: 15,
+					paddingTop: 8,
+					height: 64,
 				},
 			}}
 		>
 			<Tabs.Screen
 				name="index"
 				options={{
-					tabBarIcon: ({ color, focused }) => (
-						<BookmarkIcon
-							color={color}
-							width={26}
-							height={26}
-							fill={focused ? "black" : "none"}
-						/>
-					),
-				}}
-			/>
-			<Tabs.Screen
-				name="map"
-				options={{
-					tabBarIcon: ({ color, focused }) =>
-						focused ? (
-							<MapPinFullIcon color={color} width={28} height={28} />
-						) : (
-							<MapPinIcon color={color} width={28} height={28} />
-						),
-				}}
-			/>
-			<Tabs.Screen
-				name="add"
-				options={{
-					tabBarIcon: () => <PlusIcon color="white" width={24} height={24} />,
-					tabBarButton: (props) => (
-						<Pressable
-							{...props}
-							onPress={() => {
-								setModalVisible(!modalVisible);
-							}}
-						/>
-					),
-				}}
-			/>
-			<Tabs.Screen
-				name="search"
-				options={{
+					title: "Home",
 					tabBarIcon: ({ color }) => (
-						<SearchIcon color={color} width={26} height={26} />
+						<FontAwesome name="home" size={20} color={color} />
 					),
 				}}
 			/>
 			<Tabs.Screen
-				name="user"
+				name="calendar"
 				options={{
-					tabBarIcon: ({ color, focused }) => (
-						<UserIcon
-							color={color}
-							width={26}
-							height={26}
-							fill={focused ? "black" : "none"}
-						/>
+					title: "Calendar",
+					tabBarIcon: ({ color }) => (
+						<FontAwesome name="calendar" size={20} color={color} />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="employees"
+				options={{
+					title: "Employees",
+					tabBarIcon: ({ color }) => (
+						<FontAwesome name="users" size={20} color={color} />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="settings"
+				options={{
+					title: "Settings",
+					tabBarIcon: ({ color }) => (
+						<FontAwesome name="cog" size={20} color={color} />
 					),
 				}}
 			/>
