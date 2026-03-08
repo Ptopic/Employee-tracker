@@ -12,70 +12,83 @@ enum EmployeeStatus {
   INACTIVE
 }
 
-model Manager {
-  id           String   @id @default(uuid())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  googleAuthId String   @unique @map("google_auth_id")
-  email        String   @unique
-  fullName     String   @map("full_name")
-  companyName  String?  @map("company_name")
+  email     String  @unique
+  // password String
+  fullName  String
+  picture   String?
+  pictureId String?
+  country   String?
+}
+
+model Manager {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  googleAuthId String  @unique @map("google_auth_id")
+  email        String  @unique
+  fullName     String  @map("full_name")
+  companyName  String? @map("company_name")
   preferences  Json?
 
-  employees    Employee[]
-  shifts       Shift[]
+  employees Employee[]
+  shifts    Shift[]
 
   @@map("managers")
 }
 
 model Employee {
-  id           String         @id @default(uuid())
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  managerId    String         @map("manager_id")
-  firstName    String         @map("first_name")
-  lastName     String         @map("last_name")
-  age          Int
-  hourlyRate   Decimal        @db.Decimal(10, 2) @map("hourly_rate")
-  status       EmployeeStatus @default(ACTIVE)
+  managerId  String         @map("manager_id")
+  firstName  String         @map("first_name")
+  lastName   String         @map("last_name")
+  age        Int
+  hourlyRate Decimal        @map("hourly_rate") @db.Decimal(10, 2)
+  status     EmployeeStatus @default(ACTIVE)
 
-  manager      Manager        @relation(fields: [managerId], references: [id], onDelete: Cascade)
-  assignments  ShiftAssignment[]
+  manager     Manager           @relation(fields: [managerId], references: [id], onDelete: Cascade)
+  assignments ShiftAssignment[]
 
   @@index([managerId])
   @@map("employees")
 }
 
 model Shift {
-  id           String   @id @default(uuid())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  managerId    String   @map("manager_id")
-  date         DateTime @db.Date
-  startTime    DateTime @map("start_time") @db.Time
-  endTime      DateTime @map("end_time") @db.Time
+  managerId String   @map("manager_id")
+  date      DateTime @db.Date
+  startTime DateTime @map("start_time") @db.Time
+  endTime   DateTime @map("end_time") @db.Time
 
-  manager      Manager  @relation(fields: [managerId], references: [id], onDelete: Cascade)
-  assignments  ShiftAssignment[]
+  manager     Manager           @relation(fields: [managerId], references: [id], onDelete: Cascade)
+  assignments ShiftAssignment[]
 
   @@index([managerId, date])
   @@map("shifts")
 }
 
 model ShiftAssignment {
-  id              String   @id @default(uuid())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  shiftId         String   @map("shift_id")
-  employeeId      String   @map("employee_id")
-  calculatedHours Decimal  @db.Decimal(5, 2) @map("calculated_hours")
+  shiftId         String  @map("shift_id")
+  employeeId      String  @map("employee_id")
+  calculatedHours Decimal @map("calculated_hours") @db.Decimal(5, 2)
 
-  shift           Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
-  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  shift    Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@unique([shiftId, employeeId])
   @@index([employeeId])
