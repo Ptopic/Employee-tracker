@@ -1,5 +1,4 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
@@ -10,6 +9,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
 import SharedGroupPreferences from "react-native-shared-group-preferences";
 import { getQueryClient } from "@/shared/queryClient";
+import { secureStorage } from "@/shared/secureStorage";
 import { CustomToastProvider } from "@/utils/toast";
 import "react-native-reanimated";
 import "../global.css";
@@ -57,12 +57,11 @@ function RootLayoutNav() {
 
 	useEffect(() => {
 		const getToken = async () => {
-			const token = await AsyncStorage.getItem("accessToken");
+			const token = await secureStorage.getAccessToken();
 
 			setIsLoading(false);
 			setAccessToken(token);
 
-			log.info("[Main App] Token from AsyncStorage:", token);
 
 			try {
 				await SharedGroupPreferences.setItem(

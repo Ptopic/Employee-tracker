@@ -7,6 +7,18 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 
+	const expressApp = app.getHttpAdapter().getInstance();
+	expressApp.set("trust proxy", 1);
+	app.use((req, res, next) => {
+		const isProduction = process.env.NODE_ENV === "production";
+		if (isProduction && req.protocol !== "https") {
+			return res.status(400).json({
+				message: "HTTPS is required",
+			});
+		}
+		next();
+	});
+
 	app.enableCors();
 	app.use(json({ limit: "50mb" }));
 	app.useGlobalPipes(new ValidationPipe());
