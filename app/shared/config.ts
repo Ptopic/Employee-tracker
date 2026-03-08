@@ -1,4 +1,6 @@
+import Constants from "expo-constants";
+
 export const config = {
-	apiUrl: process.env.EXPO_PUBLIC_API_URL!,
-	clientUrl: process.env.EXPO_PUBLIC_CLIENT_URL!,
+	apiUrl: Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL || "",
+	clientUrl: Constants.expoConfig?.extra?.EXPO_PUBLIC_CLIENT_URL || "",
 };

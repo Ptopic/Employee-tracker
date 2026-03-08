@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import * as Google from "expo-auth-session/providers/google";
 import { router } from "expo-router";
+import Constants from "expo-constants";
 import { useEffect, useMemo, useState } from "react";
 import {
 	ActivityIndicator,
@@ -17,8 +18,8 @@ import Title from "@/components/Title";
 import { saveSessionTokens } from "@/shared/auth";
 import { GoogleIcon } from "@/shared/svgs";
 
-const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+const googleClientId = Constants.expoConfig?.extra?.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "";
+const apiUrl = Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL || "";
 
 const googleExpoRedirectUri = "https://auth.expo.io/@ghosty09/saveit";
 const googleExpoStartUri = "https://auth.expo.io/@ghosty09/saveit/start";
