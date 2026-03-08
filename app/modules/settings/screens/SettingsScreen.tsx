@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, ScrollView, TextInput, View } from "react-native";
+import { Alert, Pressable, SafeAreaView, ScrollView, TextInput, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -147,9 +147,50 @@ export function SettingsScreen() {
 		]);
 	};
 
+	const handleSaveAll = async () => {
+		setErrorText(null);
+		
+		let successCount = 0;
+		
+		if (companyName || logoUrl) {
+			const companySaved = await saveCompany.mutateAsync({ companyName, logoUrl });
+			if (companySaved) {
+				successCount++;
+			}
+		}
+		
+		const preferencesPayload = { timeFormat, firstDayOfWeek };
+		const preferencesSaved = await savePreferences.mutateAsync(preferencesPayload);
+		if (preferencesSaved) {
+			successCount++;
+		}
+		
+		if (successCount > 0) {
+			setCompanyName(companyQuery.data?.companyName ?? "");
+			setLogoUrl(companyQuery.data?.logoUrl ?? "");
+			setPreferences(preferencesPayload);
+			Alert.alert(
+				"Settings Saved",
+				"Company settings and preferences have been saved successfully.",
+				[{ text: "OK" }]
+			);
+		} else {
+			setErrorText("Could not save settings. Please try again.");
+		}
+	};
+
 	return (
 		<ScrollView className="flex-1 bg-gray-100" contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-			<Text className="text-2xl font-bold mb-4">Settings & Preferences</Text>
+			<View className="flex-row items-center justify-between mb-4">
+				<Text className="text-2xl font-bold">Settings & Preferences</Text>
+				<Pressable
+					className="rounded-lg bg-black py-3 px-6 items-center"
+					onPress={handleSaveAll}
+					disabled={isBusy}
+				>
+					<Text className="text-white font-semibold">Save All</Text>
+				</Pressable>
+			</View>
 
 			<SettingsSection title="Company Settings">
 				<Text className="text-gray-700 mb-2">Company name</Text>
