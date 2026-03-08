@@ -1,14 +1,20 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
-import { Linking, StatusBar } from "react-native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Linking, StatusBar, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
 import SharedGroupPreferences from "react-native-shared-group-preferences";
+import {
+	clearSessionTokens,
+	getAccessToken,
+	getRefreshToken,
+	saveSessionTokens,
+} from "@/shared/auth";
+import { config } from "@/shared/config";
 import { getQueryClient } from "@/shared/queryClient";
 import { AppStateProvider } from "@/shared/state/app-state";
 import { CustomToastProvider } from "@/utils/toast";
@@ -51,45 +57,96 @@ export default function RootLayout() {
 const queryClient = getQueryClient();
 
 function RootLayoutNav() {
-	const [accessToken, setAccessToken] = React.useState<string | null>(null);
-	const [isLoading, setIsLoading] = React.useState(true);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-	var log = logger.createLogger();
+	const log = logger.createLogger();
+
+	const restoreSession = async () => {
+		const accessToken = await getAccessToken();
+		const refreshToken = await getRefreshToken();
+
+		if (!accessToken && !refreshToken) {
+			setIsAuthenticated(false);
+			setIsLoading(false);
+			return;
+		}
+
+		const validate = async (token: string) => {
+			const response = await fetch(`${config.apiUrl}/auth/session`, {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			if (!response.ok) {
+				return null;
+			}
+
+			return response.json();
+		};
+
+		if (accessToken) {
+			const validSession = await validate(accessToken);
+			if (validSession) {
+				setIsAuthenticated(true);
+				setIsLoading(false);
+				return;
+			}
+		}
+
+		if (refreshToken) {
+			try {
+				const refreshResponse = await fetch(`${config.apiUrl}/auth/refresh`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ refreshToken }),
+				});
+
+				if (!refreshResponse.ok) {
+					throw new Error("refresh failed");
+				}
+
+				const refreshData = await refreshResponse.json();
+				await saveSessionTokens(refreshData.accessToken, refreshData.refreshToken);
+				setIsAuthenticated(true);
+			} catch (error) {
+				log.error("[Auth] Session refresh failed", error);
+				await clearSessionTokens();
+				setIsAuthenticated(false);
+			}
+		}
+
+		setIsLoading(false);
+	};
 
 	useEffect(() => {
-		const getToken = async () => {
-			const token = await AsyncStorage.getItem("accessToken");
+		restoreSession();
+	}, []);
 
-			setIsLoading(false);
-			setAccessToken(token);
-
-			log.info("[Main App] Token from AsyncStorage:", token);
-
+	useEffect(() => {
+		const syncTokenToAppGroup = async () => {
+			const token = (await getAccessToken()) || "";
 			try {
 				await SharedGroupPreferences.setItem(
 					"accessToken",
-					token || "",
+					token,
 					appGroupIdentifier,
 				);
-				log.info("[Main App] Token saved to App Group:", token);
 			} catch (error) {
 				log.error("[Main App] Error saving to App Group:", error);
 			}
 		};
 
-		getToken();
-	}, [log.error, log.info]);
+		syncTokenToAppGroup();
+	}, [isAuthenticated, log]);
 
 	useEffect(() => {
 		if (isLoading) return;
-
-		if (!accessToken) {
-			router.navigate("/getStarted" as any);
-		} else {
-			// PROD: router.navigate('/' as any);
-			router.navigate("/" as any);
-		}
-	}, [accessToken, isLoading]);
+		router.replace(isAuthenticated ? "/" : "/getStarted");
+	}, [isAuthenticated, isLoading]);
 
 	useEffect(() => {
 		const handleDeepLink = (event: any) => {
@@ -100,11 +157,16 @@ function RootLayoutNav() {
 		};
 
 		const subscription = Linking.addEventListener("url", handleDeepLink);
-
-		return () => {
-			subscription.remove();
-		};
+		return () => subscription.remove();
 	}, []);
+
+	if (isLoading) {
+		return (
+			<View className="flex-1 items-center justify-center bg-white">
+				<ActivityIndicator size="large" color="black" />
+			</View>
+		);
+	}
 
 	return (
 		<CustomToastProvider>
