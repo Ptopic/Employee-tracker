@@ -7,6 +7,7 @@ import { ScheduleModule } from "./schedule/schedule.module";
 import { ShiftAssignmentsModule } from "./shift-assignments/shift-assignments.module";
 import { ShiftsModule } from "./shifts/shifts.module";
 import { StatsModule } from "./stats/stats.module";
+import { SettingsModule } from "./settings/settings.module";
 
 @Module({
 	imports: [
@@ -18,6 +19,7 @@ import { StatsModule } from "./stats/stats.module";
 		ShiftAssignmentsModule,
 		StatsModule,
 		ScheduleModule,
+		SettingsModule,
 	],
 })
 export class AppModule {}

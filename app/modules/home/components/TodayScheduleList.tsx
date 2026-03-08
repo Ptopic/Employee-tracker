@@ -1,22 +1,20 @@
 import { View } from "react-native";
 import Text from "@/components/Text";
 import type { TodayShift } from "@/api/home/types";
+import { usePreferencesState } from "@/shared/state/preferences-state";
+import { formatTime } from "@/utils/datetime";
 
 type TodayScheduleListProps = {
 	shifts: TodayShift[];
 	isLoading?: boolean;
 };
 
-const formatTimeRange = (startTime: string, endTime: string) => {
-	const start = new Date(startTime);
-	const end = new Date(endTime);
-
-	const formatter = new Intl.DateTimeFormat("en-US", {
-		hour: "numeric",
-		minute: "2-digit",
-	});
-
-	return `${formatter.format(start)} - ${formatter.format(end)}`;
+const formatTimeRange = (
+	startTime: string,
+	endTime: string,
+	timeFormat: "12h" | "24h",
+) => {
+	return `${formatTime(startTime, timeFormat)} - ${formatTime(endTime, timeFormat)}`;
 };
 
 const formatEmployeeNames = (shift: TodayShift) => {
@@ -32,6 +30,8 @@ const formatEmployeeNames = (shift: TodayShift) => {
 };
 
 export function TodayScheduleList({ shifts, isLoading }: TodayScheduleListProps) {
+	const { timeFormat } = usePreferencesState();
+
 	return (
 		<View className="mb-5">
 			<Text className="text-lg font-semibold mb-3">Today's Schedule</Text>
@@ -55,7 +55,7 @@ export function TodayScheduleList({ shifts, isLoading }: TodayScheduleListProps)
 								className="rounded-xl bg-white border border-gray-200 p-4"
 							>
 								<Text className="font-semibold text-black mb-2">
-									{formatTimeRange(shift.startTime, shift.endTime)}
+									{formatTimeRange(shift.startTime, shift.endTime, timeFormat)}
 								</Text>
 								<View className="gap-1">
 									{names.map((name) => (

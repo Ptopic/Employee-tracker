@@ -2,14 +2,15 @@ import { useLocalSearchParams, router } from "expo-router";
 import { Pressable, ScrollView, View } from "react-native";
 import { useDaySchedule, useDeleteShift } from "@/api/shifts/hooks";
 import Text from "@/components/Text";
-
-const formatTime = (value: string) => value.slice(0, 5);
+import { usePreferencesState } from "@/shared/state/preferences-state";
+import { formatTime } from "@/utils/datetime";
 
 export function DayScheduleScreen() {
 	const { date } = useLocalSearchParams<{ date: string }>();
 	const day = date || new Date().toISOString().slice(0, 10);
 	const dayScheduleQuery = useDaySchedule(day);
 	const deleteShiftMutation = useDeleteShift();
+	const { timeFormat } = usePreferencesState();
 
 	return (
 		<View className="flex-1 bg-gray-100">
@@ -20,7 +21,7 @@ export function DayScheduleScreen() {
 				{(dayScheduleQuery.data?.shifts ?? []).map((shift) => (
 					<View key={shift.id} className="rounded-xl bg-white border border-gray-200 p-4 mb-3">
 						<Text className="font-semibold mb-2">
-							{formatTime(shift.startTime)}–{formatTime(shift.endTime)}
+							{formatTime(shift.startTime, timeFormat)}–{formatTime(shift.endTime, timeFormat)}
 						</Text>
 
 						<View className="flex-row flex-wrap gap-2 mb-3">

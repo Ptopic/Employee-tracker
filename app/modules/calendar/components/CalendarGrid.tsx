@@ -1,6 +1,8 @@
 import { View } from "react-native";
 import type { CalendarDaySummary } from "@/api/shifts/types";
 import Text from "@/components/Text";
+import { usePreferencesState } from "@/shared/state/preferences-state";
+import { buildWeekDays, dayIndexForWeekStart } from "@/utils/datetime";
 import { CalendarDayCell } from "./CalendarDayCell";
 
 type Props = {
@@ -10,13 +12,13 @@ type Props = {
 	onLongPressDay: (dayIso: string) => void;
 };
 
-const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 export function CalendarGrid({ monthDate, summary, onPressDay, onLongPressDay }: Props) {
+	const { firstDayOfWeek } = usePreferencesState();
 	const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-	const startOffset = firstDay.getDay();
+	const startOffset = dayIndexForWeekStart(firstDay, firstDayOfWeek);
+	const weekDays = buildWeekDays(firstDayOfWeek);
 	const gridStart = new Date(firstDay);
 	gridStart.setDate(firstDay.getDate() - startOffset);
 

@@ -17,6 +17,8 @@ import {
 import { config } from "@/shared/config";
 import { getQueryClient } from "@/shared/queryClient";
 import { AppStateProvider } from "@/shared/state/app-state";
+import { PreferencesBootstrap } from "@/shared/state/PreferencesBootstrap";
+import { PreferencesProvider } from "@/shared/state/preferences-state";
 import { CustomToastProvider } from "@/utils/toast";
 import "react-native-reanimated";
 import "../global.css";
@@ -172,18 +174,21 @@ function RootLayoutNav() {
 		<CustomToastProvider>
 			<QueryClientProvider client={queryClient}>
 				<AppStateProvider>
-					<StatusBar barStyle="dark-content" backgroundColor="white" />
-					<GestureHandlerRootView>
-						<Stack
+					<PreferencesProvider>
+						<PreferencesBootstrap />
+						<StatusBar barStyle="dark-content" backgroundColor="white" />
+						<GestureHandlerRootView>
+							<Stack
 							screenOptions={{
 								headerShown: false,
 								contentStyle: { backgroundColor: "white" },
 							}}
 						>
 							<Stack.Screen name="(tabs)" />
-							<Stack.Screen name="getStarted/index" />
-						</Stack>
-					</GestureHandlerRootView>
+								<Stack.Screen name="getStarted/index" />
+							</Stack>
+						</GestureHandlerRootView>
+					</PreferencesProvider>
 				</AppStateProvider>
 			</QueryClientProvider>
 		</CustomToastProvider>

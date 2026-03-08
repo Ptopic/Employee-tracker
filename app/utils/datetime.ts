@@ -1,0 +1,31 @@
+import type { FirstDayOfWeek, TimeFormat } from "@/api/settings/types";
+
+export const formatTime = (value: string, format: TimeFormat) => {
+	const [hoursRaw, minutesRaw] = value.slice(0, 5).split(":");
+	const hours = Number(hoursRaw);
+	const minutes = Number(minutesRaw);
+
+	if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+		return value;
+	}
+
+	if (format === "24h") {
+		return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+	}
+
+	const period = hours >= 12 ? "PM" : "AM";
+	const normalized = hours % 12 === 0 ? 12 : hours % 12;
+	return `${normalized}:${String(minutes).padStart(2, "0")} ${period}`;
+};
+
+export const buildWeekDays = (firstDayOfWeek: FirstDayOfWeek) => {
+	const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+	return firstDayOfWeek === "Monday"
+		? [...days.slice(1), days[0]]
+		: days;
+};
+
+export const dayIndexForWeekStart = (date: Date, firstDayOfWeek: FirstDayOfWeek) => {
+	const day = date.getDay();
+	return firstDayOfWeek === "Monday" ? (day + 6) % 7 : day;
+};
