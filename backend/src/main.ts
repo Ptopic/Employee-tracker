@@ -1,4 +1,6 @@
 import { ValidationPipe } from "@nestjs/common";
+import { AllExceptionsFilter } from "./common/filters/http-exception.filter";
+import { PerformanceInterceptor } from "./common/interceptors/performance.interceptor";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { json } from "express";
@@ -7,9 +9,15 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 
-	app.enableCors();
-	app.use(json({ limit: "50mb" }));
-	app.useGlobalPipes(new ValidationPipe());
+	app.enableCors({
+		origin: process.env.CLIENT_URL?.split(",") || true,
+		methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+		credentials: true,
+	});
+	app.use(json({ limit: "5mb" }));
+	app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
+	app.useGlobalFilters(new AllExceptionsFilter());
+	app.useGlobalInterceptors(new PerformanceInterceptor());
 
 	const config = new DocumentBuilder()
 		.setTitle("saveit API")

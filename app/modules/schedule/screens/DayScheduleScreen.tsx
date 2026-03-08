@@ -1,5 +1,5 @@
 import { useLocalSearchParams, router } from "expo-router";
-import { Pressable, ScrollView, View } from "react-native";
+import { Alert, Pressable, ScrollView, View } from "react-native";
 import { useDaySchedule, useDeleteShift } from "@/api/shifts/hooks";
 import Text from "@/components/Text";
 import { usePreferencesState } from "@/shared/state/preferences-state";
@@ -11,6 +11,13 @@ export function DayScheduleScreen() {
 	const dayScheduleQuery = useDaySchedule(day);
 	const deleteShiftMutation = useDeleteShift();
 	const { timeFormat } = usePreferencesState();
+
+	const confirmDelete = (shiftId: string) => {
+		Alert.alert("Delete shift", "This action cannot be undone.", [
+			{ text: "Cancel", style: "cancel" },
+			{ text: "Delete", style: "destructive", onPress: () => deleteShiftMutation.mutate(shiftId) },
+		]);
+	};
 
 	return (
 		<View className="flex-1 bg-gray-100">
@@ -53,7 +60,7 @@ export function DayScheduleScreen() {
 							</Pressable>
 							<Pressable
 								className="flex-1 rounded-lg bg-red-100 py-2 items-center"
-								onPress={() => deleteShiftMutation.mutate(shift.id)}
+								onPress={() => confirmDelete(shift.id)}
 							>
 								<Text className="text-red-700">Delete</Text>
 							</Pressable>

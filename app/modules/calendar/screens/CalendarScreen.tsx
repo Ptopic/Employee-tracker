@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { router } from "expo-router";
-import { useMonthShifts } from "@/api/shifts/hooks";
+import { useQueryClient } from "@tanstack/react-query";
+import { SHIFTS_MONTH, useMonthShifts } from "@/api/shifts/hooks";
 import shiftsRequests from "@/api/shifts/requests";
 import Text from "@/components/Text";
+import { measurePerformance } from "@/shared/performance/monitor";
 import { CalendarGrid } from "../components/CalendarGrid";
 import { MonthNavigator } from "../components/MonthNavigator";
 
@@ -23,6 +25,7 @@ export function CalendarScreen() {
 	);
 
 	const monthShiftsQuery = useMonthShifts(toIsoDate(monthStart), toIsoDate(monthEnd));
+	const queryClient = useQueryClient();
 	const summary = useMemo(
 		() =>
 			shiftsRequests.buildCalendarSummary(
@@ -32,6 +35,26 @@ export function CalendarScreen() {
 			),
 		[monthShiftsQuery.data, monthStart, monthEnd],
 	);
+
+	useEffect(() => {
+		measurePerformance("calendar-summary-render", async () => summary);
+	}, [summary]);
+
+	useEffect(() => {
+		const prevMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() - 1, 1);
+		const nextMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1);
+		const prevEnd = new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1, 0);
+		const nextEnd = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0);
+
+		queryClient.prefetchQuery({
+			queryKey: [SHIFTS_MONTH, toIsoDate(prevMonth), toIsoDate(prevEnd)],
+			queryFn: () => shiftsRequests.getMonthSummary(toIsoDate(prevMonth), toIsoDate(prevEnd)),
+		});
+		queryClient.prefetchQuery({
+			queryKey: [SHIFTS_MONTH, toIsoDate(nextMonth), toIsoDate(nextEnd)],
+			queryFn: () => shiftsRequests.getMonthSummary(toIsoDate(nextMonth), toIsoDate(nextEnd)),
+		});
+	}, [monthDate, queryClient]);
 
 	return (
 		<ScrollView className="flex-1 bg-gray-100" contentContainerStyle={{ padding: 16 }}>
@@ -51,6 +74,9 @@ export function CalendarScreen() {
 
 			{monthShiftsQuery.isLoading ? (
 				<Text className="text-gray-500 mb-3">Loading calendar...</Text>
+			) : null}
+			{monthShiftsQuery.isError ? (
+				<Text className="text-red-600 mb-3">Failed to load calendar. Pull to retry.</Text>
 			) : null}
 
 			<CalendarGrid

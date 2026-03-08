@@ -1,6 +1,9 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AuthModule } from "./auth/auth.module";
+import { PerformanceController } from "./common/performance.controller";
+import { RateLimitMiddleware } from "./common/rate-limit.middleware";
+import { SecurityHeadersMiddleware } from "./common/security.middleware";
 import { EmployeesModule } from "./employees/employees.module";
 import { ExportModule } from "./export/export.module";
 import { ManagersModule } from "./managers/managers.module";
@@ -13,7 +16,7 @@ import { StatsModule } from "./stats/stats.module";
 import { UsersModule } from "./users/users.module";
 
 @Module({
-	controllers: [AppController],
+	controllers: [AppController, PerformanceController],
 	imports: [
 		PrismaModule,
 		AuthModule,
@@ -28,4 +31,10 @@ import { UsersModule } from "./users/users.module";
 		SettingsModule,
 	],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+	configure(consumer: MiddlewareConsumer) {
+		consumer
+			.apply(SecurityHeadersMiddleware, RateLimitMiddleware)
+			.forRoutes("*");
+	}
+}

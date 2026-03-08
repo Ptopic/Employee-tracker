@@ -6,6 +6,7 @@ import {
 	getRefreshToken,
 	saveSessionTokens,
 } from "@/shared/auth";
+import { secureFetchJson } from "@/shared/security/network";
 
 const refreshAccessToken = async () => {
 	const refreshToken = await getRefreshToken();
@@ -14,17 +15,18 @@ const refreshAccessToken = async () => {
 		return null;
 	}
 
-	const refreshResponse = await fetch(`${config.apiUrl}/auth/refresh`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ refreshToken }),
-	});
+	const refreshed = await secureFetchJson<{ accessToken: string; refreshToken: string }>(
+		`${config.apiUrl}/auth/refresh`,
+		{
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ refreshToken }),
+		},
+	);
 
-	if (!refreshResponse.ok) {
+	if (!refreshed) {
 		return null;
 	}
-
-	const refreshed = await refreshResponse.json();
 	if (!refreshed?.accessToken || !refreshed?.refreshToken) {
 		return null;
 	}

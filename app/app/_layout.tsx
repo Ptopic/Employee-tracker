@@ -13,6 +13,7 @@ import {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
 import SharedGroupPreferences from "react-native-shared-group-preferences";
+import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import {
 	clearSessionTokens,
 	getAccessToken,
@@ -179,28 +180,30 @@ function RootLayoutNav() {
 	}
 
 	return (
-		<CustomToastProvider>
-			<QueryClientProvider client={queryClient}>
-				<AppStateProvider>
-					<PreferencesProvider>
-						<SafeAreaView className="flex-1 bg-white">
-							<PreferencesBootstrap />
-							<StatusBar barStyle="dark-content" backgroundColor="white" />
-							<GestureHandlerRootView>
-								<Stack
-									screenOptions={{
-										headerShown: false,
-										contentStyle: { backgroundColor: "white" },
-									}}
-								>
-									<Stack.Screen name="(tabs)" />
-									<Stack.Screen name="getStarted/index" />
-								</Stack>
-							</GestureHandlerRootView>
-						</SafeAreaView>
-					</PreferencesProvider>
-				</AppStateProvider>
-			</QueryClientProvider>
-		</CustomToastProvider>
+		<AppErrorBoundary>
+			<CustomToastProvider>
+				<QueryClientProvider client={queryClient}>
+					<AppStateProvider>
+						<PreferencesProvider>
+							<SafeAreaView className="flex-1 bg-white">
+								<PreferencesBootstrap />
+								<StatusBar barStyle="dark-content" backgroundColor="white" />
+								<GestureHandlerRootView>
+									<Stack
+										screenOptions={{
+											headerShown: false,
+											contentStyle: { backgroundColor: "white" },
+										}}
+									>
+										<Stack.Screen name="(tabs)" />
+										<Stack.Screen name="getStarted/index" />
+									</Stack>
+								</GestureHandlerRootView>
+							</SafeAreaView>
+						</PreferencesProvider>
+					</AppStateProvider>
+				</QueryClientProvider>
+			</CustomToastProvider>
+		</AppErrorBoundary>
 	);
 }
