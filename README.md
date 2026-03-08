@@ -18,6 +18,7 @@ This branch establishes the project foundation:
 
 - `app/` → Expo React Native application (iOS/Android)
 - `backend/` → NestJS + Prisma API
+- `ARCHITECTURE.md` → PRD architecture and folder-structure reference (PTO-229)
 
 ## Run locally
 
