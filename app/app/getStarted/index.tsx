@@ -1,11 +1,9 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Google from "expo-auth-session/providers/google";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	ActivityIndicator,
-	Alert,
 	Platform,
 	SafeAreaView,
 	StyleSheet,
@@ -16,17 +14,21 @@ import Button from "@/components/Button";
 import ModalComponent from "@/components/ModalComponent";
 import Text from "@/components/Text";
 import Title from "@/components/Title";
-import { AppleIcon, GoogleIcon } from "@/shared/svgs";
+import { saveSessionTokens } from "@/shared/auth";
+import { GoogleIcon } from "@/shared/svgs";
 
 const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.16:3002";
+const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
 const googleExpoRedirectUri = "https://auth.expo.io/@ghosty09/saveit";
 const googleExpoStartUri = "https://auth.expo.io/@ghosty09/saveit/start";
 
-const index = () => {
+const LoginScreen = () => {
 	const queryClient = useQueryClient();
 	const [modalVisible, setModalVisible] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
 	const [request, response, promptAsync] = Google.useAuthRequest({
 		clientId: googleClientId,
 		webClientId: googleClientId,
@@ -34,12 +36,15 @@ const index = () => {
 		scopes: ["openid", "profile", "email"],
 	});
 
+	const authReady = useMemo(() => Boolean(request?.url && request?.redirectUri), [request]);
+
 	const handleGoogleSignIn = async () => {
-		if (!request?.url || !request.redirectUri) {
-			Alert.alert("Error", "Google sign-in is not ready yet. Please try again.");
+		if (!authReady || !request) {
+			setErrorMessage("Google sign-in is not ready. Please try again.");
 			return;
 		}
 
+		setErrorMessage(null);
 		setIsLoading(true);
 
 		const authUrl = new URL(request.url);
@@ -52,10 +57,9 @@ const index = () => {
 
 		try {
 			await promptAsync({ url: startUrl });
-		} catch (error) {
-			console.error("Failed to open Google auth prompt:", error);
+		} catch (_error) {
 			setIsLoading(false);
-			Alert.alert("Error", "Could not open Google sign in.");
+			setErrorMessage("Could not open Google sign-in. Please retry.");
 		}
 	};
 
@@ -66,88 +70,53 @@ const index = () => {
 					response.authentication?.accessToken ?? response.params?.access_token;
 
 				if (!accessToken) {
-					Alert.alert(
-						"Error",
-						"Google authentication did not return an access token.",
-					);
+					setIsLoading(false);
+					setErrorMessage("Google authentication did not return an access token.");
 					return;
 				}
 
 				try {
 					const apiResponse = await fetch(`${apiUrl}/auth/google`, {
 						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							token: accessToken,
-						}),
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ token: accessToken }),
 					});
 
-					const responseText = await apiResponse.text();
-					let data: { token?: string; message?: string } | null = null;
-
-					try {
-						data = responseText ? JSON.parse(responseText) : null;
-					} catch {
-						data = null;
-					}
+					const data = await apiResponse.json();
 
 					if (!apiResponse.ok) {
-						console.error("Google auth API error", {
-							status: apiResponse.status,
-							body: responseText,
-						});
-						Alert.alert(
-							"Authentication failed",
-							data?.message ||
-								`Backend returned ${apiResponse.status}. Check console logs for details.`,
-						);
+						setErrorMessage(data?.message || "Authentication failed. Please retry.");
 						return;
 					}
 
-					const appToken = data?.token;
-
-					if (appToken) {
-						await queryClient.clear();
-						await AsyncStorage.setItem("accessToken", appToken);
-						setModalVisible(false);
-						router.push("/");
-					} else {
-						console.error("Google auth succeeded without app token", {
-							body: responseText,
-						});
-						Alert.alert(
-							"Authentication failed",
-							data?.message || "No token returned by backend.",
-						);
+					if (!data?.accessToken || !data?.refreshToken) {
+						setErrorMessage("Authentication succeeded but session tokens were missing.");
+						return;
 					}
-				} catch (error) {
-					console.error("Google auth exchange failed:", error);
-					Alert.alert(
-						"Error",
-						"An error occurred while exchanging the code. Check console logs for details.",
-					);
+
+					await queryClient.clear();
+					await saveSessionTokens(data.accessToken, data.refreshToken);
+					setModalVisible(false);
+					router.replace("/");
+				} catch (_error) {
+					setErrorMessage("Network error while completing login. Please retry.");
 				} finally {
 					setIsLoading(false);
 				}
 			}
 
 			if (response?.type === "error") {
-				console.error("Google OAuth response error:", response.error);
 				setIsLoading(false);
-				Alert.alert(
-					"Google Login Failed",
-					response.error?.message ?? "Invalid OAuth request.",
-				);
+				setErrorMessage(response.error?.message ?? "Google sign-in failed. Please retry.");
 			}
 
 			if (response?.type === "dismiss" || response?.type === "cancel") {
 				setIsLoading(false);
 			}
 		};
+
 		handleAuthResponse();
-	}, [response, queryClient.clear]);
+	}, [response, queryClient]);
 
 	return (
 		<SafeAreaView className="flex-1 gap-[20]">
@@ -168,32 +137,12 @@ const index = () => {
 				<View className="gap-[10]">
 					<Title>Sign in to continue</Title>
 
-					{Platform.OS === "ios" && (
-						<>
-							<TouchableOpacity
-								className="w-full h-[50] bg-gray200 rounded-lg items-center justify-center"
-								onPress={handleGoogleSignIn}
-								disabled={!request || isLoading}
-							>
-								{isLoading ? (
-									<ActivityIndicator color="white" />
-								) : (
-									<View className="flex-row gap-2 items-center">
-										<AppleIcon width={20} height={20} />
-										<Text className="text-black text-lg font-bold">
-											Sign in with Apple
-										</Text>
-									</View>
-								)}
-							</TouchableOpacity>
-							<View className="h-[1] bg-gray200" />
-						</>
-					)}
+					{Platform.OS === "ios" && <View className="h-[1] bg-gray200" />}
 
 					<TouchableOpacity
 						className="w-full h-[50] bg-gray200 rounded-lg items-center justify-center"
 						onPress={handleGoogleSignIn}
-						disabled={!request || isLoading}
+						disabled={!authReady || isLoading}
 					>
 						{isLoading ? (
 							<ActivityIndicator color="white" />
@@ -201,47 +150,29 @@ const index = () => {
 							<View className="flex-row gap-2 items-center">
 								<GoogleIcon width={20} height={20} />
 								<Text className="text-black text-lg font-bold">
-									Sign in with Google
+									Continue with Google
 								</Text>
 							</View>
 						)}
 					</TouchableOpacity>
+
+					{errorMessage && (
+						<View className="bg-red-100 border border-red-300 rounded-lg p-3">
+							<Text className="text-red-700 text-sm">{errorMessage}</Text>
+							<TouchableOpacity className="mt-2" onPress={handleGoogleSignIn}>
+								<Text className="text-red-700 font-bold">Retry</Text>
+							</TouchableOpacity>
+						</View>
+					)}
 				</View>
 			</ModalComponent>
 		</SafeAreaView>
 	);
 };
 
-export default index;
+export default LoginScreen;
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		gap: 20,
-	},
-	content: {
-		flex: 1,
-		backgroundColor: "gray400",
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	title: {
-		fontSize: 24,
-		fontWeight: "bold",
-	},
-	button: {
-		width: "80%",
-		height: 50,
-		backgroundColor: "black",
-		borderRadius: 10,
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	buttonText: {
-		color: "white",
-		fontSize: 18,
-		fontWeight: "bold",
-	},
 	modalOverlay: {
 		justifyContent: "flex-end",
 	},
@@ -251,8 +182,5 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 20,
 		paddingTop: 20,
 		paddingBottom: 40,
-	},
-	modalContent: {
-		gap: 20,
 	},
 });

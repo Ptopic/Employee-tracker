@@ -13,18 +13,22 @@ enum EmployeeStatus {
 }
 
 model Manager {
-  id           String   @id @default(uuid())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                    String    @id @default(uuid())
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  googleAuthId String   @unique @map("google_auth_id")
-  email        String   @unique
-  fullName     String   @map("full_name")
-  companyName  String?  @map("company_name")
-  preferences  Json?
+  googleAuthId          String    @unique @map("google_auth_id")
+  email                 String    @unique
+  fullName              String    @map("full_name")
+  picture               String?
+  companyName           String?   @map("company_name")
+  preferences           Json?
+  refreshTokenHash      String?   @map("refresh_token_hash")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  tokenVersion          Int       @default(0) @map("token_version")
 
-  employees    Employee[]
-  shifts       Shift[]
+  employees             Employee[]
+  shifts                Shift[]
 
   @@map("managers")
 }
