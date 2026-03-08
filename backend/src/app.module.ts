@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AuthModule } from "./auth/auth.module";
 import { EmployeesModule } from "./employees/employees.module";
+import { ExportModule } from "./export/export.module";
 import { ManagersModule } from "./managers/managers.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ScheduleModule } from "./schedule/schedule.module";
@@ -19,6 +20,7 @@ import { UsersModule } from "./users/users.module";
 		UsersModule,
 		ManagersModule,
 		EmployeesModule,
+		ExportModule,
 		ShiftsModule,
 		ShiftAssignmentsModule,
 		StatsModule,

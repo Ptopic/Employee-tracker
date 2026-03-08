@@ -37,14 +37,7 @@ export const useSavePreferences = () => {
 	});
 };
 
-export const useUploadLogo = () => {
-	return useMutation({
+export const useUploadLogo = () =>
+	useMutation({
 		mutationFn: (base64DataUri: string) => requests.uploadLogo(base64DataUri),
 	});
-};
-
-export const useExportWeeklyPdf = () => {
-	return useMutation({
-		mutationFn: (weekStart: string) => requests.exportWeeklyPdf(weekStart),
-	});
-};

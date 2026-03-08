@@ -1,15 +1,5 @@
-import {
-	Body,
-	Controller,
-	Get,
-	Header,
-	Patch,
-	Post,
-	Query,
-	Req,
-	Res,
-} from "@nestjs/common";
-import { Request, Response } from "express";
+import { Body, Controller, Get, Patch, Post, Req } from "@nestjs/common";
+import { Request } from "express";
 import { JwtAuth } from "src/auth/decorators/jwt-auth.decorator";
 import {
 	UpdateCompanySettingsDto,
@@ -50,25 +40,5 @@ export class SettingsController {
 	@JwtAuth()
 	uploadLogo(@Body() body: UploadLogoDto) {
 		return this.settingsService.uploadLogo(body.logo);
-	}
-
-	@Get("exports/weekly-pdf")
-	@JwtAuth()
-	@Header("Content-Type", "application/pdf")
-	async exportWeeklyPdf(
-		@Req() req: Request,
-		@Query("weekStart") weekStart: string,
-		@Res() response: Response,
-	) {
-		const result = await this.settingsService.exportWeeklyPdf(
-			req.user.userId,
-			weekStart,
-		);
-		response.setHeader("X-Export-Duration-Ms", String(result.durationMs));
-		response.setHeader(
-			"Content-Disposition",
-			`attachment; filename="${result.fileName}"`,
-		);
-		response.send(result.buffer);
 	}
 }
