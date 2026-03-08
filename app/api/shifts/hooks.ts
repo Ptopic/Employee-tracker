@@ -10,6 +10,8 @@ export const useMonthShifts = (startDate: string, endDate: string) =>
 	useQuery({
 		queryKey: [SHIFTS_MONTH, startDate, endDate],
 		queryFn: () => shiftsRequests.getMonthSummary(startDate, endDate),
+		staleTime: 60_000,
+		gcTime: 5 * 60_000,
 	});
 
 export const useDaySchedule = (date: string) =>

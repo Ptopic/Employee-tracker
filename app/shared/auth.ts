@@ -1,43 +1,15 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
+import {
+	secureDeleteItem,
+	secureGetItem,
+	secureSetItem,
+} from "@/shared/security/secureStorage";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
 
-const secureStoreAvailable = SecureStore.isAvailableAsync;
-
-const setItem = async (key: string, value: string) => {
-	const isAvailable = await secureStoreAvailable();
-
-	if (isAvailable) {
-		await SecureStore.setItemAsync(key, value, {
-			keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-		});
-		return;
-	}
-
-	await AsyncStorage.setItem(key, value);
-};
-
-const getItem = async (key: string) => {
-	const isAvailable = await secureStoreAvailable();
-
-	if (isAvailable) {
-		return SecureStore.getItemAsync(key);
-	}
-
-	return AsyncStorage.getItem(key);
-};
-
-const removeItem = async (key: string) => {
-	const isAvailable = await secureStoreAvailable();
-
-	if (isAvailable) {
-		await SecureStore.deleteItemAsync(key);
-	}
-
-	await AsyncStorage.removeItem(key);
-};
+const setItem = secureSetItem;
+const getItem = secureGetItem;
+const removeItem = secureDeleteItem;
 
 export const saveSessionTokens = async (
 	accessToken: string,

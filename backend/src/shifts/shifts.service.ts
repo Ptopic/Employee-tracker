@@ -4,6 +4,7 @@ import {
 	Injectable,
 	NotFoundException,
 } from "@nestjs/common";
+import { calculateDeterministicHours, normalizeDateIso } from "src/common/deterministic-hours";
 import { PrismaService } from "src/prisma/prisma.service";
 import { UpsertShiftDto, ValidateShiftDto } from "./dtos/shift.dto";
 
@@ -68,13 +69,13 @@ export class ShiftsService {
 		return this.prisma.shift.create({
 			data: {
 				managerId,
-				date: new Date(payload.date),
+				date: normalizeDateIso(payload.date),
 				startTime: this.toTime(payload.startTime),
 				endTime: this.toTime(payload.endTime),
 				assignments: {
 					create: (payload.employeeIds || []).map((employeeId) => ({
 						employeeId,
-						calculatedHours: this.diffHours(payload.startTime, payload.endTime),
+						calculatedHours: calculateDeterministicHours(payload.startTime, payload.endTime).toFixed(2),
 					})),
 				},
 			},
@@ -93,14 +94,14 @@ export class ShiftsService {
 		return this.prisma.shift.update({
 			where: { id: shiftId },
 			data: {
-				date: new Date(payload.date),
+				date: normalizeDateIso(payload.date),
 				startTime: this.toTime(payload.startTime),
 				endTime: this.toTime(payload.endTime),
 				assignments: {
 					deleteMany: {},
 					create: (payload.employeeIds || []).map((employeeId) => ({
 						employeeId,
-						calculatedHours: this.diffHours(payload.startTime, payload.endTime),
+						calculatedHours: calculateDeterministicHours(payload.startTime, payload.endTime).toFixed(2),
 					})),
 				},
 			},
@@ -139,7 +140,7 @@ export class ShiftsService {
 		const shifts = await this.prisma.shift.findMany({
 			where: {
 				managerId,
-				date: new Date(payload.date),
+				date: normalizeDateIso(payload.date),
 				id: payload.shiftId ? { not: payload.shiftId } : undefined,
 				assignments: {
 					some: {
@@ -198,9 +199,5 @@ export class ShiftsService {
 		return startA < endB && endA > startB;
 	}
 
-	private diffHours(start: string, end: string) {
-		const [sh, sm] = start.split(":").map(Number);
-		const [eh, em] = end.split(":").map(Number);
-		return (eh + em / 60 - (sh + sm / 60)).toFixed(2);
-	}
+	// Deterministic hour calculation is centralized in src/common/deterministic-hours.ts
 }

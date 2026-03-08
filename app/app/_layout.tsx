@@ -15,6 +15,7 @@ import {
 	saveSessionTokens,
 } from "@/shared/auth";
 import { config } from "@/shared/config";
+import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { getQueryClient } from "@/shared/queryClient";
 import { AppStateProvider } from "@/shared/state/app-state";
 import { PreferencesBootstrap } from "@/shared/state/PreferencesBootstrap";
@@ -171,26 +172,28 @@ function RootLayoutNav() {
 	}
 
 	return (
-		<CustomToastProvider>
-			<QueryClientProvider client={queryClient}>
-				<AppStateProvider>
-					<PreferencesProvider>
-						<PreferencesBootstrap />
-						<StatusBar barStyle="dark-content" backgroundColor="white" />
-						<GestureHandlerRootView>
-							<Stack
-							screenOptions={{
-								headerShown: false,
-								contentStyle: { backgroundColor: "white" },
-							}}
-						>
-							<Stack.Screen name="(tabs)" />
-								<Stack.Screen name="getStarted/index" />
-							</Stack>
-						</GestureHandlerRootView>
-					</PreferencesProvider>
-				</AppStateProvider>
-			</QueryClientProvider>
-		</CustomToastProvider>
+		<AppErrorBoundary>
+			<CustomToastProvider>
+				<QueryClientProvider client={queryClient}>
+					<AppStateProvider>
+						<PreferencesProvider>
+							<PreferencesBootstrap />
+							<StatusBar barStyle="dark-content" backgroundColor="white" />
+							<GestureHandlerRootView>
+								<Stack
+									screenOptions={{
+										headerShown: false,
+										contentStyle: { backgroundColor: "white" },
+									}}
+								>
+									<Stack.Screen name="(tabs)" />
+									<Stack.Screen name="getStarted/index" />
+								</Stack>
+							</GestureHandlerRootView>
+						</PreferencesProvider>
+					</AppStateProvider>
+				</QueryClientProvider>
+			</CustomToastProvider>
+		</AppErrorBoundary>
 	);
 }

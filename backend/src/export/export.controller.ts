@@ -1,5 +1,6 @@
 import { Controller, Get, Header, Query, Req, Res } from "@nestjs/common";
 import { Request, Response } from "express";
+import { Readable } from "node:stream";
 import { JwtAuth } from "src/auth/decorators/jwt-auth.decorator";
 import { ExportService } from "./export.service";
 
@@ -24,6 +25,6 @@ export class ExportController {
     const result = await this.exportService.exportWeeklyPdf(req.user.userId, weekStart);
     response.setHeader("X-Export-Duration-Ms", String(result.durationMs));
     response.setHeader("Content-Disposition", `attachment; filename="${result.fileName}"`);
-    response.send(result.buffer);
+    Readable.from(result.buffer).pipe(response);
   }
 }
