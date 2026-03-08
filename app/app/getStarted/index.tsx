@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Google from "expo-auth-session/providers/google";
 import { router } from "expo-router";
@@ -16,10 +15,12 @@ import Button from "@/components/Button";
 import ModalComponent from "@/components/ModalComponent";
 import Text from "@/components/Text";
 import Title from "@/components/Title";
+import { config } from "@/shared/config";
+import { secureStorage } from "@/shared/secureStorage";
 import { AppleIcon, GoogleIcon } from "@/shared/svgs";
 
 const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.16:3002";
+const apiUrl = config.apiUrl;
 const googleExpoRedirectUri = "https://auth.expo.io/@ghosty09/saveit";
 const googleExpoStartUri = "https://auth.expo.io/@ghosty09/saveit/start";
 
@@ -110,7 +111,7 @@ const index = () => {
 
 					if (appToken) {
 						await queryClient.clear();
-						await AsyncStorage.setItem("accessToken", appToken);
+						await secureStorage.setAccessToken(appToken);
 						setModalVisible(false);
 						router.push("/");
 					} else {

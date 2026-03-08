@@ -1,8 +1,8 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import { secureStorage } from "@/shared/secureStorage";
 
 const authenticatedRequest = async (url: string, options: RequestInit = {}) => {
-	const accessToken = await AsyncStorage.getItem("accessToken");
+	const accessToken = await secureStorage.getAccessToken();
 
 	try {
 		const response = await fetch(`${url}`, {
