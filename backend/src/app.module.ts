@@ -6,6 +6,7 @@ import { ManagersModule } from "./managers/managers.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ShiftAssignmentsModule } from "./shift-assignments/shift-assignments.module";
 import { ShiftsModule } from "./shifts/shifts.module";
+import { StatsModule } from "./stats/stats.module";
 import { UsersModule } from "./users/users.module";
 
 @Module({
@@ -18,6 +19,7 @@ import { UsersModule } from "./users/users.module";
 		EmployeesModule,
 		ShiftsModule,
 		ShiftAssignmentsModule,
+		StatsModule,
 	],
 })
 export class AppModule {}
