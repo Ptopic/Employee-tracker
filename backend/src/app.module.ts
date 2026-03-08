@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { EmployeesModule } from "./employees/employees.module";
 import { ManagersModule } from "./managers/managers.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { ReportsModule } from "./reports/reports.module";
 import { ShiftAssignmentsModule } from "./shift-assignments/shift-assignments.module";
 import { ShiftsModule } from "./shifts/shifts.module";
 
@@ -12,6 +13,7 @@ import { ShiftsModule } from "./shifts/shifts.module";
 		EmployeesModule,
 		ShiftsModule,
 		ShiftAssignmentsModule,
+		ReportsModule,
 	],
 })
 export class AppModule {}
