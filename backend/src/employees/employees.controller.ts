@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Query } from "@nestjs/common";
 import { EmployeesService } from "./employees.service";
 
 @Controller("employees")
@@ -8,5 +8,10 @@ export class EmployeesController {
   @Get()
   list() {
     return this.employeesService.list();
+  }
+
+  @Get("hours-totals")
+  hoursTotals(@Query("date") date?: string) {
+    return this.employeesService.getDeterministicHoursTotals(date);
   }
 }
