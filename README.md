@@ -2,7 +2,7 @@
 
 Monorepo for the manager-only employee time management app.
 
-## Current setup (PTO-257)
+## Current setup (PTO-257 + PTO-252)
 
 This branch establishes the project foundation:
 
@@ -11,6 +11,7 @@ This branch establishes the project foundation:
   - `Employee`
   - `Shift`
   - `ShiftAssignment`
+- Mobile app SQLite local persistence schema + migration bootstrap under `app/data/local-persistence`.
 - Mobile app identity normalized to saveit values.
 - Router stack cleaned to only include currently available routes.
 

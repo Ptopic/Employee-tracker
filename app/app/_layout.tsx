@@ -9,6 +9,7 @@ import { Linking, StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
 import SharedGroupPreferences from "react-native-shared-group-preferences";
+import { initializeLocalPersistenceSchema } from "@/data/local-persistence";
 import { getQueryClient } from "@/shared/queryClient";
 import { CustomToastProvider } from "@/utils/toast";
 import "react-native-reanimated";
@@ -56,7 +57,14 @@ function RootLayoutNav() {
 	var log = logger.createLogger();
 
 	useEffect(() => {
-		const getToken = async () => {
+		const bootstrapLocalState = async () => {
+			try {
+				await initializeLocalPersistenceSchema();
+				log.info("[Main App] Local persistence schema initialized");
+			} catch (error) {
+				log.error("[Main App] Failed to initialize local persistence schema:", error);
+			}
+
 			const token = await AsyncStorage.getItem("accessToken");
 
 			setIsLoading(false);
@@ -76,7 +84,7 @@ function RootLayoutNav() {
 			}
 		};
 
-		getToken();
+		bootstrapLocalState();
 	}, [log.error, log.info]);
 
 	useEffect(() => {
