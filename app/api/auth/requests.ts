@@ -26,6 +26,8 @@ import authenticatedRequest from "../authenticatedRequest";
 const me = async () => {
 	return await authenticatedRequest(`${config.apiUrl}/auth/me`, {
 		method: "GET",
+		offlineSafe: true,
+		offlineCacheKey: "auth-me",
 	});
 };
 
