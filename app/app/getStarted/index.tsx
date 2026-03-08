@@ -1,61 +1,65 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
-	Platform,
 	SafeAreaView,
 	StyleSheet,
 	TouchableOpacity,
 	View,
 } from "react-native";
-import Button from "@/components/Button";
-import ModalComponent from "@/components/ModalComponent";
+import authRequests from "@/api/auth/requests";
 import Text from "@/components/Text";
 import Title from "@/components/Title";
-import { AppleIcon, GoogleIcon } from "@/shared/svgs";
+import { GoogleIcon } from "@/shared/svgs";
 
-const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.16:3002";
-const googleExpoRedirectUri = "https://auth.expo.io/@ghosty09/saveit";
-const googleExpoStartUri = "https://auth.expo.io/@ghosty09/saveit/start";
+WebBrowser.maybeCompleteAuthSession();
 
 const index = () => {
 	const queryClient = useQueryClient();
-	const [modalVisible, setModalVisible] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+
+	const googleClientConfig = useMemo(
+		() => ({
+			expoClientId: process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID,
+			iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+			androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+			webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+		}),
+		[],
+	);
+
 	const [request, response, promptAsync] = Google.useAuthRequest({
-		clientId: googleClientId,
-		webClientId: googleClientId,
-		responseType: "token",
+		...googleClientConfig,
 		scopes: ["openid", "profile", "email"],
 	});
 
 	const handleGoogleSignIn = async () => {
-		if (!request?.url || !request.redirectUri) {
-			Alert.alert("Error", "Google sign-in is not ready yet. Please try again.");
+		if (
+			!googleClientConfig.expoClientId &&
+			!googleClientConfig.iosClientId &&
+			!googleClientConfig.androidClientId &&
+			!googleClientConfig.webClientId
+		) {
+			Alert.alert(
+				"Google sign-in not configured",
+				"Missing Google OAuth client IDs. Please set EXPO_PUBLIC_GOOGLE_*_CLIENT_ID variables.",
+			);
 			return;
 		}
 
 		setIsLoading(true);
 
-		const authUrl = new URL(request.url);
-		authUrl.searchParams.set("redirect_uri", googleExpoRedirectUri);
-
-		const startUrl = `${googleExpoStartUri}?${new URLSearchParams({
-			authUrl: authUrl.toString(),
-			returnUrl: request.redirectUri,
-		}).toString()}`;
-
 		try {
-			await promptAsync({ url: startUrl });
+			await promptAsync();
 		} catch (error) {
-			console.error("Failed to open Google auth prompt:", error);
+			console.error("Failed to open Google sign-in:", error);
 			setIsLoading(false);
-			Alert.alert("Error", "Could not open Google sign in.");
+			Alert.alert("Error", "Could not open Google sign-in.");
 		}
 	};
 
@@ -66,67 +70,34 @@ const index = () => {
 					response.authentication?.accessToken ?? response.params?.access_token;
 
 				if (!accessToken) {
+					setIsLoading(false);
 					Alert.alert(
-						"Error",
+						"Authentication failed",
 						"Google authentication did not return an access token.",
 					);
 					return;
 				}
 
 				try {
-					const apiResponse = await fetch(`${apiUrl}/auth/google`, {
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
-						body: JSON.stringify({
-							token: accessToken,
-						}),
-					});
+					const data = await authRequests.googleLogin(accessToken);
+					const appToken = data?.token;
 
-					const responseText = await apiResponse.text();
-					let data: { token?: string; message?: string } | null = null;
-
-					try {
-						data = responseText ? JSON.parse(responseText) : null;
-					} catch {
-						data = null;
-					}
-
-					if (!apiResponse.ok) {
-						console.error("Google auth API error", {
-							status: apiResponse.status,
-							body: responseText,
-						});
+					if (!appToken) {
 						Alert.alert(
 							"Authentication failed",
-							data?.message ||
-								`Backend returned ${apiResponse.status}. Check console logs for details.`,
+							"Backend did not return an application token.",
 						);
 						return;
 					}
 
-					const appToken = data?.token;
-
-					if (appToken) {
-						await queryClient.clear();
-						await AsyncStorage.setItem("accessToken", appToken);
-						setModalVisible(false);
-						router.push("/");
-					} else {
-						console.error("Google auth succeeded without app token", {
-							body: responseText,
-						});
-						Alert.alert(
-							"Authentication failed",
-							data?.message || "No token returned by backend.",
-						);
-					}
+					await queryClient.clear();
+					await AsyncStorage.setItem("accessToken", appToken);
+					router.replace("/" as any);
 				} catch (error) {
 					console.error("Google auth exchange failed:", error);
 					Alert.alert(
-						"Error",
-						"An error occurred while exchanging the code. Check console logs for details.",
+						"Authentication failed",
+						"Could not sign in with Google. Please try again.",
 					);
 				} finally {
 					setIsLoading(false);
@@ -137,7 +108,7 @@ const index = () => {
 				console.error("Google OAuth response error:", response.error);
 				setIsLoading(false);
 				Alert.alert(
-					"Google Login Failed",
+					"Google sign-in failed",
 					response.error?.message ?? "Invalid OAuth request.",
 				);
 			}
@@ -146,68 +117,37 @@ const index = () => {
 				setIsLoading(false);
 			}
 		};
+
 		handleAuthResponse();
-	}, [response, queryClient.clear]);
+	}, [response, queryClient]);
 
 	return (
-		<SafeAreaView className="flex-1 gap-[20]">
-			<View className="flex-1 bg-gray400 items-center justify-center">
-				<Text className="text-2xl font-bold">Video</Text>
+		<SafeAreaView style={styles.container}>
+			<View style={styles.hero}>
+				<Title className="text-3xl">saveit</Title>
+				<Text className="text-gray300 mt-2 text-center">
+					Employee scheduling and time tracking for managers.
+				</Text>
 			</View>
 
-			<View className="items-center justify-center px-[15]">
-				<Button onPress={() => setModalVisible(true)} text="Get Started" />
-			</View>
-
-			<ModalComponent
-				modalVisible={modalVisible}
-				setModalVisible={setModalVisible}
-				overlayStyle={styles.modalOverlay}
-				modalStyle={styles.modalContainer}
-			>
-				<View className="gap-[10]">
-					<Title>Sign in to continue</Title>
-
-					{Platform.OS === "ios" && (
-						<>
-							<TouchableOpacity
-								className="w-full h-[50] bg-gray200 rounded-lg items-center justify-center"
-								onPress={handleGoogleSignIn}
-								disabled={!request || isLoading}
-							>
-								{isLoading ? (
-									<ActivityIndicator color="white" />
-								) : (
-									<View className="flex-row gap-2 items-center">
-										<AppleIcon width={20} height={20} />
-										<Text className="text-black text-lg font-bold">
-											Sign in with Apple
-										</Text>
-									</View>
-								)}
-							</TouchableOpacity>
-							<View className="h-[1] bg-gray200" />
-						</>
+			<View style={styles.footer}>
+				<TouchableOpacity
+					style={styles.googleButton}
+					onPress={handleGoogleSignIn}
+					disabled={!request || isLoading}
+				>
+					{isLoading ? (
+						<ActivityIndicator color="black" />
+					) : (
+						<View className="flex-row gap-2 items-center">
+							<GoogleIcon width={20} height={20} />
+							<Text className="text-black text-lg font-bold">
+								Continue with Google
+							</Text>
+						</View>
 					)}
-
-					<TouchableOpacity
-						className="w-full h-[50] bg-gray200 rounded-lg items-center justify-center"
-						onPress={handleGoogleSignIn}
-						disabled={!request || isLoading}
-					>
-						{isLoading ? (
-							<ActivityIndicator color="white" />
-						) : (
-							<View className="flex-row gap-2 items-center">
-								<GoogleIcon width={20} height={20} />
-								<Text className="text-black text-lg font-bold">
-									Sign in with Google
-								</Text>
-							</View>
-						)}
-					</TouchableOpacity>
-				</View>
-			</ModalComponent>
+				</TouchableOpacity>
+			</View>
 		</SafeAreaView>
 	);
 };
@@ -217,42 +157,24 @@ export default index;
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		gap: 20,
-	},
-	content: {
-		flex: 1,
-		backgroundColor: "gray400",
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	title: {
-		fontSize: 24,
-		fontWeight: "bold",
-	},
-	button: {
-		width: "80%",
-		height: 50,
-		backgroundColor: "black",
-		borderRadius: 10,
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	buttonText: {
-		color: "white",
-		fontSize: 18,
-		fontWeight: "bold",
-	},
-	modalOverlay: {
-		justifyContent: "flex-end",
-	},
-	modalContainer: {
-		width: "100%",
-		borderRadius: 10,
+		justifyContent: "space-between",
 		paddingHorizontal: 20,
-		paddingTop: 20,
-		paddingBottom: 40,
+		paddingVertical: 32,
 	},
-	modalContent: {
-		gap: 20,
+	hero: {
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	footer: {
+		paddingBottom: 12,
+	},
+	googleButton: {
+		width: "100%",
+		height: 52,
+		backgroundColor: "#F3F4F6",
+		borderRadius: 12,
+		alignItems: "center",
+		justifyContent: "center",
 	},
 });

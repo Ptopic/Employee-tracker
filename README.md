@@ -29,6 +29,16 @@ npm install
 npm run start
 ```
 
+Set these environment variables for Google OAuth in `app/.env` (or EAS secrets):
+
+```bash
+EXPO_PUBLIC_API_URL=http://localhost:3002
+EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID=...
+EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=...
+EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=...
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=...
+```
+
 ### Backend
 
 ```bash
