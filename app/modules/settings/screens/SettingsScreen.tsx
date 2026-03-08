@@ -180,18 +180,17 @@ export function SettingsScreen() {
 	};
 
 	return (
-		<SafeAreaView className="flex-1 bg-gray-100">
-			<ScrollView className="flex-1 bg-gray-100" contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-				<View className="flex-row items-center justify-between mb-4">
-					<Text className="text-2xl font-bold">Settings & Preferences</Text>
-					<Pressable
-						className="rounded-lg bg-black py-3 px-6 items-center"
-						onPress={handleSaveAll}
-						disabled={isBusy}
-					>
-						<Text className="text-white font-semibold">Save All</Text>
-					</Pressable>
-				</View>
+		<ScrollView className="flex-1 bg-gray-100" contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+			<View className="flex-row items-center justify-between mb-4">
+				<Text className="text-2xl font-bold">Settings & Preferences</Text>
+				<Pressable
+					className="rounded-lg bg-black py-3 px-6 items-center"
+					onPress={handleSaveAll}
+					disabled={isBusy}
+				>
+					<Text className="text-white font-semibold">Save All</Text>
+				</Pressable>
+			</View>
 
 			<SettingsSection title="Company Settings">
 				<Text className="text-gray-700 mb-2">Company name</Text>
@@ -271,6 +270,5 @@ export function SettingsScreen() {
 				</View>
 			) : null}
 		</ScrollView>
-		</SafeAreaView>
 	);
 }
