@@ -3,8 +3,13 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Linking, StatusBar, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+	ActivityIndicator,
+	Linking,
+	SafeAreaView,
+	StatusBar,
+} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
 import SharedGroupPreferences from "react-native-shared-group-preferences";
@@ -112,7 +117,10 @@ function RootLayoutNav() {
 				}
 
 				const refreshData = await refreshResponse.json();
-				await saveSessionTokens(refreshData.accessToken, refreshData.refreshToken);
+				await saveSessionTokens(
+					refreshData.accessToken,
+					refreshData.refreshToken,
+				);
 				setIsAuthenticated(true);
 			} catch (error) {
 				log.error("[Auth] Session refresh failed", error);
@@ -164,9 +172,9 @@ function RootLayoutNav() {
 
 	if (isLoading) {
 		return (
-			<View className="flex-1 items-center justify-center bg-white">
+			<SafeAreaView className="flex-1 items-center justify-center bg-white">
 				<ActivityIndicator size="large" color="black" />
-			</View>
+			</SafeAreaView>
 		);
 	}
 
@@ -179,12 +187,12 @@ function RootLayoutNav() {
 						<StatusBar barStyle="dark-content" backgroundColor="white" />
 						<GestureHandlerRootView>
 							<Stack
-							screenOptions={{
-								headerShown: false,
-								contentStyle: { backgroundColor: "white" },
-							}}
-						>
-							<Stack.Screen name="(tabs)" />
+								screenOptions={{
+									headerShown: false,
+									contentStyle: { backgroundColor: "white" },
+								}}
+							>
+								<Stack.Screen name="(tabs)" />
 								<Stack.Screen name="getStarted/index" />
 							</Stack>
 						</GestureHandlerRootView>
