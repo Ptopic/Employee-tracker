@@ -1,19 +1,23 @@
 import { Module } from "@nestjs/common";
+import { AppController } from "./app.controller";
 import { AuthModule } from "./auth/auth.module";
 import { EmployeesModule } from "./employees/employees.module";
 import { ExportModule } from "./export/export.module";
 import { ManagersModule } from "./managers/managers.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { ScheduleModule } from "./schedule/schedule.module";
+import { SettingsModule } from "./settings/settings.module";
 import { ShiftAssignmentsModule } from "./shift-assignments/shift-assignments.module";
 import { ShiftsModule } from "./shifts/shifts.module";
 import { StatsModule } from "./stats/stats.module";
-import { SettingsModule } from "./settings/settings.module";
+import { UsersModule } from "./users/users.module";
 
 @Module({
+	controllers: [AppController],
 	imports: [
 		PrismaModule,
 		AuthModule,
+		UsersModule,
 		ManagersModule,
 		EmployeesModule,
 		ExportModule,

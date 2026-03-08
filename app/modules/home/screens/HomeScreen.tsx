@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { RefreshControl, ScrollView, View } from "react-native";
 import { router } from "expo-router";
-import Text from "@/components/Text";
+import { useEffect, useMemo, useState } from "react";
+import { RefreshControl, SafeAreaView, ScrollView, View } from "react-native";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
 import {
 	useTodayEmployees,
 	useTodayShifts,
 	useWeeklyHours,
 } from "@/api/home/hooks";
+import Text from "@/components/Text";
 import { useAppState } from "@/shared/state/app-state";
 import { MonthYearHeader } from "../components/MonthYearHeader";
 import { PrimaryActions } from "../components/PrimaryActions";
@@ -55,56 +55,69 @@ export function HomeScreen() {
 
 	const greeting = useMemo(() => {
 		const fullName = userInfoQuery.data?.fullName;
-		return fullName ? `Welcome back, ${fullName.split(" ")[0]}` : "Welcome back";
+		return fullName
+			? `Welcome back, ${fullName.split(" ")[0]}`
+			: "Welcome back";
 	}, [userInfoQuery.data?.fullName]);
 
 	return (
-		<ScrollView
-			className="flex-1 bg-gray-100"
-			contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
-			refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
-		>
-			<Text className="text-base text-gray-600 mb-1">{greeting}</Text>
-			<MonthYearHeader
-				monthDate={visibleMonth}
-				onPrevMonth={() =>
-					setVisibleMonth(
-						(current) => new Date(current.getFullYear(), current.getMonth() - 1, 1),
-					)
+		<SafeAreaView className="flex-1 bg-gray-100">
+			<ScrollView
+				className="flex-1 bg-gray-100"
+				contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
+				refreshControl={
+					<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
 				}
-				onNextMonth={() =>
-					setVisibleMonth(
-						(current) => new Date(current.getFullYear(), current.getMonth() + 1, 1),
-					)
-				}
-			/>
+			>
+				<Text className="text-base text-gray-600 mb-1">{greeting}</Text>
+				<MonthYearHeader
+					monthDate={visibleMonth}
+					onPrevMonth={() =>
+						setVisibleMonth(
+							(current) =>
+								new Date(current.getFullYear(), current.getMonth() - 1, 1),
+						)
+					}
+					onNextMonth={() =>
+						setVisibleMonth(
+							(current) =>
+								new Date(current.getFullYear(), current.getMonth() + 1, 1),
+						)
+					}
+				/>
 
-			{hasError ? (
-				<View className="rounded-xl p-4 mb-4 bg-red-50 border border-red-200">
-					<Text className="text-red-700">Unable to load dashboard data. Pull to refresh.</Text>
-				</View>
-			) : null}
+				{hasError ? (
+					<View className="rounded-xl p-4 mb-4 bg-red-50 border border-red-200">
+						<Text className="text-red-700">
+							Unable to load dashboard data. Pull to refresh.
+						</Text>
+					</View>
+				) : null}
 
-			<StatsCards
-				weeklyHours={weeklyHoursQuery.data?.totalHours ?? 0}
-				todayEmployees={todayEmployeesQuery.data?.count ?? 0}
-				isLoading={isLoading}
-			/>
+				<StatsCards
+					weeklyHours={weeklyHoursQuery.data?.totalHours ?? 0}
+					todayEmployees={todayEmployeesQuery.data?.count ?? 0}
+					isLoading={isLoading}
+				/>
 
-			<TodayScheduleList shifts={todayShiftsQuery.data ?? []} isLoading={isLoading} />
+				<TodayScheduleList
+					shifts={todayShiftsQuery.data ?? []}
+					isLoading={isLoading}
+				/>
 
-			<PrimaryActions
-				onExportWeeklyPdf={() => {
-					const now = new Date();
-					const utcDay = (now.getUTCDay() + 6) % 7;
-					const monday = new Date(now);
-					monday.setUTCDate(now.getUTCDate() - utcDay);
-					router.push({
-						pathname: "/export/preview",
-						params: { weekStart: monday.toISOString().slice(0, 10) },
-					});
-				}}
-			/>
-		</ScrollView>
+				<PrimaryActions
+					onExportWeeklyPdf={() => {
+						const now = new Date();
+						const utcDay = (now.getUTCDay() + 6) % 7;
+						const monday = new Date(now);
+						monday.setUTCDate(now.getUTCDate() - utcDay);
+						router.push({
+							pathname: "/export/preview",
+							params: { weekStart: monday.toISOString().slice(0, 10) },
+						});
+					}}
+				/>
+			</ScrollView>
+		</SafeAreaView>
 	);
 }
