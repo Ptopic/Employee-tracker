@@ -3,8 +3,13 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Linking, StatusBar, SafeAreaView, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+	ActivityIndicator,
+	Linking,
+	SafeAreaView,
+	StatusBar,
+} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
 import SharedGroupPreferences from "react-native-shared-group-preferences";
@@ -17,6 +22,8 @@ import {
 import { config } from "@/shared/config";
 import { getQueryClient } from "@/shared/queryClient";
 import { AppStateProvider } from "@/shared/state/app-state";
+import { PreferencesBootstrap } from "@/shared/state/PreferencesBootstrap";
+import { PreferencesProvider } from "@/shared/state/preferences-state";
 import { CustomToastProvider } from "@/utils/toast";
 import "react-native-reanimated";
 import "../global.css";
@@ -110,7 +117,10 @@ function RootLayoutNav() {
 				}
 
 				const refreshData = await refreshResponse.json();
-				await saveSessionTokens(refreshData.accessToken, refreshData.refreshToken);
+				await saveSessionTokens(
+					refreshData.accessToken,
+					refreshData.refreshToken,
+				);
 				setIsAuthenticated(true);
 			} catch (error) {
 				log.error("[Auth] Session refresh failed", error);
@@ -172,20 +182,23 @@ function RootLayoutNav() {
 		<CustomToastProvider>
 			<QueryClientProvider client={queryClient}>
 				<AppStateProvider>
-					<SafeAreaView className="flex-1 bg-white">
-						<StatusBar barStyle="dark-content" backgroundColor="white" />
-						<GestureHandlerRootView>
-							<Stack
-								screenOptions={{
-									headerShown: false,
-									contentStyle: { backgroundColor: "white" },
-								}}
-							>
-								<Stack.Screen name="(tabs)" />
-								<Stack.Screen name="getStarted/index" />
-							</Stack>
-						</GestureHandlerRootView>
-					</SafeAreaView>
+					<PreferencesProvider>
+						<SafeAreaView className="flex-1 bg-white">
+							<PreferencesBootstrap />
+							<StatusBar barStyle="dark-content" backgroundColor="white" />
+							<GestureHandlerRootView>
+								<Stack
+									screenOptions={{
+										headerShown: false,
+										contentStyle: { backgroundColor: "white" },
+									}}
+								>
+									<Stack.Screen name="(tabs)" />
+									<Stack.Screen name="getStarted/index" />
+								</Stack>
+							</GestureHandlerRootView>
+						</SafeAreaView>
+					</PreferencesProvider>
 				</AppStateProvider>
 			</QueryClientProvider>
 		</CustomToastProvider>

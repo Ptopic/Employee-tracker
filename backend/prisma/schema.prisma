@@ -35,6 +35,7 @@ model Manager {
   fullName              String    @map("full_name")
   picture               String?
   companyName           String?   @map("company_name")
+  companyLogoUrl        String?   @map("company_logo_url")
   preferences           Json?
   refreshTokenHash      String?   @map("refresh_token_hash")
   refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
