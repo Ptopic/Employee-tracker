@@ -3,6 +3,7 @@ import { AuthModule } from "./auth/auth.module";
 import { EmployeesModule } from "./employees/employees.module";
 import { ManagersModule } from "./managers/managers.module";
 import { PrismaModule } from "./prisma/prisma.module";
+import { ScheduleModule } from "./schedule/schedule.module";
 import { ShiftAssignmentsModule } from "./shift-assignments/shift-assignments.module";
 import { ShiftsModule } from "./shifts/shifts.module";
 import { StatsModule } from "./stats/stats.module";
@@ -16,6 +17,7 @@ import { StatsModule } from "./stats/stats.module";
 		ShiftsModule,
 		ShiftAssignmentsModule,
 		StatsModule,
+		ScheduleModule,
 	],
 })
 export class AppModule {}

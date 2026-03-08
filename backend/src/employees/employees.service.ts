@@ -3,11 +3,17 @@ import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class EmployeesService {
-  constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) {}
 
-  list() {
-    return this.prisma.employee.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-  }
+	list(managerId: string) {
+		return this.prisma.employee.findMany({
+			where: { managerId },
+			orderBy: { firstName: "asc" },
+			select: {
+				id: true,
+				firstName: true,
+				lastName: true,
+			},
+		});
+	}
 }
