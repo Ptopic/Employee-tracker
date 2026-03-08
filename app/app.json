@@ -41,15 +41,10 @@
         {
           "photosPermission": "Allow saveit to access photos for company logo upload."
         }
-      ],
-      "expo-constants"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "extra": {
-      "EXPO_PUBLIC_API_URL": "https://backend.petartopic.com",
-      "EXPO_PUBLIC_CLIENT_URL": "https://saveit.petartopic.com"
     }
   }
 }
