@@ -1,10 +1,3 @@
-import { View } from "react-native";
-import Text from "@/components/Text";
+import { SettingsScreen } from "@/modules/settings/screens/SettingsScreen";
 
-export default function SettingsScreen() {
-	return (
-		<View className="flex-1 items-center justify-center">
-			<Text>Settings</Text>
-		</View>
-	);
-}
+export default SettingsScreen;

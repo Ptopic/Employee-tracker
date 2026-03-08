@@ -1,27 +1,73 @@
-# saveit
+# Saveit — Manager App Foundation (PTO-257)
 
-Monorepo for the manager-only employee time management app.
+This repository contains the baseline architecture for a **manager-only employee scheduling app**.
 
-## Current setup (PTO-257)
+- **Mobile:** React Native (Expo, iOS/Android)
+- **Backend:** NestJS + Prisma
+- **Database:** PostgreSQL
 
-This branch establishes the project foundation:
+---
 
-- Backend Prisma schema aligned to PRD core entities:
+## What this foundation includes
+
+### Mobile app foundation
+- Expo Router navigation setup
+- Bottom-tab shell with:
+  - Home
+  - Calendar
+  - Employees
+  - Settings
+- Shared app state provider (`AppStateProvider`) for cross-module UI state
+- Module-first folder boundaries under `app/modules/*`
+- Placeholder screens for each tab
+
+### Backend foundation
+- NestJS modular structure
+- Prisma configured with PostgreSQL datasource
+- Core domain modules:
+  - Managers
+  - Employees
+  - Shifts
+  - ShiftAssignments
+- Prisma schema with core entities:
   - `Manager`
   - `Employee`
   - `Shift`
   - `ShiftAssignment`
-- Mobile app identity normalized to saveit values.
-- Router stack cleaned to only include currently available routes.
+
+---
 
 ## Repository structure
 
-- `app/` → Expo React Native application (iOS/Android)
-- `backend/` → NestJS + Prisma API
+```text
+.
+├── app/                           # React Native mobile app (Expo)
+│   ├── app/                       # Expo Router routes
+│   │   └── (tabs)/                # Tab navigation shell
+│   ├── modules/                   # Feature/domain modules (PRD-aligned)
+│   │   ├── home/
+│   │   ├── calendar/
+│   │   ├── employees/
+│   │   └── settings/
+│   └── shared/
+│       └── state/                 # Shared app state provider(s)
+└── backend/                       # NestJS API
+    ├── src/
+    │   ├── prisma/
+    │   ├── managers/
+    │   ├── employees/
+    │   ├── shifts/
+    │   └── shift-assignments/
+    └── prisma/
+        ├── schema.prisma
+        └── migrations/
+```
 
-## Run locally
+---
 
-### App
+## Local development
+
+### 1) Mobile app
 
 ```bash
 cd app
@@ -29,7 +75,7 @@ npm install
 npm run start
 ```
 
-### Backend
+### 2) Backend
 
 ```bash
 cd backend
@@ -40,13 +86,19 @@ npm run prisma:format
 npm run start:dev
 ```
 
-## Next implementation order
+### 3) Prisma migration workflow
 
-1. Setup & foundation (this branch)
-2. Authentication
-3. Calendar & shift management
-4. Employee management
-5. Home dashboard
-6. PDF export
-7. Settings
-8. Quality/performance/security hardening
+```bash
+cd backend
+# create a new migration
+npm run prisma:create -- <migration_name>
+
+# deploy existing migrations
+npm run prisma:apply
+```
+
+---
+
+## Notes
+
+This branch is intentionally focused on foundation and scaffolding so future PTO tickets can build on consistent module boundaries, navigation patterns, and stable core data models.
