@@ -4,7 +4,7 @@ import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Linking, StatusBar, View } from "react-native";
+import { ActivityIndicator, Linking, StatusBar, SafeAreaView, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
 import SharedGroupPreferences from "react-native-shared-group-preferences";
@@ -162,9 +162,9 @@ function RootLayoutNav() {
 
 	if (isLoading) {
 		return (
-			<View className="flex-1 items-center justify-center bg-white">
+			<SafeAreaView className="flex-1 items-center justify-center bg-white">
 				<ActivityIndicator size="large" color="black" />
-			</View>
+			</SafeAreaView>
 		);
 	}
 
@@ -172,18 +172,20 @@ function RootLayoutNav() {
 		<CustomToastProvider>
 			<QueryClientProvider client={queryClient}>
 				<AppStateProvider>
-					<StatusBar barStyle="dark-content" backgroundColor="white" />
-					<GestureHandlerRootView>
-						<Stack
-							screenOptions={{
-								headerShown: false,
-								contentStyle: { backgroundColor: "white" },
-							}}
-						>
-							<Stack.Screen name="(tabs)" />
-							<Stack.Screen name="getStarted/index" />
-						</Stack>
-					</GestureHandlerRootView>
+					<SafeAreaView className="flex-1 bg-white">
+						<StatusBar barStyle="dark-content" backgroundColor="white" />
+						<GestureHandlerRootView>
+							<Stack
+								screenOptions={{
+									headerShown: false,
+									contentStyle: { backgroundColor: "white" },
+								}}
+							>
+								<Stack.Screen name="(tabs)" />
+								<Stack.Screen name="getStarted/index" />
+							</Stack>
+						</GestureHandlerRootView>
+					</SafeAreaView>
 				</AppStateProvider>
 			</QueryClientProvider>
 		</CustomToastProvider>

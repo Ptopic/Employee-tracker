@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { RefreshControl, ScrollView, View } from "react-native";
+import { RefreshControl, SafeAreaView, ScrollView, View } from "react-native";
 import Text from "@/components/Text";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
 import {
@@ -58,41 +58,43 @@ export function HomeScreen() {
 	}, [userInfoQuery.data?.fullName]);
 
 	return (
-		<ScrollView
-			className="flex-1 bg-gray-100"
-			contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
-			refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
-		>
-			<Text className="text-base text-gray-600 mb-1">{greeting}</Text>
-			<MonthYearHeader
-				monthDate={visibleMonth}
-				onPrevMonth={() =>
-					setVisibleMonth(
-						(current) => new Date(current.getFullYear(), current.getMonth() - 1, 1),
-					)
-				}
-				onNextMonth={() =>
-					setVisibleMonth(
-						(current) => new Date(current.getFullYear(), current.getMonth() + 1, 1),
-					)
-				}
-			/>
+		<SafeAreaView className="flex-1 bg-gray-100">
+			<ScrollView
+				className="flex-1 bg-gray-100"
+				contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
+				refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
+			>
+				<Text className="text-base text-gray-600 mb-1">{greeting}</Text>
+				<MonthYearHeader
+					monthDate={visibleMonth}
+					onPrevMonth={() =>
+						setVisibleMonth(
+							(current) => new Date(current.getFullYear(), current.getMonth() - 1, 1),
+						)
+					}
+					onNextMonth={() =>
+						setVisibleMonth(
+							(current) => new Date(current.getFullYear(), current.getMonth() + 1, 1),
+						)
+					}
+				/>
 
-			{hasError ? (
-				<View className="rounded-xl p-4 mb-4 bg-red-50 border border-red-200">
-					<Text className="text-red-700">Unable to load dashboard data. Pull to refresh.</Text>
-				</View>
-			) : null}
+				{hasError ? (
+					<View className="rounded-xl p-4 mb-4 bg-red-50 border border-red-200">
+						<Text className="text-red-700">Unable to load dashboard data. Pull to refresh.</Text>
+					</View>
+				) : null}
 
-			<StatsCards
-				weeklyHours={weeklyHoursQuery.data?.totalHours ?? 0}
-				todayEmployees={todayEmployeesQuery.data?.count ?? 0}
-				isLoading={isLoading}
-			/>
+				<StatsCards
+					weeklyHours={weeklyHoursQuery.data?.totalHours ?? 0}
+					todayEmployees={todayEmployeesQuery.data?.count ?? 0}
+					isLoading={isLoading}
+				/>
 
-			<TodayScheduleList shifts={todayShiftsQuery.data ?? []} isLoading={isLoading} />
+				<TodayScheduleList shifts={todayShiftsQuery.data ?? []} isLoading={isLoading} />
 
-			<PrimaryActions />
-		</ScrollView>
+				<PrimaryActions />
+			</ScrollView>
+		</SafeAreaView>
 	);
 }
