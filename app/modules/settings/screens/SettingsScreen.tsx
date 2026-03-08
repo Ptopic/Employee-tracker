@@ -6,25 +6,18 @@ import { useQueryClient } from "@tanstack/react-query";
 import authRequests from "@/api/auth/requests";
 import {
 	useCompanySettings,
-	useExportWeeklyPdf,
 	usePreferencesSettings,
 	useSaveCompanySettings,
 	useSavePreferences,
 	useUploadLogo,
 } from "@/api/settings/hooks";
 import Text from "@/components/Text";
+import { ExportPanel } from "@/modules/export/components/ExportPanel";
 import { clearSessionTokens } from "@/shared/auth";
 import { usePreferencesState } from "@/shared/state/preferences-state";
 import { LogoUploadField } from "../components/LogoUploadField";
 import { OptionSelector } from "../components/OptionSelector";
 import { SettingsSection } from "../components/SettingsSection";
-
-const getDefaultWeekStart = () => {
-	const now = new Date();
-	const iso = new Date(now);
-	iso.setUTCDate(now.getUTCDate() - ((now.getUTCDay() + 6) % 7));
-	return iso.toISOString().slice(0, 10);
-};
 
 export function SettingsScreen() {
 	const queryClient = useQueryClient();
@@ -33,14 +26,12 @@ export function SettingsScreen() {
 	const saveCompany = useSaveCompanySettings();
 	const savePreferences = useSavePreferences();
 	const uploadLogo = useUploadLogo();
-	const exportWeeklyPdf = useExportWeeklyPdf();
 	const { setPreferences } = usePreferencesState();
 
 	const [companyName, setCompanyName] = useState("");
 	const [logoUrl, setLogoUrl] = useState("");
 	const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("24h");
 	const [firstDayOfWeek, setFirstDayOfWeek] = useState<"Sunday" | "Monday">("Monday");
-	const [weekStart, setWeekStart] = useState(getDefaultWeekStart());
 	const [errorText, setErrorText] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -59,12 +50,8 @@ export function SettingsScreen() {
 	}, [preferencesQuery.data, setPreferences]);
 
 	const isBusy = useMemo(
-		() =>
-			saveCompany.isPending ||
-			savePreferences.isPending ||
-			uploadLogo.isPending ||
-			exportWeeklyPdf.isPending,
-		[saveCompany.isPending, savePreferences.isPending, uploadLogo.isPending, exportWeeklyPdf.isPending],
+		() => saveCompany.isPending || savePreferences.isPending || uploadLogo.isPending,
+		[saveCompany.isPending, savePreferences.isPending, uploadLogo.isPending],
 	);
 
 	const handlePickLogo = async () => {
@@ -98,9 +85,7 @@ export function SettingsScreen() {
 	const handleSaveCompany = async () => {
 		setErrorText(null);
 		const saved = await saveCompany.mutateAsync({ companyName, logoUrl });
-		if (!saved) {
-			setErrorText("Could not save company settings.");
-		}
+		if (!saved) setErrorText("Could not save company settings.");
 	};
 
 	const handleSavePreferences = async () => {
@@ -112,23 +97,6 @@ export function SettingsScreen() {
 			return;
 		}
 		setPreferences(payload);
-	};
-
-	const handleExportWeeklyPdf = () => {
-		Alert.alert("Export weekly PDF", `Export report for week starting ${weekStart}?`, [
-			{ text: "Cancel", style: "cancel" },
-			{
-				text: "Export",
-				onPress: async () => {
-					const result = await exportWeeklyPdf.mutateAsync(weekStart);
-					if (!result) {
-						setErrorText("Export failed. Please check the week value and try again.");
-						return;
-					}
-					Alert.alert("Export complete", `Weekly PDF generated (${result.fileSize} bytes).`);
-				},
-			},
-		]);
 	};
 
 	const handleLogout = () => {
@@ -160,11 +128,7 @@ export function SettingsScreen() {
 					onChangeText={setCompanyName}
 				/>
 				<LogoUploadField logoUrl={logoUrl} onPick={handlePickLogo} uploading={uploadLogo.isPending} />
-				<Pressable
-					className="rounded-lg bg-black py-3 items-center"
-					onPress={handleSaveCompany}
-					disabled={isBusy}
-				>
+				<Pressable className="rounded-lg bg-black py-3 items-center" onPress={handleSaveCompany} disabled={isBusy}>
 					<Text className="text-white font-semibold">Save Company Settings</Text>
 				</Pressable>
 			</SettingsSection>
@@ -188,30 +152,13 @@ export function SettingsScreen() {
 						{ label: "Monday", value: "Monday" },
 					]}
 				/>
-				<Pressable
-					className="rounded-lg bg-black py-3 items-center"
-					onPress={handleSavePreferences}
-					disabled={isBusy}
-				>
+				<Pressable className="rounded-lg bg-black py-3 items-center" onPress={handleSavePreferences} disabled={isBusy}>
 					<Text className="text-white font-semibold">Save Preferences</Text>
 				</Pressable>
 			</SettingsSection>
 
 			<SettingsSection title="Exports">
-				<Text className="text-gray-700 mb-2">Week picker (YYYY-MM-DD)</Text>
-				<TextInput
-					className="rounded-lg border border-gray-300 px-3 py-3 mb-3"
-					placeholder="2026-03-02"
-					value={weekStart}
-					onChangeText={setWeekStart}
-				/>
-				<Pressable
-					className="rounded-lg bg-black py-3 items-center"
-					onPress={handleExportWeeklyPdf}
-					disabled={isBusy}
-				>
-					<Text className="text-white font-semibold">Export Weekly PDF</Text>
-				</Pressable>
+				<ExportPanel />
 			</SettingsSection>
 
 			<SettingsSection title="Account">

@@ -1,5 +1,4 @@
 import { config } from "@/shared/config";
-import { getAccessToken } from "@/shared/auth";
 import authenticatedRequest from "../authenticatedRequest";
 import type { CompanySettings, PreferencesSettings } from "./types";
 
@@ -31,33 +30,10 @@ const uploadLogo = (base64DataUri: string) =>
 		body: JSON.stringify({ logo: base64DataUri }),
 	}) as Promise<{ url: string } | null>;
 
-const exportWeeklyPdf = async (weekStart: string) => {
-	const accessToken = await getAccessToken();
-	const response = await fetch(
-		`${config.apiUrl}/settings/exports/weekly-pdf?weekStart=${encodeURIComponent(weekStart)}`,
-		{
-			method: "GET",
-			headers: {
-				Authorization: accessToken ? `Bearer ${accessToken}` : "",
-			},
-		},
-	);
-
-	if (!response.ok) {
-		return null;
-	}
-
-	const bytes = await response.arrayBuffer();
-	return {
-		fileSize: bytes.byteLength,
-	};
-};
-
 export default {
 	getCompanySettings,
 	updateCompanySettings,
 	getPreferences,
 	updatePreferences,
 	uploadLogo,
-	exportWeeklyPdf,
 };

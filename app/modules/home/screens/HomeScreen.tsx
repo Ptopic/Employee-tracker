@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
+import { router } from "expo-router";
 import Text from "@/components/Text";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
 import {
@@ -92,7 +93,18 @@ export function HomeScreen() {
 
 			<TodayScheduleList shifts={todayShiftsQuery.data ?? []} isLoading={isLoading} />
 
-			<PrimaryActions />
+			<PrimaryActions
+				onExportWeeklyPdf={() => {
+					const now = new Date();
+					const utcDay = (now.getUTCDay() + 6) % 7;
+					const monday = new Date(now);
+					monday.setUTCDate(now.getUTCDate() - utcDay);
+					router.push({
+						pathname: "/export/preview",
+						params: { weekStart: monday.toISOString().slice(0, 10) },
+					});
+				}}
+			/>
 		</ScrollView>
 	);
 }
