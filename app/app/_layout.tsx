@@ -3,11 +3,17 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Linking, StatusBar, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+	ActivityIndicator,
+	Linking,
+	SafeAreaView,
+	StatusBar,
+} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
 import SharedGroupPreferences from "react-native-shared-group-preferences";
+import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import {
 	clearSessionTokens,
 	getAccessToken,
@@ -15,7 +21,6 @@ import {
 	saveSessionTokens,
 } from "@/shared/auth";
 import { config } from "@/shared/config";
-import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { getQueryClient } from "@/shared/queryClient";
 import { AppStateProvider } from "@/shared/state/app-state";
 import { PreferencesBootstrap } from "@/shared/state/PreferencesBootstrap";
@@ -113,7 +118,10 @@ function RootLayoutNav() {
 				}
 
 				const refreshData = await refreshResponse.json();
-				await saveSessionTokens(refreshData.accessToken, refreshData.refreshToken);
+				await saveSessionTokens(
+					refreshData.accessToken,
+					refreshData.refreshToken,
+				);
 				setIsAuthenticated(true);
 			} catch (error) {
 				log.error("[Auth] Session refresh failed", error);
@@ -165,9 +173,9 @@ function RootLayoutNav() {
 
 	if (isLoading) {
 		return (
-			<View className="flex-1 items-center justify-center bg-white">
+			<SafeAreaView className="flex-1 items-center justify-center bg-white">
 				<ActivityIndicator size="large" color="black" />
-			</View>
+			</SafeAreaView>
 		);
 	}
 
@@ -177,19 +185,21 @@ function RootLayoutNav() {
 				<QueryClientProvider client={queryClient}>
 					<AppStateProvider>
 						<PreferencesProvider>
-							<PreferencesBootstrap />
-							<StatusBar barStyle="dark-content" backgroundColor="white" />
-							<GestureHandlerRootView>
-								<Stack
-									screenOptions={{
-										headerShown: false,
-										contentStyle: { backgroundColor: "white" },
-									}}
-								>
-									<Stack.Screen name="(tabs)" />
-									<Stack.Screen name="getStarted/index" />
-								</Stack>
-							</GestureHandlerRootView>
+							<SafeAreaView className="flex-1 bg-white">
+								<PreferencesBootstrap />
+								<StatusBar barStyle="dark-content" backgroundColor="white" />
+								<GestureHandlerRootView>
+									<Stack
+										screenOptions={{
+											headerShown: false,
+											contentStyle: { backgroundColor: "white" },
+										}}
+									>
+										<Stack.Screen name="(tabs)" />
+										<Stack.Screen name="getStarted/index" />
+									</Stack>
+								</GestureHandlerRootView>
+							</SafeAreaView>
 						</PreferencesProvider>
 					</AppStateProvider>
 				</QueryClientProvider>

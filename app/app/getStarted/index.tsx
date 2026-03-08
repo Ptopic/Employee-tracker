@@ -17,8 +17,8 @@ import Title from "@/components/Title";
 import { saveSessionTokens } from "@/shared/auth";
 import { GoogleIcon } from "@/shared/svgs";
 
-const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "";
+const apiUrl = process.env.EXPO_PUBLIC_API_URL || "";
 
 const googleExpoRedirectUri = "https://auth.expo.io/@ghosty09/saveit";
 const googleExpoStartUri = "https://auth.expo.io/@ghosty09/saveit/start";
