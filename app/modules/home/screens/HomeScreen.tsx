@@ -52,24 +52,24 @@ function StatTile({
 	icon: ReactNode;
 }) {
 	return (
-		<View className="h-[102px] flex-1 rounded-2xl bg-[#F3F4F4] px-3 py-2.5">
+		<View className="h-[112px] flex-1 rounded-2xl bg-[#F1F3F3] px-3 py-3">
 			<View className="flex-row items-center gap-2">
 				{icon}
 				<View>
-					<Text className={muted ? "text-[#CDD2D8]" : "text-[#121212]"} style={{ fontSize: 12, fontWeight: "600", lineHeight: 16 }}>
+					<Text className={muted ? "text-[#CDD2D8]" : "text-[#121212]"} style={{ fontSize: 13, fontWeight: "600", lineHeight: 17 }}>
 						{title}
 					</Text>
-					<Text className={muted ? "text-[#D8DCE1]" : "text-[#9CA3AF]"} style={{ fontSize: 11, fontWeight: "400", lineHeight: 14 }}>
+					<Text className={muted ? "text-[#D8DCE1]" : "text-[#9CA3AF]"} style={{ fontSize: 12, fontWeight: "400", lineHeight: 16 }}>
 						{subtitle}
 					</Text>
 				</View>
 			</View>
-			<View className="mt-2 flex-row items-end">
-				<Text className={muted ? "text-[#CFD4DA]" : "text-[#111827]"} style={{ fontSize: 28, fontWeight: "700", lineHeight: 32 }}>
+			<View className="mt-2.5 flex-row items-end">
+				<Text className={muted ? "text-[#CFD4DA]" : "text-[#111827]"} style={{ fontSize: 54, fontWeight: "700", lineHeight: 54, letterSpacing: -1 }}>
 					{value}
 				</Text>
 				{unit ? (
-					<Text className={muted ? "text-[#CFD4DA]" : "text-[#6B7280]"} style={{ fontSize: 12, fontWeight: "400", lineHeight: 16, marginLeft: 4, marginBottom: 2 }}>
+					<Text className={muted ? "text-[#CFD4DA]" : "text-[#6B7280]"} style={{ fontSize: 14, fontWeight: "400", lineHeight: 18, marginLeft: 4, marginBottom: 6 }}>
 						{unit}
 					</Text>
 				) : null}
@@ -78,10 +78,10 @@ function StatTile({
 	);
 }
 
-function HistoryMetric({ value, label }: { value: string; label: string }) {
+function HistoryMetric({ value, label, withDivider }: { value: string; label: string; withDivider?: boolean }) {
 	return (
-		<View className="flex-1 pl-2 border-l border-[#EDEFF2]">
-			<Text className="text-[#111827]" style={{ fontSize: 20, fontWeight: "600", lineHeight: 24 }}>
+		<View className={`flex-1 pl-2 ${withDivider ? "border-l border-[#EDEFF2]" : ""}`}>
+			<Text className="text-[#111827]" style={{ fontSize: 18, fontWeight: "600", lineHeight: 22 }}>
 				{value}
 			</Text>
 			<Text className="text-[#9CA3AF]" style={{ fontSize: 11, fontWeight: "400", lineHeight: 14, marginTop: 2 }}>
@@ -113,8 +113,8 @@ function HistoryRow({
 				</View>
 				<View className="ml-3 flex-1 flex-row">
 					<HistoryMetric value={checkIn} label="Check In" />
-					<HistoryMetric value={checkOut} label="Check Out" />
-					<HistoryMetric value={totalHours} label="Total Hours" />
+					<HistoryMetric value={checkOut} label="Check Out" withDivider />
+					<HistoryMetric value={totalHours} label="Total Hours" withDivider />
 				</View>
 			</View>
 			<View className="mt-2.5 ml-[68px] flex-row items-center">
@@ -171,7 +171,7 @@ export function HomeScreen() {
 					<View className="flex-row justify-between items-start">
 						<View>
 							<Text className="text-[#6B7280]" style={{ fontSize: 14, fontWeight: "400", lineHeight: 20 }}>Good Morning,</Text>
-							<Text className="text-[#111827]" style={{ fontSize: 28, fontWeight: "700", lineHeight: 34, marginTop: 1 }}>{fullName}</Text>
+							<Text className="text-[#111827]" style={{ fontSize: 22, fontWeight: "700", lineHeight: 28, marginTop: 1 }}>{fullName}</Text>
 						</View>
 						<TouchableOpacity className="h-10 w-10 rounded-full bg-white items-center justify-center">
 							<Bell size={20} color="#111827" strokeWidth={1.9} />
@@ -179,19 +179,44 @@ export function HomeScreen() {
 					</View>
 					<Text className="mt-3 text-[#6B7280]" style={{ fontSize: 13, fontWeight: "400", lineHeight: 18 }}>{getTodayDateLabel()}</Text>
 					<View className="mt-3 self-end flex-row items-center rounded-full bg-[#5F857A] px-3 py-2">
-						<MapPin size={12} color="#FFFFFF" strokeWidth={2.4} />
+						<View className="h-4 w-4 rounded-full bg-white items-center justify-center">
+							<MapPin size={10} color="#5F857A" strokeWidth={2.4} />
+						</View>
 						<Text className="ml-2 text-white" style={{ fontSize: 13, fontWeight: "500", lineHeight: 16 }}>West Jakarta, Indonesia</Text>
 					</View>
 				</View>
 
 				<View className="mt-3 px-5">
 					<View className="flex-row gap-2.5">
-						<StatTile title="Check In" subtitle="Early" value={first} icon={<CheckCircle2 size={16} color="#5F857A" strokeWidth={2.4} />} />
-						<StatTile title="Check Out" subtitle="Not Yet" value={last} muted icon={<ArrowUpCircle size={16} color="#D4D9DF" strokeWidth={2.4} />} />
+						<StatTile
+							title="Check In"
+							subtitle="Early"
+							value={first}
+							icon={<View className="h-6 w-6 rounded-full bg-[#DCE7E3] items-center justify-center"><CheckCircle2 size={14} color="#4F796E" strokeWidth={2.4} /></View>}
+						/>
+						<StatTile
+							title="Check Out"
+							subtitle="Not Yet"
+							value={last}
+							muted
+							icon={<View className="h-6 w-6 rounded-full bg-[#ECEFF3] items-center justify-center"><ArrowUpCircle size={14} color="#D4D9DF" strokeWidth={2.4} /></View>}
+						/>
 					</View>
 					<View className="mt-2.5 flex-row gap-2.5">
-						<StatTile title="Absence" subtitle="November" value={String(absence)} unit="Day" icon={<ArrowUpCircle size={16} color="#5F857A" strokeWidth={2.4} />} />
-						<StatTile title="Total Attended" subtitle="November" value={String(todayEmployees)} unit="Day" icon={<RefreshCw size={16} color="#5F857A" strokeWidth={2.4} />} />
+						<StatTile
+							title="Absence"
+							subtitle="November"
+							value={String(absence)}
+							unit="Day"
+							icon={<View className="h-6 w-6 rounded-full bg-[#DCE7E3] items-center justify-center"><ArrowUpCircle size={14} color="#4F796E" strokeWidth={2.4} /></View>}
+						/>
+						<StatTile
+							title="Total Attended"
+							subtitle="November"
+							value={String(todayEmployees)}
+							unit="Day"
+							icon={<View className="h-6 w-6 rounded-full bg-[#DCE7E3] items-center justify-center"><RefreshCw size={14} color="#4F796E" strokeWidth={2.4} /></View>}
+						/>
 					</View>
 				</View>
 

@@ -86,15 +86,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 								/>
 							);
 						}
-						return (
-							<TabItem
-								key={route.key}
-								label={label}
-								focused={focused}
-								onPress={onPress}
-								icon={<Send size={20} color={iconColor} strokeWidth={2.2} />}
-							/>
-						);
+						return null;
 					})}
 				</View>
 			</View>
