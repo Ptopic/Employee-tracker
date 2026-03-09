@@ -124,13 +124,13 @@ export function HomeScreen() {
 						<MetricTile
 							label="Check In"
 							subLabel="Early"
-							value={isLoading ? "..:.." : formatTime(first, timeFormat)}
+							value={isLoading ? "--:--" : first.slice(0, 5)}
 							icon="arrow-down"
 						/>
 						<MetricTile
 							label="Check Out"
 							subLabel="Not yet"
-							value={isLoading ? "..:.." : formatTime(last, timeFormat)}
+							value={isLoading ? "--:--" : last.slice(0, 5)}
 							icon="arrow-up"
 							muted
 						/>
