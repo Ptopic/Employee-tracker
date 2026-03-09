@@ -118,8 +118,17 @@ export function HomeScreen() {
 							{firstName}
 						</Text>
 					</View>
-					<TouchableOpacity className="w-10 h-10 rounded-full border border-[#DDE4E2] bg-white items-center justify-center mt-1">
-						<Ionicons name="notifications-outline" size={20} color="#1B2126" />
+					<TouchableOpacity
+						className="w-10 h-10 rounded-full bg-white items-center justify-center mt-1"
+						style={{
+							shadowColor: "#000",
+							shadowOpacity: 0.06,
+							shadowRadius: 8,
+							shadowOffset: { width: 0, height: 2 },
+							elevation: 2,
+						}}
+					>
+						<Ionicons name="notifications-outline" size={18} color="#1F2937" />
 					</TouchableOpacity>
 				</View>
 
