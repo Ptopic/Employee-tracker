@@ -61,62 +61,76 @@ export function HomeScreen() {
 	}, [userInfoQuery.data?.fullName]);
 
 	return (
-		<SafeAreaView className="flex-1 bg-gray-100">
+		<SafeAreaView className="flex-1 bg-slate-950">
 			<ScrollView
-				className="flex-1 bg-gray-100"
-				contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
+				className="flex-1"
+				contentContainerStyle={{ paddingBottom: 24 }}
 				refreshControl={
-					<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+					<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#fff" />
 				}
 			>
-				<Text className="text-base text-gray-600 mb-1">{greeting}</Text>
-				<MonthYearHeader
-					monthDate={visibleMonth}
-					onPrevMonth={() =>
-						setVisibleMonth(
-							(current) =>
-								new Date(current.getFullYear(), current.getMonth() - 1, 1),
-						)
-					}
-					onNextMonth={() =>
-						setVisibleMonth(
-							(current) =>
-								new Date(current.getFullYear(), current.getMonth() + 1, 1),
-						)
-					}
-				/>
-
-				{hasError ? (
-					<View className="rounded-xl p-4 mb-4 bg-red-50 border border-red-200">
-						<Text className="text-red-700">
-							Unable to load dashboard data. Pull to refresh.
+				<View className="px-5 pt-4 pb-6 bg-slate-950">
+					<Text className="text-slate-300 text-sm">{greeting}</Text>
+					<Text className="text-white text-2xl font-bold mt-1">Time Management</Text>
+					<View className="flex-row mt-5 border-b border-slate-800">
+						<Text className="text-amber-300 font-semibold pb-3 mr-6 border-b-2 border-amber-300">
+							Attendance
 						</Text>
+						<Text className="text-slate-500 pb-3 mr-6">Time off</Text>
+						<Text className="text-slate-500 pb-3">Overtime</Text>
 					</View>
-				) : null}
+				</View>
 
-				<StatsCards
-					weeklyHours={weeklyHoursQuery.data?.totalHours ?? 0}
-					todayEmployees={todayEmployeesQuery.data?.count ?? 0}
-					isLoading={isLoading}
-				/>
+				<View className="-mt-4 bg-white rounded-t-3xl px-5 pt-5">
+					<MonthYearHeader
+						monthDate={visibleMonth}
+						onPrevMonth={() =>
+							setVisibleMonth(
+								(current) =>
+									new Date(current.getFullYear(), current.getMonth() - 1, 1),
+							)
+						}
+						onNextMonth={() =>
+							setVisibleMonth(
+								(current) =>
+									new Date(current.getFullYear(), current.getMonth() + 1, 1),
+							)
+						}
+					/>
 
-				<TodayScheduleList
-					shifts={todayShiftsQuery.data ?? []}
-					isLoading={isLoading}
-				/>
+					{hasError ? (
+						<View className="rounded-2xl p-4 mb-4 bg-red-50 border border-red-200">
+							<Text className="text-red-700">
+								Unable to load dashboard data. Pull to refresh.
+							</Text>
+						</View>
+					) : null}
 
-				<PrimaryActions
-					onExportWeeklyPdf={() => {
-						const now = new Date();
-						const utcDay = (now.getUTCDay() + 6) % 7;
-						const monday = new Date(now);
-						monday.setUTCDate(now.getUTCDate() - utcDay);
-						router.push({
-							pathname: "/export/preview",
-							params: { weekStart: monday.toISOString().slice(0, 10) },
-						});
-					}}
-				/>
+					<StatsCards
+						weeklyHours={weeklyHoursQuery.data?.totalHours ?? 0}
+						todayEmployees={todayEmployeesQuery.data?.count ?? 0}
+						todayShifts={todayShiftsQuery.data?.length ?? 0}
+						isLoading={isLoading}
+					/>
+
+					<TodayScheduleList
+						shifts={todayShiftsQuery.data ?? []}
+						isLoading={isLoading}
+					/>
+
+					<PrimaryActions
+						onExportWeeklyPdf={() => {
+							const now = new Date();
+							const utcDay = (now.getUTCDay() + 6) % 7;
+							const monday = new Date(now);
+							monday.setUTCDate(now.getUTCDate() - utcDay);
+							router.push({
+								pathname: "/export/preview",
+								params: { weekStart: monday.toISOString().slice(0, 10) },
+							});
+						}}
+					/>
+				</View>
 			</ScrollView>
 		</SafeAreaView>
 	);

@@ -19,12 +19,23 @@ export function MonthYearHeader({
 
 	return (
 		<View className="flex-row items-center justify-between mb-4">
-			<TouchableOpacity onPress={onPrevMonth} className="px-3 py-2 rounded-lg bg-white">
-				<Text className="text-lg">←</Text>
+			<TouchableOpacity
+				onPress={onPrevMonth}
+				className="w-10 h-10 rounded-xl bg-slate-100 items-center justify-center"
+			>
+				<Text className="text-lg text-slate-700">←</Text>
 			</TouchableOpacity>
-			<Text className="text-2xl font-bold text-black">{monthYear}</Text>
-			<TouchableOpacity onPress={onNextMonth} className="px-3 py-2 rounded-lg bg-white">
-				<Text className="text-lg">→</Text>
+
+			<View className="px-4 py-2 rounded-xl bg-slate-100 flex-row items-center gap-2">
+				<Text className="text-slate-700">📅</Text>
+				<Text className="text-base font-semibold text-slate-900">{monthYear}</Text>
+			</View>
+
+			<TouchableOpacity
+				onPress={onNextMonth}
+				className="w-10 h-10 rounded-xl bg-slate-100 items-center justify-center"
+			>
+				<Text className="text-lg text-slate-700">→</Text>
 			</TouchableOpacity>
 		</View>
 	);
