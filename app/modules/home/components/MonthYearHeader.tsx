@@ -1,5 +1,5 @@
 import { TouchableOpacity, View } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ChevronDown } from "lucide-react-native";
 import Text from "@/components/Text";
 
 type MonthYearHeaderProps = {
@@ -24,20 +24,20 @@ export function MonthYearHeader({
 				onPress={onPrevMonth}
 				className="w-10 h-10 rounded-xl bg-slate-100 items-center justify-center border border-slate-200"
 			>
-				<Ionicons name="chevron-back" size={18} color="#334155" />
+				<ChevronLeft size={18} color="#334155" strokeWidth={2} />
 			</TouchableOpacity>
 
 			<View className="px-4 h-10 rounded-xl bg-white flex-row items-center gap-2 border border-slate-200">
-				<Ionicons name="calendar-outline" size={18} color="#0f172a" />
+				<CalendarIcon size={18} color="#0f172a" strokeWidth={2} />
 				<Text className="text-[15px] font-semibold text-slate-900">{monthYear}</Text>
-				<Ionicons name="chevron-down" size={16} color="#334155" />
+				<ChevronDown size={16} color="#334155" strokeWidth={2} />
 			</View>
 
 			<TouchableOpacity
 				onPress={onNextMonth}
 				className="w-10 h-10 rounded-xl bg-slate-100 items-center justify-center border border-slate-200"
 			>
-				<Ionicons name="chevron-forward" size={18} color="#334155" />
+				<ChevronRight size={18} color="#334155" strokeWidth={2} />
 			</TouchableOpacity>
 		</View>
 	);

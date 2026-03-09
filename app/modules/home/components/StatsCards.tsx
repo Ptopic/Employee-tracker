@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { Calendar, Clock, User } from "lucide-react-native";
 import Text from "@/components/Text";
 
 type StatsCardsProps = {
@@ -16,12 +16,12 @@ function Card({
 }: {
 	title: string;
 	value: string;
-	icon: keyof typeof Ionicons.glyphMap;
+	icon: React.ReactNode;
 }) {
 	return (
 		<View className="flex-1 rounded-2xl p-4 bg-[#F8FBFF] border border-[#E5EDF6]">
 			<View className="w-8 h-8 rounded-full items-center justify-center mb-2 bg-sky-600">
-				<Ionicons name={icon} size={15} color="#fff" />
+				{icon}
 			</View>
 			<Text className="text-slate-500 text-xs mb-1">{title}</Text>
 			<Text className="text-[26px] leading-7 font-bold text-slate-900">{value}</Text>
@@ -42,17 +42,17 @@ export function StatsCards({
 				<Card
 					title="Present"
 					value={isLoading ? "..." : `${todayEmployees}`}
-					icon="person"
+					icon={<User size={15} color="#fff" />}
 				/>
 				<Card
 					title="Shifts"
 					value={isLoading ? "..." : `${todayShifts}`}
-					icon="calendar"
+					icon={<Calendar size={15} color="#fff" />}
 				/>
 				<Card
 					title="Week Hours"
 					value={isLoading ? "..." : `${weeklyHours.toFixed(1)}h`}
-					icon="time"
+					icon={<Clock size={15} color="#fff" />}
 				/>
 			</View>
 		</View>
