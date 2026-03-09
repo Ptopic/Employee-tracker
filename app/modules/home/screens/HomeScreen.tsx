@@ -15,7 +15,7 @@ import {
 } from "@/api/home/hooks";
 import type { TodayShift } from "@/api/home/types";
 import Text from "@/components/Text";
-import { HistoryRow, InfoChip, MetricTile, SectionHeader } from "@/components/redesign";
+import { HistoryRow, MetricTile, SectionHeader } from "@/components/redesign";
 import { useAppState } from "@/shared/state/app-state";
 
 const LOCATION_LABEL = "Office, West Jakarta, Indonesia";
@@ -123,11 +123,10 @@ export function HomeScreen() {
 					</TouchableOpacity>
 				</View>
 
-				<View className="mt-4 flex-row items-center gap-2">
-					<Text className="text-[#27312E] flex-1" style={{ fontSize: 13, fontWeight: "400", lineHeight: 18 }}>
+				<View className="mt-4">
+					<Text className="text-[#27312E]" style={{ fontSize: 13, fontWeight: "400", lineHeight: 18 }}>
 						{getTodayDateLabel()}
 					</Text>
-					<InfoChip label="West Jakarta, Indonesia" />
 				</View>
 
 				<View className="mt-4 gap-3">
