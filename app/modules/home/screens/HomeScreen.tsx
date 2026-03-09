@@ -106,10 +106,8 @@ export function HomeScreen() {
 			>
 				<View className="flex-row items-start justify-between">
 					<View>
-						<Text className="text-[#7B8B86] text-[18px]">Good Morning,</Text>
-						<Text className="text-[#151A1F] text-[38px] leading-10 font-bold mt-1">
-							{firstName}
-						</Text>
+						<Text className="body-large text-[#7B8B86]">Good Morning,</Text>
+						<Text className="display-bold text-[#151A1F] mt-1">{firstName}</Text>
 					</View>
 					<TouchableOpacity className="w-11 h-11 rounded-full border border-[#DDE4E2] bg-white items-center justify-center mt-1">
 						<Ionicons name="notifications-outline" size={20} color="#1B2126" />
@@ -117,7 +115,7 @@ export function HomeScreen() {
 				</View>
 
 				<View className="mt-4 flex-row items-center justify-between">
-					<Text className="text-[#667873] text-[15px]">{getTodayDateLabel()}</Text>
+					<Text className="body text-[#667873]">{getTodayDateLabel()}</Text>
 					<InfoChip label="West Jakarta, Indonesia" />
 				</View>
 
@@ -160,7 +158,7 @@ export function HomeScreen() {
 
 					{hasError ? (
 						<View className="rounded-2xl p-4 bg-red-50 border border-red-200">
-							<Text className="text-red-700">Unable to load dashboard data. Pull to refresh.</Text>
+							<Text className="body text-red-700">Unable to load dashboard data. Pull to refresh.</Text>
 						</View>
 					) : null}
 
@@ -188,7 +186,7 @@ export function HomeScreen() {
 
 					{!isLoading && shifts.length === 0 ? (
 						<View className="rounded-2xl p-4 bg-white border border-[#E8ECEB]">
-							<Text className="text-[#7B8B86]">No attendance history for today.</Text>
+							<Text className="body text-[#7B8B86]">No attendance history for today.</Text>
 						</View>
 					) : null}
 				</View>

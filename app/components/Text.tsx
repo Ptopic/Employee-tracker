@@ -16,7 +16,7 @@ const Text = ({
 	style?: StyleProp<TextStyle>;
 	numberOfLines?: number;
 }) => {
-	const finalClassName = className ? className : "body-small-regular";
+	const finalClassName = className ? className : "body";
 
 	return (
 		<TextNative

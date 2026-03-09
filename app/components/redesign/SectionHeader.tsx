@@ -14,10 +14,10 @@ export function SectionHeader({
 }: SectionHeaderProps) {
 	return (
 		<View className="flex-row items-center justify-between mb-3">
-			<Text className="text-[30px] leading-9 font-semibold text-[#151A1F]">{title}</Text>
+			<Text className="heading-large-bold text-[#151A1F]">{title}</Text>
 			{actionLabel ? (
 				<TouchableOpacity onPress={onActionPress}>
-					<Text className="text-[#6C817A] font-semibold">{actionLabel}</Text>
+					<Text className="body-small text-[#6C817A] font-semibold">{actionLabel}</Text>
 				</TouchableOpacity>
 			) : null}
 		</View>

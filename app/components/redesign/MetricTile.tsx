@@ -25,10 +25,10 @@ export function MetricTile({
 			<View className="w-7 h-7 rounded-full bg-[#5D8A7D] items-center justify-center mb-2">
 				<Ionicons name={icon} size={14} color="#fff" />
 			</View>
-			<Text className="text-[28px] leading-8 font-bold text-[#151A1F]">{value}</Text>
-			{unit ? <Text className="text-[#9AA6A1]">{unit}</Text> : null}
-			<Text className="text-[22px] leading-7 font-semibold text-[#1D2429] mt-1">{label}</Text>
-			{subLabel ? <Text className="text-[#9AA6A1]">{subLabel}</Text> : null}
+			<Text className="heading-xlarge-bold text-[#151A1F]">{value}</Text>
+			{unit ? <Text className="body text-[#9AA6A1]">{unit}</Text> : null}
+			<Text className="heading-bold text-[#1D2429] mt-1">{label}</Text>
+			{subLabel ? <Text className="body text-[#9AA6A1]">{subLabel}</Text> : null}
 		</AppCard>
 	);
 }
