@@ -1,22 +1,55 @@
-import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
-import { RefreshControl, SafeAreaView, ScrollView, View } from "react-native";
+import { useEffect, useMemo } from "react";
+import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
 import {
 	useTodayEmployees,
 	useTodayShifts,
 	useWeeklyHours,
 } from "@/api/home/hooks";
+import type { TodayShift } from "@/api/home/types";
 import Text from "@/components/Text";
+import {
+	HistoryRow,
+	InfoChip,
+	MetricTile,
+	SectionHeader,
+} from "@/components/redesign";
+import { usePreferencesState } from "@/shared/state/preferences-state";
 import { useAppState } from "@/shared/state/app-state";
-import { MonthYearHeader } from "../components/MonthYearHeader";
-import { PrimaryActions } from "../components/PrimaryActions";
-import { StatsCards } from "../components/StatsCards";
-import { TodayScheduleList } from "../components/TodayScheduleList";
+import { formatTime } from "@/utils/datetime";
+
+const LOCATION_LABEL = "Office, West Jakarta, Indonesia";
+
+function getTodayDateLabel() {
+	return new Date().toLocaleDateString("en-US", {
+		weekday: "long",
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+	});
+}
+
+function durationBetweenTimes(startTime: string, endTime: string) {
+	const [startH, startM] = startTime.split(":").map(Number);
+	const [endH, endM] = endTime.split(":").map(Number);
+	let minutes = endH * 60 + endM - (startH * 60 + startM);
+	if (minutes < 0) minutes += 24 * 60;
+	const hours = Math.floor(minutes / 60);
+	const mins = minutes % 60;
+	return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+}
+
+function getRange(shifts: TodayShift[]) {
+	if (!shifts.length) return { first: "--:--", last: "--:--" };
+	const sorted = [...shifts].sort((a, b) => a.startTime.localeCompare(b.startTime));
+	const sortedEnd = [...shifts].sort((a, b) => b.endTime.localeCompare(a.endTime));
+	return { first: sorted[0].startTime, last: sortedEnd[0].endTime };
+}
 
 export function HomeScreen() {
-	const [visibleMonth, setVisibleMonth] = useState(new Date());
 	const { selectedManagerId, setSelectedManagerId } = useAppState();
+	const { timeFormat } = usePreferencesState();
 
 	const userInfoQuery = useGetUserInfo();
 
@@ -53,83 +86,111 @@ export function HomeScreen() {
 		]);
 	};
 
-	const greeting = useMemo(() => {
+	const firstName = useMemo(() => {
 		const fullName = userInfoQuery.data?.fullName;
-		return fullName
-			? `Welcome back, ${fullName.split(" ")[0]}`
-			: "Welcome back";
+		return fullName ? fullName.split(" ")[0] : "Manager";
 	}, [userInfoQuery.data?.fullName]);
 
+	const shifts = todayShiftsQuery.data ?? [];
+	const { first, last } = getRange(shifts);
+	const todayEmployees = todayEmployeesQuery.data?.count ?? 0;
+	const todayShifts = shifts.length;
+	const absence = Math.max(todayEmployees - todayShifts, 0);
+
 	return (
-		<SafeAreaView className="flex-1 bg-slate-950">
+		<SafeAreaView className="flex-1 bg-[#EEF2F1]">
 			<ScrollView
 				className="flex-1"
-				contentContainerStyle={{ paddingBottom: 26 }}
-				refreshControl={
-					<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#fff" />
-				}
+				contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+				refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
 			>
-				<View className="px-5 pt-4 pb-7 bg-slate-950">
-					<Text className="text-slate-300 text-sm tracking-wide">{greeting}</Text>
-					<Text className="text-white text-[28px] font-bold mt-1">Time Management</Text>
-					<View className="flex-row mt-6 border-b border-slate-800">
-						<Text className="text-amber-300 font-semibold pb-3 mr-6 border-b-2 border-amber-300 text-[17px]">
-							Attendance
+				<View className="flex-row items-start justify-between">
+					<View>
+						<Text className="text-[#7B8B86] text-[18px]">Good Morning,</Text>
+						<Text className="text-[#151A1F] text-[38px] leading-10 font-bold mt-1">
+							{firstName}
 						</Text>
-						<Text className="text-slate-500 pb-3 mr-6 text-[17px]">Time off</Text>
-						<Text className="text-slate-500 pb-3 text-[17px]">Overtime</Text>
+					</View>
+					<TouchableOpacity className="w-11 h-11 rounded-full border border-[#DDE4E2] bg-white items-center justify-center mt-1">
+						<Ionicons name="notifications-outline" size={20} color="#1B2126" />
+					</TouchableOpacity>
+				</View>
+
+				<View className="mt-4 flex-row items-center justify-between">
+					<Text className="text-[#667873] text-[15px]">{getTodayDateLabel()}</Text>
+					<InfoChip label="West Jakarta, Indonesia" />
+				</View>
+
+				<View className="mt-4 gap-3">
+					<View className="flex-row gap-3">
+						<MetricTile
+							label="Check In"
+							subLabel="Early"
+							value={isLoading ? "..:.." : formatTime(first, timeFormat)}
+							icon="arrow-down"
+						/>
+						<MetricTile
+							label="Check Out"
+							subLabel="Not yet"
+							value={isLoading ? "..:.." : formatTime(last, timeFormat)}
+							icon="arrow-up"
+							muted
+						/>
+					</View>
+					<View className="flex-row gap-3">
+						<MetricTile
+							label="Absence"
+							subLabel="This month"
+							value={isLoading ? ".." : String(absence)}
+							unit="Day"
+							icon="remove"
+						/>
+						<MetricTile
+							label="Total Attended"
+							subLabel="This month"
+							value={isLoading ? ".." : String(todayEmployees)}
+							unit="Day"
+							icon="refresh"
+						/>
 					</View>
 				</View>
 
-				<View className="-mt-4 bg-white rounded-t-3xl px-5 pt-5 shadow-sm">
-					<MonthYearHeader
-						monthDate={visibleMonth}
-						onPrevMonth={() =>
-							setVisibleMonth(
-								(current) =>
-									new Date(current.getFullYear(), current.getMonth() - 1, 1),
-							)
-						}
-						onNextMonth={() =>
-							setVisibleMonth(
-								(current) =>
-									new Date(current.getFullYear(), current.getMonth() + 1, 1),
-							)
-						}
-					/>
+				<View className="mt-6">
+					<SectionHeader title="Attendance History" actionLabel="See More" />
 
 					{hasError ? (
-						<View className="rounded-2xl p-4 mb-4 bg-red-50 border border-red-200">
-							<Text className="text-red-700">
-								Unable to load dashboard data. Pull to refresh.
-							</Text>
+						<View className="rounded-2xl p-4 bg-red-50 border border-red-200">
+							<Text className="text-red-700">Unable to load dashboard data. Pull to refresh.</Text>
 						</View>
 					) : null}
 
-					<StatsCards
-						weeklyHours={weeklyHoursQuery.data?.totalHours ?? 0}
-						todayEmployees={todayEmployeesQuery.data?.count ?? 0}
-						todayShifts={todayShiftsQuery.data?.length ?? 0}
-						isLoading={isLoading}
-					/>
+					{shifts.map((shift: TodayShift, index: number) => {
+						const date = new Date(shift.date);
+						const dayNumber = String(date.getUTCDate());
+						const weekday = date.toLocaleDateString("en-US", {
+							weekday: "short",
+							timeZone: "UTC",
+						});
 
-					<TodayScheduleList
-						shifts={todayShiftsQuery.data ?? []}
-						isLoading={isLoading}
-					/>
+						return (
+							<HistoryRow
+								key={shift.id}
+								dayNumber={dayNumber}
+								weekday={weekday}
+								checkIn={formatTime(shift.startTime, timeFormat)}
+								checkOut={formatTime(shift.endTime, timeFormat)}
+								totalHours={durationBetweenTimes(shift.startTime, shift.endTime)}
+								location={LOCATION_LABEL}
+								highlighted={index === 0}
+							/>
+						);
+					})}
 
-					<PrimaryActions
-						onExportWeeklyPdf={() => {
-							const now = new Date();
-							const utcDay = (now.getUTCDay() + 6) % 7;
-							const monday = new Date(now);
-							monday.setUTCDate(now.getUTCDate() - utcDay);
-							router.push({
-								pathname: "/export/preview",
-								params: { weekStart: monday.toISOString().slice(0, 10) },
-							});
-						}}
-					/>
+					{!isLoading && shifts.length === 0 ? (
+						<View className="rounded-2xl p-4 bg-white border border-[#E8ECEB]">
+							<Text className="text-[#7B8B86]">No attendance history for today.</Text>
+						</View>
+					) : null}
 				</View>
 			</ScrollView>
 		</SafeAreaView>
