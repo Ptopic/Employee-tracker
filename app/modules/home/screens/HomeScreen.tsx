@@ -123,14 +123,14 @@ export function HomeScreen() {
 					</TouchableOpacity>
 				</View>
 
-				<View className="mt-4">
+				<View className="mt-3">
 					<Text className="text-[#27312E]" style={{ fontSize: 13, fontWeight: "400", lineHeight: 18 }}>
 						{getTodayDateLabel()}
 					</Text>
 				</View>
 
-				<View className="mt-4 gap-3">
-					<View className="flex-row gap-3">
+				<View className="mt-3 gap-2">
+					<View className="flex-row gap-2">
 						<MetricTile
 							label="Check In"
 							subLabel="Early"
@@ -147,7 +147,7 @@ export function HomeScreen() {
 							valueVariant="time"
 						/>
 					</View>
-					<View className="flex-row gap-3">
+					<View className="flex-row gap-2">
 						<MetricTile
 							label="Absence"
 							subLabel="November"
@@ -167,7 +167,7 @@ export function HomeScreen() {
 					</View>
 				</View>
 
-				<View className="mt-6">
+				<View className="mt-5">
 					<SectionHeader title="Attendance History" actionLabel="See More" />
 
 					{hasError ? (

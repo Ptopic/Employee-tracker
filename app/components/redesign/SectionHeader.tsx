@@ -13,7 +13,7 @@ export function SectionHeader({
 	onActionPress,
 }: SectionHeaderProps) {
 	return (
-		<View className="flex-row items-center justify-between mb-3">
+		<View className="flex-row items-center justify-between mb-2">
 			<Text className="text-[#151A1F]" style={{ fontSize: 17, fontWeight: "700", lineHeight: 22 }}>
 				{title}
 			</Text>

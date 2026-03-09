@@ -50,7 +50,7 @@ export function HistoryRow({
 	highlighted,
 }: HistoryRowProps) {
 	return (
-		<AppCard className={`p-3 mb-3 ${highlighted ? "bg-[#5D8A7D] border-[#5D8A7D]" : ""}`}>
+		<AppCard className={`p-3 mb-2 ${highlighted ? "bg-[#5D8A7D] border-[#5D8A7D]" : ""}`}>
 			<View className="flex-row items-center gap-3">
 				<View
 					className={`w-[72px] h-[84px] rounded-xl items-center justify-center ${highlighted ? "bg-white" : "bg-[#5D8A7D]"}`}
