@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { MapPin } from "lucide-react-native";
 import Text from "@/components/Text";
 import { AppCard } from "./AppCard";
 
@@ -75,7 +75,7 @@ export function HistoryRow({
 			</View>
 
 			<View className="flex-row items-center mt-2 ml-[72px]">
-				<Ionicons name="location" size={13} color={highlighted ? "#DDEAE5" : "#7B8B86"} />
+				<MapPin size={13} color={highlighted ? "#DDEAE5" : "#7B8B86"} strokeWidth={2.4} />
 				<Text
 					className={`ml-1 ${highlighted ? "text-[#DDEAE5]" : "text-[#7B8B86]"}`}
 					style={{ fontSize: 12, fontWeight: "400", lineHeight: 16 }}

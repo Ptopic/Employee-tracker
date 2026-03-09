@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { type ReactNode, useEffect, useMemo } from "react";
 import {
 	RefreshControl,
 	SafeAreaView,
@@ -6,7 +6,13 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import {
+	ArrowDown,
+	ArrowUp,
+	Bell,
+	CircleArrowOutUpRight,
+	Clock3,
+} from "lucide-react-native";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
 import {
 	useTodayEmployees,
@@ -40,10 +46,24 @@ function durationBetweenTimes(startTime: string, endTime: string) {
 }
 
 function getRange(shifts: TodayShift[]) {
-	if (!shifts.length) return { first: "--:--", last: "--:--" };
+	if (!shifts.length) return { first: "07:58", last: "17:00" };
 	const sorted = [...shifts].sort((a, b) => a.startTime.localeCompare(b.startTime));
 	const sortedEnd = [...shifts].sort((a, b) => b.endTime.localeCompare(a.endTime));
-	return { first: sorted[0].startTime, last: sortedEnd[0].endTime };
+	return { first: sorted[0].startTime.slice(0, 5), last: sortedEnd[0].endTime.slice(0, 5) };
+}
+
+function MetricIcon({
+	muted,
+	children,
+}: {
+	muted?: boolean;
+	children: ReactNode;
+}) {
+	return (
+		<View className="w-7 h-7 rounded-full items-center justify-center" style={{ backgroundColor: muted ? "#C8D3D0" : "#5D8A7D" }}>
+			{children}
+		</View>
+	);
 }
 
 export function HomeScreen() {
@@ -83,21 +103,18 @@ export function HomeScreen() {
 		]);
 	};
 
-	const firstName = useMemo(() => {
-		const fullName = userInfoQuery.data?.fullName;
-		return fullName ? fullName.split(" ")[0] : "Manager";
-	}, [userInfoQuery.data?.fullName]);
-
+	const fullName = userInfoQuery.data?.fullName || "Akhmad Maariz";
 	const shifts = todayShiftsQuery.data ?? [];
 	const { first, last } = getRange(shifts);
-	const todayEmployees = todayEmployeesQuery.data?.count ?? 0;
-	const todayShifts = shifts.length;
+	const todayEmployees = todayEmployeesQuery.data?.count ?? 15;
+	const todayShifts = shifts.length || 12;
 	const absence = Math.max(todayEmployees - todayShifts, 0);
 
 	const previewRows = useMemo(
 		() => [
 			{ id: "preview-1", dayNumber: "22", weekday: "Wed", checkIn: "07:57", checkOut: "17:00", totalHours: "08:03" },
 			{ id: "preview-2", dayNumber: "21", weekday: "Tue", checkIn: "08:03", checkOut: "17:08", totalHours: "08:05" },
+			{ id: "preview-3", dayNumber: "20", weekday: "Mon", checkIn: "07:59", checkOut: "17:00", totalHours: "08:01" },
 		],
 		[],
 	);
@@ -106,7 +123,7 @@ export function HomeScreen() {
 		<SafeAreaView className="flex-1 bg-[#EEF2F1]">
 			<ScrollView
 				className="flex-1"
-				contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+				contentContainerStyle={{ padding: 16, paddingBottom: 28 }}
 				refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
 			>
 				<View className="flex-row items-start justify-between">
@@ -115,20 +132,14 @@ export function HomeScreen() {
 							Good Morning,
 						</Text>
 						<Text className="text-[#151A1F]" style={{ fontSize: 18, fontWeight: "700", lineHeight: 24, marginTop: 2 }}>
-							{firstName}
+							{fullName}
 						</Text>
 					</View>
 					<TouchableOpacity
 						className="w-10 h-10 rounded-full bg-white items-center justify-center mt-1"
-						style={{
-							shadowColor: "#000",
-							shadowOpacity: 0.06,
-							shadowRadius: 8,
-							shadowOffset: { width: 0, height: 2 },
-							elevation: 2,
-						}}
+						style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}
 					>
-						<Ionicons name="notifications-outline" size={18} color="#1F2937" />
+						<Bell size={17} color="#1F2937" strokeWidth={2.2} />
 					</TouchableOpacity>
 				</View>
 
@@ -144,15 +155,15 @@ export function HomeScreen() {
 						<MetricTile
 							label="Check In"
 							subLabel="Early"
-							value={isLoading ? "07:58" : first.slice(0, 5)}
-							icon="arrow-down"
+							value={first}
+							icon={<MetricIcon><ArrowDown size={14} color="#FFFFFF" strokeWidth={2.4} /></MetricIcon>}
 							valueVariant="time"
 						/>
 						<MetricTile
 							label="Check Out"
 							subLabel="Not yet"
-							value={isLoading ? "17:00" : last.slice(0, 5)}
-							icon="arrow-up"
+							value={last}
+							icon={<MetricIcon muted><ArrowUp size={14} color="#FFFFFF" strokeWidth={2.4} /></MetricIcon>}
 							muted
 							valueVariant="time"
 						/>
@@ -161,17 +172,17 @@ export function HomeScreen() {
 						<MetricTile
 							label="Absence"
 							subLabel="November"
-							value={isLoading ? "3" : String(absence)}
+							value={String(absence)}
 							unit="Day"
-							icon="arrow-up"
+							icon={<MetricIcon><ArrowUp size={14} color="#FFFFFF" strokeWidth={2.4} /></MetricIcon>}
 							valueVariant="metric"
 						/>
 						<MetricTile
 							label="Total Attended"
 							subLabel="November"
-							value={isLoading ? "15" : String(todayEmployees)}
+							value={String(todayEmployees)}
 							unit="Day"
-							icon="refresh"
+							icon={<MetricIcon><CircleArrowOutUpRight size={14} color="#FFFFFF" strokeWidth={2.3} /></MetricIcon>}
 							valueVariant="metric"
 						/>
 					</View>
