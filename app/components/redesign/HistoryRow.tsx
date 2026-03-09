@@ -16,7 +16,7 @@ type HistoryRowProps = {
 function Column({ value, label }: { value: string; label: string }) {
 	return (
 		<View className="flex-1 items-center">
-			<Text className="heading-xlarge-bold text-[#1B2126]">{value}</Text>
+			<Text className="heading-large-bold text-[#1B2126]">{value}</Text>
 			<Text className="caption text-[#8A9692] mt-1">{label}</Text>
 		</View>
 	);

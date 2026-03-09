@@ -107,7 +107,7 @@ export function HomeScreen() {
 				<View className="flex-row items-start justify-between">
 					<View>
 						<Text className="body-large text-[#7B8B86]">Good Morning,</Text>
-						<Text className="display-bold text-[#151A1F] mt-1">{firstName}</Text>
+						<Text className="heading-xlarge-bold text-[#151A1F] mt-1">{firstName}</Text>
 					</View>
 					<TouchableOpacity className="w-11 h-11 rounded-full border border-[#DDE4E2] bg-white items-center justify-center mt-1">
 						<Ionicons name="notifications-outline" size={20} color="#1B2126" />
