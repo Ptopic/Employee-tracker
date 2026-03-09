@@ -1,6 +1,7 @@
-import { type ReactNode, useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { ArrowUpCircle, Bell, CheckCircle2, MapPin, RefreshCw } from "lucide-react-native";
+import type { ReactNode } from "react";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
 import { useTodayEmployees, useTodayShifts } from "@/api/home/hooks";
 import type { TodayShift } from "@/api/home/types";
@@ -51,31 +52,41 @@ function StatTile({
 	icon: ReactNode;
 }) {
 	return (
-		<View className="h-28 flex-1 rounded-2xl bg-[#F3F4F4] px-3.5 py-3">
-			<View className="flex-row items-center">
+		<View className="h-[102px] flex-1 rounded-2xl bg-[#F3F4F4] px-3 py-2.5">
+			<View className="flex-row items-center gap-2">
 				{icon}
-				<View className="ml-2">
-					<Text className={muted ? "text-[#C6CCD4]" : "text-[#111827]"} style={{ fontSize: 14, fontWeight: "600", lineHeight: 20 }}>
+				<View>
+					<Text className={muted ? "text-[#CDD2D8]" : "text-[#121212]"} style={{ fontSize: 12, fontWeight: "600", lineHeight: 16 }}>
 						{title}
 					</Text>
-					<Text className={muted ? "text-[#D5D9DF]" : "text-[#9CA3AF]"} style={{ fontSize: 12, fontWeight: "400", lineHeight: 16 }}>
+					<Text className={muted ? "text-[#D8DCE1]" : "text-[#9CA3AF]"} style={{ fontSize: 11, fontWeight: "400", lineHeight: 14 }}>
 						{subtitle}
 					</Text>
 				</View>
 			</View>
-			<View className="mt-3 flex-row items-end">
-				<Text
-					className={muted ? "text-[#CFD4DA]" : "text-[#111827]"}
-					style={{ fontSize: 46, fontWeight: "700", lineHeight: 48, letterSpacing: -0.5 }}
-				>
+			<View className="mt-2 flex-row items-end">
+				<Text className={muted ? "text-[#CFD4DA]" : "text-[#111827]"} style={{ fontSize: 28, fontWeight: "700", lineHeight: 32 }}>
 					{value}
 				</Text>
 				{unit ? (
-					<Text className={muted ? "text-[#CFD4DA]" : "text-[#111827]"} style={{ fontSize: 16, fontWeight: "400", lineHeight: 20, marginBottom: 6, marginLeft: 4 }}>
+					<Text className={muted ? "text-[#CFD4DA]" : "text-[#6B7280]"} style={{ fontSize: 12, fontWeight: "400", lineHeight: 16, marginLeft: 4, marginBottom: 2 }}>
 						{unit}
 					</Text>
 				) : null}
 			</View>
+		</View>
+	);
+}
+
+function HistoryMetric({ value, label }: { value: string; label: string }) {
+	return (
+		<View className="flex-1 pl-2 border-l border-[#EDEFF2]">
+			<Text className="text-[#111827]" style={{ fontSize: 20, fontWeight: "600", lineHeight: 24 }}>
+				{value}
+			</Text>
+			<Text className="text-[#9CA3AF]" style={{ fontSize: 11, fontWeight: "400", lineHeight: 14, marginTop: 2 }}>
+				{label}
+			</Text>
 		</View>
 	);
 }
@@ -94,38 +105,21 @@ function HistoryRow({
 	totalHours: string;
 }) {
 	return (
-		<View className="rounded-2xl bg-white px-3 py-3 mb-3">
-			<View className="flex-row">
-				<View className="h-[68px] w-[68px] items-center justify-center rounded-xl bg-[#5F857A]">
-					<Text className="text-white" style={{ fontSize: 34, fontWeight: "700", lineHeight: 36 }}>
-						{dayNumber}
-					</Text>
-					<Text className="text-white" style={{ fontSize: 16, fontWeight: "400", lineHeight: 20, marginTop: -2 }}>
-						{weekday}
-					</Text>
+		<View className="rounded-2xl bg-white px-3 py-3 mb-2.5">
+			<View className="flex-row items-center">
+				<View className="h-16 w-14 rounded-xl bg-[#5F857A] items-center justify-center">
+					<Text className="text-white" style={{ fontSize: 20, fontWeight: "700", lineHeight: 24 }}>{dayNumber}</Text>
+					<Text className="text-white" style={{ fontSize: 12, fontWeight: "400", lineHeight: 16 }}>{weekday}</Text>
 				</View>
-
-				<View className="ml-4 flex-1 flex-row justify-between pt-0.5">
-					{[
-						{ label: "Check In", value: checkIn },
-						{ label: "Check Out", value: checkOut },
-						{ label: "Total Hours", value: totalHours },
-					].map((item) => (
-						<View key={item.label}>
-							<Text className="text-[#111827]" style={{ fontSize: 34, fontWeight: "700", lineHeight: 36 }}>
-								{item.value}
-							</Text>
-							<Text className="text-[#9CA3AF]" style={{ fontSize: 12, fontWeight: "400", lineHeight: 16, marginTop: 2 }}>
-								{item.label}
-							</Text>
-						</View>
-					))}
+				<View className="ml-3 flex-1 flex-row">
+					<HistoryMetric value={checkIn} label="Check In" />
+					<HistoryMetric value={checkOut} label="Check Out" />
+					<HistoryMetric value={totalHours} label="Total Hours" />
 				</View>
 			</View>
-
-			<View className="mt-3 flex-row items-center pl-[84px]">
-				<MapPin size={14} color="#5F857A" strokeWidth={2.2} />
-				<Text className="text-[#6B7280]" style={{ fontSize: 14, fontWeight: "400", lineHeight: 20, marginLeft: 8 }}>
+			<View className="mt-2.5 ml-[68px] flex-row items-center">
+				<MapPin size={13} color="#5F857A" strokeWidth={2.2} />
+				<Text className="text-[#6B7280]" style={{ fontSize: 12, fontWeight: "400", lineHeight: 16, marginLeft: 6 }}>
 					{LOCATION_LABEL}
 				</Text>
 			</View>
@@ -138,26 +132,16 @@ export function HomeScreen() {
 	const userInfoQuery = useGetUserInfo();
 
 	useEffect(() => {
-		if (!selectedManagerId && userInfoQuery.data?.id) {
-			setSelectedManagerId(userInfoQuery.data.id);
-		}
+		if (!selectedManagerId && userInfoQuery.data?.id) setSelectedManagerId(userInfoQuery.data.id);
 	}, [selectedManagerId, setSelectedManagerId, userInfoQuery.data?.id]);
 
 	const managerId = selectedManagerId || userInfoQuery.data?.id;
 	const todayEmployeesQuery = useTodayEmployees(managerId);
 	const todayShiftsQuery = useTodayShifts(managerId);
 
-	const isLoading =
-		userInfoQuery.isLoading ||
-		todayEmployeesQuery.isLoading ||
-		todayShiftsQuery.isLoading;
-
+	const isLoading = userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading;
 	const onRefresh = async () => {
-		await Promise.all([
-			userInfoQuery.refetch(),
-			todayEmployeesQuery.refetch(),
-			todayShiftsQuery.refetch(),
-		]);
+		await Promise.all([userInfoQuery.refetch(), todayEmployeesQuery.refetch(), todayShiftsQuery.refetch()]);
 	};
 
 	const fullName = userInfoQuery.data?.fullName || "Akhmad Maariz";
@@ -176,85 +160,47 @@ export function HomeScreen() {
 	);
 
 	return (
-		<SafeAreaView className="flex-1 bg-[#EEF2F1]">
+		<SafeAreaView className="flex-1 bg-[#F4F5F5]">
 			<ScrollView
 				className="flex-1"
-				contentContainerStyle={{ paddingBottom: 110 }}
+				contentContainerStyle={{ paddingBottom: 112 }}
 				showsVerticalScrollIndicator={false}
 				refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
 			>
-				<View className="px-6 pt-2">
-					<View className="flex-row items-start justify-between">
+				<View className="px-5 pt-1">
+					<View className="flex-row justify-between items-start">
 						<View>
-							<Text className="text-[#6B7280]" style={{ fontSize: 28, fontWeight: "400", lineHeight: 34 }}>
-								Good Morning,
-							</Text>
-							<Text className="text-[#111827]" style={{ fontSize: 32, fontWeight: "700", lineHeight: 38, marginTop: -2 }}>
-								{fullName}
-							</Text>
+							<Text className="text-[#6B7280]" style={{ fontSize: 14, fontWeight: "400", lineHeight: 20 }}>Good Morning,</Text>
+							<Text className="text-[#111827]" style={{ fontSize: 28, fontWeight: "700", lineHeight: 34, marginTop: 1 }}>{fullName}</Text>
 						</View>
-						<TouchableOpacity className="h-11 w-11 items-center justify-center rounded-full bg-[#EEF2F1]">
-							<Bell size={22} color="#111827" strokeWidth={1.9} />
+						<TouchableOpacity className="h-10 w-10 rounded-full bg-white items-center justify-center">
+							<Bell size={20} color="#111827" strokeWidth={1.9} />
 						</TouchableOpacity>
 					</View>
-
-					<Text className="mt-4 text-[#6B7280]" style={{ fontSize: 14, fontWeight: "400", lineHeight: 20 }}>
-						{getTodayDateLabel()}
-					</Text>
-
-					<View className="mt-3 self-end flex-row items-center rounded-xl bg-[#5F857A] px-3 py-2">
-						<MapPin size={14} color="#FFFFFF" strokeWidth={2.2} />
-						<Text className="ml-2 text-white" style={{ fontSize: 14, fontWeight: "500", lineHeight: 20 }}>
-							West Jakarta, Indonesia
-						</Text>
+					<Text className="mt-3 text-[#6B7280]" style={{ fontSize: 13, fontWeight: "400", lineHeight: 18 }}>{getTodayDateLabel()}</Text>
+					<View className="mt-3 self-end flex-row items-center rounded-full bg-[#5F857A] px-3 py-2">
+						<MapPin size={12} color="#FFFFFF" strokeWidth={2.4} />
+						<Text className="ml-2 text-white" style={{ fontSize: 13, fontWeight: "500", lineHeight: 16 }}>West Jakarta, Indonesia</Text>
 					</View>
 				</View>
 
-				<View className="mt-4 px-6">
-					<View className="flex-row gap-3">
-						<StatTile
-							title="Check In"
-							subtitle="Early"
-							value={first}
-							icon={<CheckCircle2 size={18} color="#5F857A" strokeWidth={2.2} />}
-						/>
-						<StatTile
-							title="Check Out"
-							subtitle="Not Yet"
-							value={last}
-							muted
-							icon={<ArrowUpCircle size={18} color="#D4D9DF" strokeWidth={2.2} />}
-						/>
+				<View className="mt-3 px-5">
+					<View className="flex-row gap-2.5">
+						<StatTile title="Check In" subtitle="Early" value={first} icon={<CheckCircle2 size={16} color="#5F857A" strokeWidth={2.4} />} />
+						<StatTile title="Check Out" subtitle="Not Yet" value={last} muted icon={<ArrowUpCircle size={16} color="#D4D9DF" strokeWidth={2.4} />} />
 					</View>
-
-					<View className="mt-3 flex-row gap-3">
-						<StatTile
-							title="Absence"
-							subtitle="November"
-							value={String(absence)}
-							unit="Day"
-							icon={<ArrowUpCircle size={18} color="#5F857A" strokeWidth={2.2} />}
-						/>
-						<StatTile
-							title="Total Attended"
-							subtitle="November"
-							value={String(todayEmployees)}
-							unit="Day"
-							icon={<RefreshCw size={18} color="#5F857A" strokeWidth={2.2} />}
-						/>
+					<View className="mt-2.5 flex-row gap-2.5">
+						<StatTile title="Absence" subtitle="November" value={String(absence)} unit="Day" icon={<ArrowUpCircle size={16} color="#5F857A" strokeWidth={2.4} />} />
+						<StatTile title="Total Attended" subtitle="November" value={String(todayEmployees)} unit="Day" icon={<RefreshCw size={16} color="#5F857A" strokeWidth={2.4} />} />
 					</View>
 				</View>
 
-				<View className="mt-5 flex-row items-center justify-between px-6">
-					<Text className="text-[#111827]" style={{ fontSize: 32, fontWeight: "700", lineHeight: 38 }}>
-						Attendance History
-					</Text>
-					<Text className="text-[#6B7280]" style={{ fontSize: 16, fontWeight: "500", lineHeight: 22 }}>
-						See More
-					</Text>
+				<View className="mt-4 px-5 flex-row items-center justify-between">
+					<Text className="text-[#111827]" style={{ fontSize: 20, fontWeight: "700", lineHeight: 28 }}>Attendance History</Text>
+					<Text className="text-[#6B7280]" style={{ fontSize: 14, fontWeight: "500", lineHeight: 20 }}>See More</Text>
 				</View>
 
-				<View className="mt-3 px-6">
+				<View className="mt-2.5 px-5">
 					{shifts.length
 						? shifts.map((shift: TodayShift) => {
 								const date = new Date(shift.date);

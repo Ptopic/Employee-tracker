@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Tabs, type BottomTabBarProps } from "expo-router";
-import { ChartNoAxesColumn, House, ScanLine, Settings, Send } from "lucide-react-native";
+import { ArrowUpToLine, ChartNoAxesColumn, House, ScanLine, Settings } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 
 function TabItem({
@@ -30,7 +30,7 @@ function TabItem({
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 	return (
 		<View className="absolute bottom-0 left-0 right-0">
-			<View className="h-[78px] bg-white border-t border-[#E8EBEE] px-5">
+			<View className="h-[78px] bg-white border-t border-[#E8EBEE] px-6">
 				<View className="flex-1 flex-row items-center justify-between">
 					{state.routes.map((route, index) => {
 						const focused = state.index === index;
@@ -38,10 +38,6 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 						const onPress = () => {
 							if (!focused) navigation.navigate(route.name);
 						};
-
-						if (route.name === "employees") {
-							return <View key={route.key} className="w-14" />;
-						}
 
 						const iconColor = focused ? "#111827" : "#6B7280";
 						const label = String(options.title ?? route.name);
@@ -65,6 +61,17 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 									focused={focused}
 									onPress={onPress}
 									icon={<ChartNoAxesColumn size={20} color={iconColor} strokeWidth={2.2} />}
+								/>
+							);
+						}
+						if (route.name === "employees") {
+							return (
+								<TabItem
+									key={route.key}
+									label={label}
+									focused={focused}
+									onPress={onPress}
+									icon={<ArrowUpToLine size={20} color={iconColor} strokeWidth={2.2} />}
 								/>
 							);
 						}
