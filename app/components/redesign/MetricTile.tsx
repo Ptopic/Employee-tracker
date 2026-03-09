@@ -25,14 +25,14 @@ export function MetricTile({
 	const secondary = muted ? "#C1C9C6" : "#98A4A0";
 
 	return (
-		<AppCard className={`p-4 flex-1 h-[146px] ${muted ? "bg-[#F6F7F7]" : ""}`}>
+		<AppCard className={`p-4 flex-1 h-[138px] ${muted ? "bg-[#F6F7F7]" : ""}`}>
 			<View className="flex-row items-start gap-2">
 				<View className="w-7 h-7 rounded-full items-center justify-center" style={{ backgroundColor: iconBg }}>
 					<Ionicons name={icon} size={14} color="#fff" />
 				</View>
 				<View className="flex-1">
-					<Text className="heading text-[#1D2429] leading-6">{label}</Text>
-					{subLabel ? <Text className="caption" style={{ color: secondary }}>{subLabel}</Text> : null}
+					<Text className="body-large text-[#1D2429] font-semibold">{label}</Text>
+					{subLabel ? <Text className="subcaption" style={{ color: secondary }}>{subLabel}</Text> : null}
 				</View>
 			</View>
 

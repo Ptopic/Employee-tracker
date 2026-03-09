@@ -93,6 +93,18 @@ export function HomeScreen() {
 
 	const shifts = todayShiftsQuery.data ?? [];
 	const { first, last } = getRange(shifts);
+	const previewRows = useMemo(() => {
+		const today = new Date();
+		return [0, 1].map((offset) => {
+			const d = new Date(today);
+			d.setDate(today.getDate() - offset);
+			return {
+				id: `preview-${offset}`,
+				dayNumber: String(d.getDate()),
+				weekday: d.toLocaleDateString("en-US", { weekday: "short" }),
+			};
+		});
+	}, []);
 	const todayEmployees = todayEmployeesQuery.data?.count ?? 0;
 	const todayShifts = shifts.length;
 	const absence = Math.max(todayEmployees - todayShifts, 0);
@@ -107,7 +119,7 @@ export function HomeScreen() {
 				<View className="flex-row items-start justify-between">
 					<View>
 						<Text className="body-large text-[#7B8B86]">Good Morning,</Text>
-						<Text className="heading-xlarge-bold text-[#151A1F] mt-1">{firstName}</Text>
+						<Text className="heading-large-bold text-[#151A1F] mt-1">{firstName}</Text>
 					</View>
 					<TouchableOpacity className="w-11 h-11 rounded-full border border-[#DDE4E2] bg-white items-center justify-center mt-1">
 						<Ionicons name="notifications-outline" size={20} color="#1B2126" />
@@ -185,8 +197,19 @@ export function HomeScreen() {
 					})}
 
 					{!isLoading && shifts.length === 0 ? (
-						<View className="rounded-2xl p-4 bg-white border border-[#E8ECEB]">
-							<Text className="body text-[#7B8B86]">No attendance history for today.</Text>
+						<View>
+							{previewRows.map((row, index) => (
+								<HistoryRow
+									key={row.id}
+									dayNumber={row.dayNumber}
+									weekday={row.weekday}
+									checkIn="--:--"
+									checkOut="--:--"
+									totalHours="--:--"
+									location={LOCATION_LABEL}
+									highlighted={index === 0}
+								/>
+							))}
 						</View>
 					) : null}
 				</View>
