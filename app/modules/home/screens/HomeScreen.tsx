@@ -1,5 +1,11 @@
 import { useEffect, useMemo } from "react";
-import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import {
+	RefreshControl,
+	SafeAreaView,
+	ScrollView,
+	TouchableOpacity,
+	View,
+} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
 import {
@@ -9,15 +15,8 @@ import {
 } from "@/api/home/hooks";
 import type { TodayShift } from "@/api/home/types";
 import Text from "@/components/Text";
-import {
-	HistoryRow,
-	InfoChip,
-	MetricTile,
-	SectionHeader,
-} from "@/components/redesign";
-import { usePreferencesState } from "@/shared/state/preferences-state";
+import { HistoryRow, InfoChip, MetricTile, SectionHeader } from "@/components/redesign";
 import { useAppState } from "@/shared/state/app-state";
-import { formatTime } from "@/utils/datetime";
 
 const LOCATION_LABEL = "Office, West Jakarta, Indonesia";
 
@@ -49,8 +48,6 @@ function getRange(shifts: TodayShift[]) {
 
 export function HomeScreen() {
 	const { selectedManagerId, setSelectedManagerId } = useAppState();
-	const { timeFormat } = usePreferencesState();
-
 	const userInfoQuery = useGetUserInfo();
 
 	useEffect(() => {
@@ -93,21 +90,17 @@ export function HomeScreen() {
 
 	const shifts = todayShiftsQuery.data ?? [];
 	const { first, last } = getRange(shifts);
-	const previewRows = useMemo(() => {
-		const today = new Date();
-		return [0, 1].map((offset) => {
-			const d = new Date(today);
-			d.setDate(today.getDate() - offset);
-			return {
-				id: `preview-${offset}`,
-				dayNumber: String(d.getDate()),
-				weekday: d.toLocaleDateString("en-US", { weekday: "short" }),
-			};
-		});
-	}, []);
 	const todayEmployees = todayEmployeesQuery.data?.count ?? 0;
 	const todayShifts = shifts.length;
 	const absence = Math.max(todayEmployees - todayShifts, 0);
+
+	const previewRows = useMemo(
+		() => [
+			{ id: "preview-1", dayNumber: "22", weekday: "Wed", checkIn: "07:57", checkOut: "17:00", totalHours: "08:03" },
+			{ id: "preview-2", dayNumber: "21", weekday: "Tue", checkIn: "08:03", checkOut: "17:08", totalHours: "08:05" },
+		],
+		[],
+	);
 
 	return (
 		<SafeAreaView className="flex-1 bg-[#EEF2F1]">
@@ -118,16 +111,22 @@ export function HomeScreen() {
 			>
 				<View className="flex-row items-start justify-between">
 					<View>
-						<Text className="body-large text-[#7B8B86]">Good Morning,</Text>
-						<Text className="heading-large-bold text-[#151A1F] mt-1">{firstName}</Text>
+						<Text className="text-[#7B8B86]" style={{ fontSize: 14, fontWeight: "400", lineHeight: 18 }}>
+							Good Morning,
+						</Text>
+						<Text className="text-[#151A1F]" style={{ fontSize: 18, fontWeight: "700", lineHeight: 24, marginTop: 2 }}>
+							{firstName}
+						</Text>
 					</View>
-					<TouchableOpacity className="w-11 h-11 rounded-full border border-[#DDE4E2] bg-white items-center justify-center mt-1">
+					<TouchableOpacity className="w-10 h-10 rounded-full border border-[#DDE4E2] bg-white items-center justify-center mt-1">
 						<Ionicons name="notifications-outline" size={20} color="#1B2126" />
 					</TouchableOpacity>
 				</View>
 
-				<View className="mt-4 flex-row items-center justify-between">
-					<Text className="body text-[#667873]">{getTodayDateLabel()}</Text>
+				<View className="mt-4 flex-row items-center gap-2">
+					<Text className="text-[#27312E] flex-1" style={{ fontSize: 13, fontWeight: "400", lineHeight: 18 }}>
+						{getTodayDateLabel()}
+					</Text>
 					<InfoChip label="West Jakarta, Indonesia" />
 				</View>
 
@@ -138,6 +137,7 @@ export function HomeScreen() {
 							subLabel="Early"
 							value={isLoading ? "--:--" : first.slice(0, 5)}
 							icon="arrow-down"
+							valueVariant="time"
 						/>
 						<MetricTile
 							label="Check Out"
@@ -145,22 +145,25 @@ export function HomeScreen() {
 							value={isLoading ? "--:--" : last.slice(0, 5)}
 							icon="arrow-up"
 							muted
+							valueVariant="time"
 						/>
 					</View>
 					<View className="flex-row gap-3">
 						<MetricTile
 							label="Absence"
-							subLabel="This month"
+							subLabel="November"
 							value={isLoading ? ".." : String(absence)}
 							unit="Day"
-							icon="remove"
+							icon="arrow-up"
+							valueVariant="metric"
 						/>
 						<MetricTile
 							label="Total Attended"
-							subLabel="This month"
+							subLabel="November"
 							value={isLoading ? ".." : String(todayEmployees)}
 							unit="Day"
 							icon="refresh"
+							valueVariant="metric"
 						/>
 					</View>
 				</View>
@@ -174,7 +177,7 @@ export function HomeScreen() {
 						</View>
 					) : null}
 
-					{shifts.map((shift: TodayShift, index: number) => {
+					{shifts.map((shift: TodayShift) => {
 						const date = new Date(shift.date);
 						const dayNumber = String(date.getUTCDate());
 						const weekday = date.toLocaleDateString("en-US", {
@@ -187,27 +190,27 @@ export function HomeScreen() {
 								key={shift.id}
 								dayNumber={dayNumber}
 								weekday={weekday}
-								checkIn={formatTime(shift.startTime, timeFormat)}
-								checkOut={formatTime(shift.endTime, timeFormat)}
+								checkIn={shift.startTime.slice(0, 5)}
+								checkOut={shift.endTime.slice(0, 5)}
 								totalHours={durationBetweenTimes(shift.startTime, shift.endTime)}
 								location={LOCATION_LABEL}
-								highlighted={index === 0}
+								highlighted={false}
 							/>
 						);
 					})}
 
 					{!isLoading && shifts.length === 0 ? (
 						<View>
-							{previewRows.map((row, index) => (
+							{previewRows.map((row) => (
 								<HistoryRow
 									key={row.id}
 									dayNumber={row.dayNumber}
 									weekday={row.weekday}
-									checkIn="--:--"
-									checkOut="--:--"
-									totalHours="--:--"
+									checkIn={row.checkIn}
+									checkOut={row.checkOut}
+									totalHours={row.totalHours}
 									location={LOCATION_LABEL}
-									highlighted={index === 0}
+									highlighted={false}
 								/>
 							))}
 						</View>

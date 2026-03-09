@@ -10,6 +10,7 @@ type MetricTileProps = {
 	unit?: string;
 	icon: keyof typeof Ionicons.glyphMap;
 	muted?: boolean;
+	valueVariant?: "time" | "metric";
 };
 
 export function MetricTile({
@@ -19,10 +20,12 @@ export function MetricTile({
 	unit,
 	icon,
 	muted,
+	valueVariant = "time",
 }: MetricTileProps) {
-	const iconBg = muted ? "#BFD0CB" : "#5D8A7D";
-	const primary = muted ? "#9DA7A4" : "#1B2126";
-	const secondary = muted ? "#C1C9C6" : "#98A4A0";
+	const iconBg = muted ? "#C8D3D0" : "#5D8A7D";
+	const primary = muted ? "#BEC7C4" : "#111827";
+	const secondary = muted ? "#C3CBCA" : "#97A29E";
+	const valueSize = valueVariant === "time" ? 24 : 22;
 
 	return (
 		<AppCard className={`p-4 flex-1 h-[138px] ${muted ? "bg-[#F6F7F7]" : ""}`}>
@@ -31,16 +34,29 @@ export function MetricTile({
 					<Ionicons name={icon} size={14} color="#fff" />
 				</View>
 				<View className="flex-1">
-					<Text className="body-large text-[#1D2429] font-semibold">{label}</Text>
-					{subLabel ? <Text className="subcaption" style={{ color: secondary }}>{subLabel}</Text> : null}
+					<Text className="text-[#1D2429]" style={{ fontSize: 14, fontWeight: "600", lineHeight: 18 }}>
+						{label}
+					</Text>
+					{subLabel ? (
+						<Text className="text-[#9AA6A1]" style={{ fontSize: 11, fontWeight: "400", lineHeight: 14 }}>
+							{subLabel}
+						</Text>
+					) : null}
 				</View>
 			</View>
 
 			<View className="mt-auto flex-row items-end gap-2">
-				<Text className="heading-large-bold" style={{ color: primary }}>
+				<Text
+					className="text-[#1B2126]"
+					style={{ fontSize: valueSize, fontWeight: "700", lineHeight: valueVariant === "time" ? 30 : 28 }}
+				>
 					{value}
 				</Text>
-				{unit ? <Text className="body" style={{ color: secondary }}>{unit}</Text> : null}
+				{unit ? (
+					<Text className="text-[#9AA6A1]" style={{ fontSize: 11, fontWeight: "400", lineHeight: 14 }}>
+						{unit}
+					</Text>
+				) : null}
 			</View>
 		</AppCard>
 	);

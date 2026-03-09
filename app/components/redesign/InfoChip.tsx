@@ -8,9 +8,15 @@ type InfoChipProps = {
 
 export function InfoChip({ label }: InfoChipProps) {
 	return (
-		<View className="h-9 rounded-full bg-[#5D8A7D] px-4 flex-row items-center gap-2 self-start">
-			<Ionicons name="location" size={14} color="#fff" />
-			<Text className="body-small text-white font-semibold">{label}</Text>
+		<View className="h-9 max-w-[58%] rounded-full bg-[#5D8A7D] px-3 flex-row items-center gap-1.5 self-start">
+			<Ionicons name="location" size={13} color="#fff" />
+			<Text
+				className="text-white"
+				style={{ fontSize: 13, fontWeight: "500", lineHeight: 16 }}
+				numberOfLines={1}
+			>
+				{label}
+			</Text>
 		</View>
 	);
 }
