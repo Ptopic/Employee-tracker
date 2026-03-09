@@ -64,24 +64,24 @@ export function HomeScreen() {
 		<SafeAreaView className="flex-1 bg-slate-950">
 			<ScrollView
 				className="flex-1"
-				contentContainerStyle={{ paddingBottom: 24 }}
+				contentContainerStyle={{ paddingBottom: 26 }}
 				refreshControl={
 					<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#fff" />
 				}
 			>
-				<View className="px-5 pt-4 pb-6 bg-slate-950">
-					<Text className="text-slate-300 text-sm">{greeting}</Text>
-					<Text className="text-white text-2xl font-bold mt-1">Time Management</Text>
-					<View className="flex-row mt-5 border-b border-slate-800">
-						<Text className="text-amber-300 font-semibold pb-3 mr-6 border-b-2 border-amber-300">
+				<View className="px-5 pt-4 pb-7 bg-slate-950">
+					<Text className="text-slate-300 text-sm tracking-wide">{greeting}</Text>
+					<Text className="text-white text-[28px] font-bold mt-1">Time Management</Text>
+					<View className="flex-row mt-6 border-b border-slate-800">
+						<Text className="text-amber-300 font-semibold pb-3 mr-6 border-b-2 border-amber-300 text-[17px]">
 							Attendance
 						</Text>
-						<Text className="text-slate-500 pb-3 mr-6">Time off</Text>
-						<Text className="text-slate-500 pb-3">Overtime</Text>
+						<Text className="text-slate-500 pb-3 mr-6 text-[17px]">Time off</Text>
+						<Text className="text-slate-500 pb-3 text-[17px]">Overtime</Text>
 					</View>
 				</View>
 
-				<View className="-mt-4 bg-white rounded-t-3xl px-5 pt-5">
+				<View className="-mt-4 bg-white rounded-t-3xl px-5 pt-5 shadow-sm">
 					<MonthYearHeader
 						monthDate={visibleMonth}
 						onPrevMonth={() =>

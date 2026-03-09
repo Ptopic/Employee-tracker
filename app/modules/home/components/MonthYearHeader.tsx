@@ -1,4 +1,5 @@
 import { TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import Text from "@/components/Text";
 
 type MonthYearHeaderProps = {
@@ -13,29 +14,30 @@ export function MonthYearHeader({
 	onNextMonth,
 }: MonthYearHeaderProps) {
 	const monthYear = monthDate.toLocaleDateString("en-US", {
-		month: "long",
+		month: "short",
 		year: "numeric",
 	});
 
 	return (
-		<View className="flex-row items-center justify-between mb-4">
+		<View className="flex-row items-center justify-between mb-5">
 			<TouchableOpacity
 				onPress={onPrevMonth}
-				className="w-10 h-10 rounded-xl bg-slate-100 items-center justify-center"
+				className="w-10 h-10 rounded-xl bg-slate-100 items-center justify-center border border-slate-200"
 			>
-				<Text className="text-lg text-slate-700">←</Text>
+				<Ionicons name="chevron-back" size={18} color="#334155" />
 			</TouchableOpacity>
 
-			<View className="px-4 py-2 rounded-xl bg-slate-100 flex-row items-center gap-2">
-				<Text className="text-slate-700">📅</Text>
-				<Text className="text-base font-semibold text-slate-900">{monthYear}</Text>
+			<View className="px-4 h-10 rounded-xl bg-white flex-row items-center gap-2 border border-slate-200">
+				<Ionicons name="calendar-outline" size={18} color="#0f172a" />
+				<Text className="text-[15px] font-semibold text-slate-900">{monthYear}</Text>
+				<Ionicons name="chevron-down" size={16} color="#334155" />
 			</View>
 
 			<TouchableOpacity
 				onPress={onNextMonth}
-				className="w-10 h-10 rounded-xl bg-slate-100 items-center justify-center"
+				className="w-10 h-10 rounded-xl bg-slate-100 items-center justify-center border border-slate-200"
 			>
-				<Text className="text-lg text-slate-700">→</Text>
+				<Ionicons name="chevron-forward" size={18} color="#334155" />
 			</TouchableOpacity>
 		</View>
 	);

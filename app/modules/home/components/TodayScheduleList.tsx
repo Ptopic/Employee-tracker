@@ -1,4 +1,5 @@
 import { TextInput, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import Text from "@/components/Text";
 import type { TodayShift } from "@/api/home/types";
 import { usePreferencesState } from "@/shared/state/preferences-state";
@@ -43,17 +44,22 @@ export function TodayScheduleList({ shifts, isLoading }: TodayScheduleListProps)
 	const { timeFormat } = usePreferencesState();
 
 	return (
-		<View className="mb-5">
-			<View className="flex-row mb-3 gap-2">
-				<View className="flex-1 h-11 rounded-xl border border-slate-200 px-3 justify-center">
-					<TextInput placeholder="Search" editable={false} className="text-slate-400" />
+		<View className="mb-6">
+			<View className="flex-row mb-5 gap-2">
+				<View className="flex-1 h-12 rounded-xl border border-slate-200 px-3 flex-row items-center bg-white">
+					<Ionicons name="search" size={18} color="#94a3b8" />
+					<TextInput
+						placeholder="Search"
+						editable={false}
+						className="text-slate-400 ml-2 flex-1"
+					/>
 				</View>
-				<TouchableOpacity className="w-11 h-11 rounded-xl border border-slate-200 items-center justify-center">
-					<Text className="text-slate-400">⌕</Text>
+				<TouchableOpacity className="w-12 h-12 rounded-xl border border-slate-200 items-center justify-center bg-white">
+					<Ionicons name="options-outline" size={18} color="#64748b" />
 				</TouchableOpacity>
 			</View>
 
-			<Text className="text-lg font-semibold mb-3 text-slate-900">Attendance</Text>
+			<Text className="text-[24px] font-semibold mb-3 text-slate-900">Attendance</Text>
 
 			{isLoading ? (
 				<View className="rounded-2xl bg-white border border-slate-200 p-4">
@@ -64,26 +70,28 @@ export function TodayScheduleList({ shifts, isLoading }: TodayScheduleListProps)
 					<Text className="text-slate-500">No shifts scheduled for today.</Text>
 				</View>
 			) : (
-				<View className="rounded-2xl border border-slate-200 overflow-hidden mb-1">
+				<View className="rounded-2xl border border-slate-200 overflow-hidden mb-1 bg-white">
 					{shifts.map((shift, index) => (
 						<View
 							key={shift.id}
-							className={`bg-white px-4 py-4 flex-row items-center ${index < shifts.length - 1 ? "border-b border-slate-100" : ""}`}
+							className={`px-4 py-4 flex-row items-center ${index < shifts.length - 1 ? "border-b border-slate-100" : ""}`}
 						>
-							<View className="w-10 h-10 rounded-full bg-cyan-100 items-center justify-center mr-3">
+							<View className="w-10 h-10 rounded-full bg-cyan-100 items-center justify-center mr-3 border border-cyan-200">
 								<Text className="text-cyan-700 text-xs font-semibold">{initialsForShift(shift)}</Text>
 							</View>
 							<View className="flex-1 pr-2">
-								<Text className="text-slate-900 font-semibold">{shiftTitle(shift)}</Text>
-								<Text className="text-slate-500 mt-0.5 text-sm">
-									{formatTimeRange(shift.startTime, shift.endTime, timeFormat)}
+								<Text className="text-slate-900 font-semibold text-[19px]">
+									{shiftTitle(shift)}
+								</Text>
+								<Text className="text-slate-500 mt-0.5 text-[16px]">
+									In {formatTime(shift.startTime, timeFormat)}, Out {formatTime(shift.endTime, timeFormat)}
 								</Text>
 							</View>
 							<View className="items-end">
-								<Text className="text-slate-900 font-semibold">
+								<Text className="text-slate-900 font-semibold text-[17px]">
 									{durationBetweenTimes(shift.startTime, shift.endTime)}
 								</Text>
-								<Text className="text-slate-400 mt-0.5">›</Text>
+								<Ionicons name="chevron-forward" size={16} color="#94a3b8" />
 							</View>
 						</View>
 					))}
