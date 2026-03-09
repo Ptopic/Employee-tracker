@@ -50,10 +50,10 @@ export function HistoryRow({
 	highlighted,
 }: HistoryRowProps) {
 	return (
-		<AppCard className={`p-3 mb-2 ${highlighted ? "bg-[#5D8A7D] border-[#5D8A7D]" : ""}`}>
-			<View className="flex-row items-center gap-3">
+		<AppCard className={`px-3 py-2.5 mb-2 ${highlighted ? "bg-[#5D8A7D] border-[#5D8A7D]" : ""}`}>
+			<View className="flex-row items-center gap-2.5">
 				<View
-					className={`w-[72px] h-[84px] rounded-xl items-center justify-center ${highlighted ? "bg-white" : "bg-[#5D8A7D]"}`}
+					className={`w-[60px] h-[72px] rounded-xl items-center justify-center ${highlighted ? "bg-white" : "bg-[#5D8A7D]"}`}
 				>
 					<Text
 						className={highlighted ? "text-[#5D8A7D]" : "text-white"}
@@ -74,7 +74,7 @@ export function HistoryRow({
 				<TimeColumn value={totalHours} label="Total Hours" highlighted={highlighted} />
 			</View>
 
-			<View className="flex-row items-center mt-3 ml-[86px]">
+			<View className="flex-row items-center mt-2 ml-[72px]">
 				<Ionicons name="location" size={13} color={highlighted ? "#DDEAE5" : "#7B8B86"} />
 				<Text
 					className={`ml-1 ${highlighted ? "text-[#DDEAE5]" : "text-[#7B8B86]"}`}

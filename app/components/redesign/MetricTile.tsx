@@ -28,7 +28,7 @@ export function MetricTile({
 	const valueSize = valueVariant === "time" ? 24 : 22;
 
 	return (
-		<AppCard className={`p-4 flex-1 h-[138px] ${muted ? "bg-[#F6F7F7]" : ""}`}>
+		<AppCard className={`px-4 pt-3 pb-3 flex-1 h-[126px] ${muted ? "bg-[#F6F7F7]" : ""}`}>
 			<View className="flex-row items-start gap-2">
 				<View className="w-7 h-7 rounded-full items-center justify-center" style={{ backgroundColor: iconBg }}>
 					<Ionicons name={icon} size={14} color="#fff" />
@@ -45,7 +45,7 @@ export function MetricTile({
 				</View>
 			</View>
 
-			<View className="mt-auto flex-row items-end gap-2">
+			<View className="mt-auto flex-row items-end gap-1.5">
 				<Text
 					className="text-[#1B2126]"
 					style={{ fontSize: valueSize, fontWeight: "700", lineHeight: valueVariant === "time" ? 30 : 28 }}

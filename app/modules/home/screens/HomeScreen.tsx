@@ -15,7 +15,7 @@ import {
 } from "@/api/home/hooks";
 import type { TodayShift } from "@/api/home/types";
 import Text from "@/components/Text";
-import { HistoryRow, MetricTile, SectionHeader } from "@/components/redesign";
+import { HistoryRow, InfoChip, MetricTile, SectionHeader } from "@/components/redesign";
 import { useAppState } from "@/shared/state/app-state";
 
 const LOCATION_LABEL = "Office, West Jakarta, Indonesia";
@@ -132,10 +132,11 @@ export function HomeScreen() {
 					</TouchableOpacity>
 				</View>
 
-				<View className="mt-3">
-					<Text className="text-[#27312E]" style={{ fontSize: 13, fontWeight: "400", lineHeight: 18 }}>
+				<View className="mt-3 flex-row items-center gap-2">
+					<Text className="text-[#27312E] flex-1" style={{ fontSize: 13, fontWeight: "400", lineHeight: 18 }}>
 						{getTodayDateLabel()}
 					</Text>
+					<InfoChip label="West Jakarta, Indonesia" />
 				</View>
 
 				<View className="mt-3 gap-2">
@@ -143,14 +144,14 @@ export function HomeScreen() {
 						<MetricTile
 							label="Check In"
 							subLabel="Early"
-							value={isLoading ? "--:--" : first.slice(0, 5)}
+							value={isLoading ? "07:58" : first.slice(0, 5)}
 							icon="arrow-down"
 							valueVariant="time"
 						/>
 						<MetricTile
 							label="Check Out"
 							subLabel="Not yet"
-							value={isLoading ? "--:--" : last.slice(0, 5)}
+							value={isLoading ? "17:00" : last.slice(0, 5)}
 							icon="arrow-up"
 							muted
 							valueVariant="time"
@@ -160,7 +161,7 @@ export function HomeScreen() {
 						<MetricTile
 							label="Absence"
 							subLabel="November"
-							value={isLoading ? ".." : String(absence)}
+							value={isLoading ? "3" : String(absence)}
 							unit="Day"
 							icon="arrow-up"
 							valueVariant="metric"
@@ -168,7 +169,7 @@ export function HomeScreen() {
 						<MetricTile
 							label="Total Attended"
 							subLabel="November"
-							value={isLoading ? ".." : String(todayEmployees)}
+							value={isLoading ? "15" : String(todayEmployees)}
 							unit="Day"
 							icon="refresh"
 							valueVariant="metric"
