@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import { Modal, Pressable, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
-import { Bell, CalendarDays, ChevronDown, ChevronRight, Clock3, FileText, Plus, User, UserPlus, Users } from "lucide-react-native";
+import { Bell, CalendarDays, ChevronRight, Clock3, FileText, Plus, User, UserPlus, Users } from "lucide-react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
-import { useTodayEmployees, useTodayShifts, useWeeklyHours } from "@/api/home/hooks";
+import { useWeeklyHours } from "@/api/home/hooks";
+import { useDaySchedule } from "@/api/shifts/hooks";
 import Text from "@/components/Text";
 import { useAppState } from "@/shared/state/app-state";
 
@@ -28,8 +29,15 @@ function ScannerIcon({ size = 28 }: { size?: number }) {
 	);
 }
 
-function getTodayDateLabel() {
-	return new Date().toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+function toIsoDate(date: Date) {
+	const y = date.getFullYear();
+	const m = String(date.getMonth() + 1).padStart(2, "0");
+	const d = String(date.getDate()).padStart(2, "0");
+	return `${y}-${m}-${d}`;
+}
+
+function formatDateLabel(date: Date) {
+	return date.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
 function formatTimeTo12h(time: string) {
@@ -103,23 +111,35 @@ export function HomeScreen() {
 	}, [selectedManagerId, setSelectedManagerId, userInfoQuery.data?.id]);
 
 	const managerId = selectedManagerId || userInfoQuery.data?.id;
-	const todayEmployeesQuery = useTodayEmployees(managerId);
-	const todayShiftsQuery = useTodayShifts(managerId);
-	const weeklyHoursQuery = useWeeklyHours(managerId);
-	const shifts = todayShiftsQuery.data ?? [];
+	const [selectedDate, setSelectedDate] = useState(new Date());
+	const [showDatePicker, setShowDatePicker] = useState(false);
+	const selectedDateIso = useMemo(() => toIsoDate(selectedDate), [selectedDate]);
+	const dayScheduleQuery = useDaySchedule(selectedDateIso);
+	const weeklyHoursQuery = useWeeklyHours(managerId, selectedDateIso);
+	const shifts = dayScheduleQuery.data?.shifts ?? [];
 
 	const onRefresh = async () => {
 		setIsRefreshing(true);
 		try {
-			await Promise.all([userInfoQuery.refetch(), todayEmployeesQuery.refetch(), todayShiftsQuery.refetch(), weeklyHoursQuery.refetch()]);
+			await Promise.all([userInfoQuery.refetch(), dayScheduleQuery.refetch(), weeklyHoursQuery.refetch()]);
 		} finally {
 			setIsRefreshing(false);
 		}
 	};
 
 	const scheduledHours = weeklyHoursQuery.data?.totalHours ?? 0;
-	const isStatsLoading = weeklyHoursQuery.isLoading || todayEmployeesQuery.isLoading;
-	const isScheduleLoading = todayShiftsQuery.isLoading;
+	const workingPeopleCount = useMemo(() => new Set(shifts.flatMap((shift) => shift.assignments.map((a) => a.employeeId))).size, [shifts]);
+	const isStatsLoading = weeklyHoursQuery.isLoading || dayScheduleQuery.isLoading;
+	const isScheduleLoading = dayScheduleQuery.isLoading;
+	const dateOptions = useMemo(
+		() =>
+			Array.from({ length: 31 }, (_, index) => {
+				const date = new Date(selectedDate);
+				date.setDate(selectedDate.getDate() - 15 + index);
+				return date;
+			}),
+		[selectedDate],
+	);
 
 	const scheduleItems = useMemo(
 		() =>
@@ -156,11 +176,14 @@ export function HomeScreen() {
 							</TouchableOpacity>
 						</View>
 						<View className="flex-row">
-							<View className="flex-row items-center rounded-lg bg-white px-3 py-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+							<TouchableOpacity
+								onPress={() => setShowDatePicker(true)}
+								className="flex-row items-center rounded-lg bg-white px-3 py-2"
+								style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}
+							>
 								<CalendarDays size={20} color="#0F172A" strokeWidth={2} />
-								<Text style={{ marginHorizontal: 8, fontSize: 14, fontWeight: "700" }}>{getTodayDateLabel()}</Text>
-								<ChevronDown size={20} color="#0F172A" strokeWidth={2} />
-							</View>
+								<Text style={{ marginLeft: 8, fontSize: 14, fontWeight: "700" }}>{formatDateLabel(selectedDate)}</Text>
+							</TouchableOpacity>
 						</View>
 					</View>
 
@@ -174,7 +197,7 @@ export function HomeScreen() {
 							) : (
 								<>
 									<Card title="Scheduled" subtitle="Current Week" value={String(Math.round(scheduledHours))} unit="Hrs" icon={<Clock3 size={16} color={BRAND} strokeWidth={2.5} />} />
-									<Card title="Working Today" subtitle="All Teams" value={String(todayEmployeesQuery.data?.count ?? 0)} unit="People" icon={<Users size={16} color={BRAND} strokeWidth={2.25} />} />
+									<Card title="Working Today" subtitle="Selected Date" value={String(workingPeopleCount)} unit="People" icon={<Users size={16} color={BRAND} strokeWidth={2.25} />} />
 								</>
 							)}
 						</View>
@@ -186,7 +209,7 @@ export function HomeScreen() {
 						<View className="mt-1">
 							<View className="mb-4 flex-row items-center justify-between">
 								<Text style={{ fontSize: 20, fontWeight: "700" }}>Today's Schedule</Text>
-								<TouchableOpacity onPress={() => router.push("/calendar" as any)}>
+								<TouchableOpacity onPress={() => router.push(`/schedule/day/${selectedDateIso}` as any)}>
 									<Text style={{ fontSize: 12, fontWeight: "600", color: BRAND }}>View Full</Text>
 								</TouchableOpacity>
 							</View>
@@ -234,7 +257,7 @@ export function HomeScreen() {
 									))
 								) : (
 									<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-										<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>No shifts scheduled for today.</Text>
+										<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>No shifts scheduled for selected date.</Text>
 									</View>
 								)}
 							</View>
@@ -242,6 +265,33 @@ export function HomeScreen() {
 					</View>
 				</View>
 			</ScrollView>
+
+			<Modal visible={showDatePicker} transparent animationType="fade" onRequestClose={() => setShowDatePicker(false)}>
+				<Pressable className="flex-1 justify-end" style={{ backgroundColor: "rgba(15, 23, 42, 0.35)" }} onPress={() => setShowDatePicker(false)}>
+					<Pressable className="rounded-t-3xl bg-white px-6 pt-5 pb-8" onPress={() => {}}>
+						<Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12 }}>Select date</Text>
+						<ScrollView style={{ maxHeight: 320 }}>
+							{dateOptions.map((date) => {
+								const iso = toIsoDate(date);
+								const selected = iso === selectedDateIso;
+								return (
+									<TouchableOpacity
+										key={iso}
+										onPress={() => {
+											setSelectedDate(date);
+											setShowDatePicker(false);
+										}}
+										className="rounded-xl px-3 py-3"
+										style={{ backgroundColor: selected ? "rgba(91, 123, 108, 0.1)" : "transparent", marginBottom: 4 }}
+									>
+										<Text style={{ fontSize: 14, fontWeight: selected ? "700" : "500", color: selected ? "#1E293B" : "#475569" }}>{formatDateLabel(date)}</Text>
+									</TouchableOpacity>
+								);
+							})}
+						</ScrollView>
+					</Pressable>
+				</Pressable>
+			</Modal>
 		</SafeAreaView>
 	);
 }
