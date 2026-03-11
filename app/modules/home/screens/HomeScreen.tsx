@@ -6,6 +6,16 @@ import { useTodayEmployees, useTodayShifts } from "@/api/home/hooks";
 import Text from "@/components/Text";
 import { useAppState } from "@/shared/state/app-state";
 
+const BRAND = "#5B7B6C";
+const BG = "#F8F9F8";
+const CARD_SHADOW = {
+	shadowColor: "#000",
+	shadowOpacity: 0.05,
+	shadowOffset: { width: 0, height: 1 },
+	shadowRadius: 4,
+	elevation: 2,
+} as const;
+
 function Icon({ path, size = 20, stroke = "#475569", strokeWidth = 2 }: { path: string; size?: number; stroke?: string; strokeWidth?: number }) {
 	return (
 		<Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -30,6 +40,9 @@ const iconPaths = {
 	addEmployee: "M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z",
 	addShift: "M12 4v16m8-8H4",
 	exportPdf: "M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z",
+	calendar: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z",
+	chevronDown: "m6 9 6 6 6-6",
+	chevronRight: "m9 18 6-6-6-6",
 };
 
 function getTodayDateLabel() {
@@ -53,23 +66,30 @@ function toDurationLabel(startTime: string, endTime: string) {
 
 function Card({ title, subtitle, value, unit, iconPath }: { title: string; subtitle: string; value: string; unit: string; iconPath: string }) {
 	return (
-		<View className="flex-1 rounded-2xl border border-slate-50 bg-white p-4" style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}>
+		<View className="flex-1 rounded-2xl border border-slate-50 bg-white p-4" style={CARD_SHADOW}>
 			<View className="mb-1 flex-row items-center">
-				<View className="mr-2 rounded-full bg-[#5B7B6C]/10 p-2"><Icon path={iconPath} size={16} stroke="#5B7B6C" strokeWidth={2.5} /></View>
+				<View className="mr-2 rounded-full p-2" style={{ backgroundColor: "rgba(91, 123, 108, 0.1)" }}>
+					<Icon path={iconPath} size={16} stroke={BRAND} strokeWidth={2.5} />
+				</View>
 				<View>
-					<Text style={{ fontSize: 14, fontWeight: "700" }}> {title}</Text>
+					<Text style={{ fontSize: 14, fontWeight: "700" }}>{title}</Text>
 					<Text style={{ fontSize: 10, color: "#94A3B8" }}>{subtitle}</Text>
 				</View>
 			</View>
-			<Text style={{ fontSize: 24, fontWeight: "700", marginTop: 8 }}>{value}<Text style={{ fontSize: 14, color: "#94A3B8", fontWeight: "500" }}> {unit}</Text></Text>
+			<Text style={{ fontSize: 24, fontWeight: "700", marginTop: 8 }}>
+				{value}
+				<Text style={{ fontSize: 14, color: "#94A3B8", fontWeight: "500" }}> {unit}</Text>
+			</Text>
 		</View>
 	);
 }
 
 function Action({ label, iconPath, strokeWidth = 2 }: { label: string; iconPath: string; strokeWidth?: number }) {
 	return (
-		<TouchableOpacity className="flex-1 items-center rounded-2xl border border-slate-50 bg-white p-3" style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}>
-			<View className="rounded-lg bg-[#5B7B6C] p-2"><Icon path={iconPath} size={20} stroke="#FFF" strokeWidth={strokeWidth} /></View>
+		<TouchableOpacity className="flex-1 items-center rounded-2xl border border-slate-50 bg-white p-3" style={CARD_SHADOW}>
+			<View className="rounded-lg p-2" style={{ backgroundColor: BRAND }}>
+				<Icon path={iconPath} size={20} stroke="#FFF" strokeWidth={strokeWidth} />
+			</View>
 			<Text style={{ fontSize: 10, fontWeight: "700", marginTop: 8, textAlign: "center" }}>{label}</Text>
 		</TouchableOpacity>
 	);
@@ -99,64 +119,82 @@ export function HomeScreen() {
 	}, 0);
 
 	const scheduleItems = useMemo(() => {
-		const rows = shifts.flatMap((s) => s.assignments.map((a) => ({ id: a.id, name: `${a.employee.firstName} ${a.employee.lastName}`, startTime: s.startTime.slice(0, 5), endTime: s.endTime.slice(0, 5) })));
-		return rows.length ? rows.slice(0, 3) : [
-			{ id: "1", name: "Bagus Fikri", startTime: "09:00", endTime: "17:56" },
-			{ id: "2", name: "Susi", startTime: "08:00", endTime: "16:00" },
-			{ id: "3", name: "Budi", startTime: "08:00", endTime: "16:00" },
-		];
+		const rows = shifts.flatMap((s) =>
+			s.assignments.map((a) => ({
+				id: a.id,
+				name: `${a.employee.firstName} ${a.employee.lastName}`,
+				startTime: s.startTime.slice(0, 5),
+				endTime: s.endTime.slice(0, 5),
+			})),
+		);
+		return rows.length
+			? rows.slice(0, 3)
+			: [
+					{ id: "1", name: "Bagus Fikri", startTime: "09:00", endTime: "17:56" },
+					{ id: "2", name: "Susi", startTime: "08:00", endTime: "16:00" },
+					{ id: "3", name: "Budi", startTime: "08:00", endTime: "16:00" },
+				];
 	}, [shifts]);
 
 	return (
-		<SafeAreaView className="flex-1 bg-[#F8F9F8]">
-			<ScrollView contentContainerStyle={{ paddingBottom: 120 }} refreshControl={<RefreshControl refreshing={userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading} onRefresh={onRefresh} tintColor="#5B7B6C" />}>
-				<View className="p-6 pb-4">
-					<View className="flex-row items-start justify-between">
-						<View>
-							<Text style={{ color: "#94A3B8", fontSize: 14, fontWeight: "500" }}>Good Morning,</Text>
-							<Text style={{ fontSize: 24, fontWeight: "700" }}>{userInfoQuery.data?.fullName || "Akhmad Maariz"}</Text>
+		<SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
+			<ScrollView contentContainerStyle={{ paddingBottom: 120 }} refreshControl={<RefreshControl refreshing={userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading} onRefresh={onRefresh} tintColor={BRAND} />}>
+				<View className="w-full self-center" style={{ maxWidth: 960 }}>
+					<View className="p-6 pb-4">
+						<View className="flex-row items-start justify-between">
+							<View>
+								<Text style={{ color: "#94A3B8", fontSize: 14, fontWeight: "500" }}>Good Morning,</Text>
+								<Text style={{ fontSize: 24, fontWeight: "700" }}>{userInfoQuery.data?.fullName || "Akhmad Maariz"}</Text>
+							</View>
+							<TouchableOpacity className="rounded-full bg-white p-2" style={CARD_SHADOW}>
+								<Icon path={iconPaths.bell} size={24} stroke="#475569" strokeWidth={2} />
+							</TouchableOpacity>
 						</View>
-						<TouchableOpacity className="rounded-full bg-white p-2" style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}>
-							<Icon path={iconPaths.bell} size={24} stroke="#475569" strokeWidth={2} />
-						</TouchableOpacity>
-					</View>
-					<View className="mt-8 flex-row">
-						<View className="flex-row items-center rounded-lg border border-slate-100 bg-white px-3 py-2" style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}>
-							<Icon path="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z" size={20} stroke="#0F172A" />
-							<Text style={{ marginHorizontal: 8, fontSize: 14, fontWeight: "700" }}>{getTodayDateLabel()}</Text>
-							<Icon path="m6 9 6 6 6-6" size={20} stroke="#0F172A" />
+						<View className="mt-8 flex-row">
+							<View className="flex-row items-center rounded-lg border border-slate-100 bg-white px-3 py-2" style={CARD_SHADOW}>
+								<Icon path={iconPaths.calendar} size={20} stroke="#0F172A" />
+								<Text style={{ marginHorizontal: 8, fontSize: 14, fontWeight: "700" }}>{getTodayDateLabel()}</Text>
+								<Icon path={iconPaths.chevronDown} size={20} stroke="#0F172A" />
+							</View>
 						</View>
 					</View>
-				</View>
 
-				<View className="space-y-6 px-6">
-					<View className="flex-row gap-4">
-						<Card title="Scheduled" subtitle="Current Week" value={String(Math.round(scheduledHours / 60) || 164)} unit="Hrs" iconPath={iconPaths.clock} />
-						<Card title="Working Today" subtitle="All Teams" value={String(todayEmployeesQuery.data?.count ?? 12)} unit="People" iconPath={iconPaths.team} />
-					</View>
-					<View className="flex-row gap-3">
-						<Action label="Add Employee" iconPath={iconPaths.addEmployee} />
-						<Action label="Add Shift" iconPath={iconPaths.addShift} strokeWidth={2.5} />
-						<Action label="Export PDF" iconPath={iconPaths.exportPdf} />
-					</View>
-					<View className="mt-1">
-						<View className="mb-4 flex-row items-center justify-between">
-							<Text style={{ fontSize: 20, fontWeight: "700" }}>Today's Schedule</Text>
-							<Text style={{ fontSize: 12, fontWeight: "600", color: "#5B7B6C" }}>View Full</Text>
+					<View className="px-6" style={{ gap: 24 }}>
+						<View className="flex-row" style={{ gap: 16 }}>
+							<Card title="Scheduled" subtitle="Current Week" value={String(Math.round(scheduledHours / 60) || 164)} unit="Hrs" iconPath={iconPaths.clock} />
+							<Card title="Working Today" subtitle="All Teams" value={String(todayEmployeesQuery.data?.count ?? 12)} unit="People" iconPath={iconPaths.team} />
 						</View>
-						<View className="space-y-3">
-							{scheduleItems.map((item) => (
-								<View key={item.id} className="flex-row items-center justify-between rounded-2xl border border-slate-50 bg-white p-4" style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}>
-									<View className="flex-row items-center">
-										<View className="h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-slate-100"><Text style={{ fontSize: 12, fontWeight: "700", color: "#64748B" }}>{item.name.charAt(0)}</Text></View>
-										<View className="ml-3">
-											<Text style={{ fontSize: 14, fontWeight: "700" }}>{item.name}</Text>
-											<Text style={{ fontSize: 10, color: "#64748B", fontWeight: "500" }}>In {formatTimeTo12h(item.startTime)}, Out {formatTimeTo12h(item.endTime)}</Text>
+						<View className="flex-row" style={{ gap: 12 }}>
+							<Action label="Add Employee" iconPath={iconPaths.addEmployee} />
+							<Action label="Add Shift" iconPath={iconPaths.addShift} strokeWidth={2.5} />
+							<Action label="Export PDF" iconPath={iconPaths.exportPdf} />
+						</View>
+						<View className="mt-1">
+							<View className="mb-4 flex-row items-center justify-between">
+								<Text style={{ fontSize: 20, fontWeight: "700" }}>Today's Schedule</Text>
+								<Text style={{ fontSize: 12, fontWeight: "600", color: BRAND }}>View Full</Text>
+							</View>
+							<View style={{ gap: 12 }}>
+								{scheduleItems.map((item) => (
+									<View key={item.id} className="flex-row items-center justify-between rounded-2xl border border-slate-50 bg-white p-4" style={CARD_SHADOW}>
+										<View className="flex-row items-center">
+											<View className="h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-slate-100">
+												<Text style={{ fontSize: 12, fontWeight: "700", color: "#64748B" }}>{item.name.charAt(0)}</Text>
+											</View>
+											<View className="ml-3">
+												<Text style={{ fontSize: 14, fontWeight: "700" }}>{item.name}</Text>
+												<Text style={{ fontSize: 10, color: "#64748B", fontWeight: "500" }}>
+													In {formatTimeTo12h(item.startTime)}, Out {formatTimeTo12h(item.endTime)}
+												</Text>
+											</View>
+										</View>
+										<View className="flex-row items-center">
+											<Text style={{ fontSize: 14, fontWeight: "700", color: "#334155", marginRight: 6 }}>{toDurationLabel(item.startTime, item.endTime)}</Text>
+											<Icon path={iconPaths.chevronRight} size={20} stroke="#CBD5E1" />
 										</View>
 									</View>
-									<View className="flex-row items-center"><Text style={{ fontSize: 14, fontWeight: "700", color: "#334155", marginRight: 6 }}>{toDurationLabel(item.startTime, item.endTime)}</Text><Icon path="m9 18 6-6-6-6" size={20} stroke="#CBD5E1" /></View>
-								</View>
-							))}
+								))}
+							</View>
 						</View>
 					</View>
 				</View>

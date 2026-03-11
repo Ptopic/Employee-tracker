@@ -5,6 +5,8 @@ import { Pressable, View } from "react-native";
 import Text from "@/components/Text";
 import { ScannerIcon } from "@/modules/home/screens/HomeScreen";
 
+const BRAND = "#5B7B6C";
+
 function Icon({ path, focused }: { path: string; focused: boolean }) {
 	return (
 		<Svg width={28} height={28} viewBox="0 0 24 24" fill="none">
@@ -24,27 +26,53 @@ function TabItem({ label, focused, icon, onPress }: { label: string; focused: bo
 	return (
 		<Pressable onPress={onPress} className="flex-1 items-center justify-center">
 			{icon}
-			<Text className={focused ? "text-slate-900" : "text-slate-400"} style={{ fontSize: 11, fontWeight: focused ? "700" : "500", marginTop: 2 }}>{label}</Text>
+			<Text className={focused ? "text-slate-900" : "text-slate-400"} style={{ fontSize: 11, fontWeight: focused ? "700" : "500", marginTop: 2 }}>
+				{label}
+			</Text>
 		</Pressable>
 	);
 }
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+	const routeMap = new Map(state.routes.map((r) => [r.name, r]));
+	const orderedNames: Array<"index" | "calendar" | "employees" | "settings"> = ["index", "calendar", "employees", "settings"];
+
 	return (
-		<View className="absolute bottom-0 left-0 right-0">
-			<View className="h-20 flex-row items-center justify-around bg-white px-4" style={{ shadowColor: "#000", shadowOpacity: 0.05, shadowOffset: { width: 0, height: -4 }, shadowRadius: 10, elevation: 10 }}>
-				{state.routes.map((route, index) => {
-					const focused = state.index === index;
-					const label = String(descriptors[route.key].options.title ?? route.name);
-					const onPress = () => !focused && navigation.navigate(route.name);
-					if (route.name === "index") return <TabItem key={route.key} label={label} focused={focused} onPress={onPress} icon={<Icon path={paths.home} focused={focused} />} />;
-					if (route.name === "calendar") return <TabItem key={route.key} label={label} focused={focused} onPress={onPress} icon={<Icon path={paths.calendar} focused={focused} />} />;
-					if (route.name === "employees") return <TabItem key={route.key} label={label} focused={focused} onPress={onPress} icon={<Icon path={paths.employees} focused={focused} />} />;
-					if (route.name === "settings") return <TabItem key={route.key} label={label} focused={focused} onPress={onPress} icon={<Icon path={paths.settings} focused={focused} />} />;
-					return null;
-				})}
+		<View className="absolute bottom-0 left-0 right-0 items-center">
+			<View className="h-20 w-full max-w-[960px] flex-row items-center bg-white px-4" style={{ shadowColor: "#000", shadowOpacity: 0.05, shadowOffset: { width: 0, height: -4 }, shadowRadius: 10, elevation: 10 }}>
+				<View className="flex-1 flex-row">
+					{orderedNames.slice(0, 2).map((name) => {
+						const route = routeMap.get(name);
+						if (!route) return null;
+						const index = state.routes.findIndex((r) => r.key === route.key);
+						const focused = state.index === index;
+						const label = String(descriptors[route.key].options.title ?? route.name);
+						const onPress = () => !focused && navigation.navigate(route.name);
+						const iconPath = route.name === "index" ? paths.home : paths.calendar;
+						return <TabItem key={route.key} label={label} focused={focused} onPress={onPress} icon={<Icon path={iconPath} focused={focused} />} />;
+					})}
+				</View>
+
+				<View style={{ width: 76 }} />
+
+				<View className="flex-1 flex-row">
+					{orderedNames.slice(2).map((name) => {
+						const route = routeMap.get(name);
+						if (!route) return null;
+						const index = state.routes.findIndex((r) => r.key === route.key);
+						const focused = state.index === index;
+						const label = String(descriptors[route.key].options.title ?? route.name);
+						const onPress = () => !focused && navigation.navigate(route.name);
+						const iconPath = route.name === "employees" ? paths.employees : paths.settings;
+						return <TabItem key={route.key} label={label} focused={focused} onPress={onPress} icon={<Icon path={iconPath} focused={focused} />} />;
+					})}
+				</View>
 			</View>
-			<View className="absolute left-1/2 top-0 -ml-[34px] -mt-[30px] rounded-full bg-[#5B7B6C]/20 p-[6px]"><View className="h-14 w-14 items-center justify-center rounded-full bg-[#5B7B6C]"><ScannerIcon /></View></View>
+			<View className="absolute top-0 -mt-[30px] rounded-full p-[6px]" style={{ backgroundColor: "rgba(91, 123, 108, 0.2)" }}>
+				<View className="h-14 w-14 items-center justify-center rounded-full" style={{ backgroundColor: BRAND }}>
+					<ScannerIcon />
+				</View>
+			</View>
 		</View>
 	);
 }
