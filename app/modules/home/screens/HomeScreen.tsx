@@ -50,7 +50,7 @@ function Card({ title, subtitle, value, unit, icon }: { title: string; subtitle:
 	return (
 		<View className="flex-1 rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 			<View className="mb-1 flex-row items-center">
-				<View className="mr-3 rounded-full p-2" style={{ backgroundColor: "rgba(91, 123, 108, 0.1)" }}>
+				<View className="mr-4 rounded-full p-2" style={{ backgroundColor: "rgba(91, 123, 108, 0.1)" }}>
 					{icon}
 				</View>
 				<View>
