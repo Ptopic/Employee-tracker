@@ -123,16 +123,16 @@ export function HomeScreen() {
 			<ScrollView contentContainerStyle={{ paddingBottom: 120 }} refreshControl={<RefreshControl refreshing={userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading} onRefresh={onRefresh} tintColor={BRAND} />}>
 				<View className="w-full self-center" style={{ maxWidth: 960 }}>
 					<View className="p-6 pb-4">
-						<View className="flex-row items-start justify-between">
-							<View>
-								<Text style={{ color: "#94A3B8", fontSize: 14, fontWeight: "500" }}>Good Morning,</Text>
-								<Text style={{ fontSize: 24, fontWeight: "700" }}>{userInfoQuery.data?.fullName || "Akhmad Maariz"}</Text>
+						<View className="flex-row items-start justify-between" style={{ marginBottom: 32 }}>
+							<View style={{ paddingTop: 2 }}>
+								<Text style={{ color: "#94A3B8", fontSize: 14, fontWeight: "500", marginBottom: 2 }}>Good Morning,</Text>
+								<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30 }}>{userInfoQuery.data?.fullName || "Akhmad Maariz"}</Text>
 							</View>
-							<TouchableOpacity className="rounded-full bg-white p-2" style={CARD_SHADOW}>
+							<TouchableOpacity className="rounded-full bg-white p-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 								<Bell size={24} color="#475569" strokeWidth={2} />
 							</TouchableOpacity>
 						</View>
-						<View className="mt-8 flex-row">
+						<View className="flex-row">
 							<View className="flex-row items-center rounded-lg bg-white px-3 py-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 								<CalendarDays size={20} color="#0F172A" strokeWidth={2} />
 								<Text style={{ marginHorizontal: 8, fontSize: 14, fontWeight: "700" }}>{getTodayDateLabel()}</Text>
