@@ -63,9 +63,9 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 					})}
 				</View>
 			</View>
-			<View className="absolute top-0 -mt-[28px] rounded-full p-[5px]" style={{ backgroundColor: "rgba(91, 123, 108, 0.2)" }}>
-				<View className="h-[52px] w-[52px] items-center justify-center rounded-full" style={{ backgroundColor: BRAND }}>
-					<ScannerIcon size={24} />
+			<View className="absolute top-0 -mt-[29px] rounded-full p-[6px]" style={{ backgroundColor: "rgba(91, 123, 108, 0.2)" }}>
+				<View className="h-[54px] w-[54px] items-center justify-center rounded-full" style={{ backgroundColor: BRAND }}>
+					<ScannerIcon size={25} />
 				</View>
 			</View>
 		</View>
