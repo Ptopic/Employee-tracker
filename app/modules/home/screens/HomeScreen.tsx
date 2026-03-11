@@ -144,7 +144,8 @@ export function HomeScreen() {
 		if (flattened.length) return flattened.slice(0, 4);
 		return [
 			{ id: "demo-1", name: "Bagus Fikri", startTime: "09:00", endTime: "17:00" },
-			{ id: "demo-2", name: "Vita Putri", startTime: "08:00", endTime: "16:00" },
+			{ id: "demo-2", name: "Susi", startTime: "08:00", endTime: "16:00" },
+			{ id: "demo-3", name: "Budi", startTime: "08:00", endTime: "16:00" },
 		];
 	}, [shifts]);
 
