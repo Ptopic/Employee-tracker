@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Linking,
-	SafeAreaView,
 	StatusBar,
+	View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
@@ -173,9 +173,9 @@ function RootLayoutNav() {
 
 	if (isLoading) {
 		return (
-			<SafeAreaView className="flex-1 items-center justify-center bg-white">
+			<View className="flex-1 items-center justify-center bg-white">
 				<ActivityIndicator size="large" color="black" />
-			</SafeAreaView>
+			</View>
 		);
 	}
 
@@ -185,21 +185,19 @@ function RootLayoutNav() {
 				<QueryClientProvider client={queryClient}>
 					<AppStateProvider>
 						<PreferencesProvider>
-							<SafeAreaView className="flex-1 bg-white">
-								<PreferencesBootstrap />
-								<StatusBar barStyle="dark-content" backgroundColor="white" />
-								<GestureHandlerRootView>
-									<Stack
-										screenOptions={{
-											headerShown: false,
-											contentStyle: { backgroundColor: "white" },
-										}}
-									>
-										<Stack.Screen name="(tabs)" />
-										<Stack.Screen name="getStarted/index" />
-									</Stack>
-								</GestureHandlerRootView>
-							</SafeAreaView>
+							<PreferencesBootstrap />
+							<StatusBar barStyle="dark-content" backgroundColor="white" />
+							<GestureHandlerRootView className="flex-1">
+								<Stack
+									screenOptions={{
+										headerShown: false,
+										contentStyle: { backgroundColor: "white" },
+									}}
+								>
+									<Stack.Screen name="(tabs)" />
+									<Stack.Screen name="getStarted/index" />
+								</Stack>
+							</GestureHandlerRootView>
 						</PreferencesProvider>
 					</AppStateProvider>
 				</QueryClientProvider>
