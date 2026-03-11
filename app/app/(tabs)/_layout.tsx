@@ -16,10 +16,16 @@ function TabIcon({ name, focused }: { name: "index" | "calendar" | "employees" |
 	return <Settings size={26} color={color} strokeWidth={2} />;
 }
 
-function TabItem({ icon, onPress }: { label?: string; focused: boolean; icon: ReactNode; onPress: () => void }) {
+function TabItem({ label, focused, icon, onPress }: { label: string; focused: boolean; icon: ReactNode; onPress: () => void }) {
 	return (
-		<Pressable onPress={onPress} className="flex-1 items-center justify-end pb-3">
+		<Pressable onPress={onPress} className="flex-1 items-center justify-end pb-2">
 			{icon}
+			<Text
+				className={focused ? "text-slate-900" : "text-slate-400"}
+				style={{ fontSize: 10, lineHeight: 12, fontWeight: focused ? "700" : "500", marginTop: 2 }}
+			>
+				{label}
+			</Text>
 		</Pressable>
 	);
 }
