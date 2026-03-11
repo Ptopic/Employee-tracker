@@ -158,20 +158,20 @@ export function HomeScreen() {
 							</View>
 							<View style={{ gap: 12 }}>
 								{scheduleItems.map((item) => (
-									<View key={item.id} className="flex-row items-center justify-between rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+									<View key={item.id} className="flex-row items-center justify-between rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}>
 										<View className="flex-row items-center">
 											<View className="h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-slate-100">
-												<Text style={{ fontSize: 12, fontWeight: "700", color: "#64748B" }}>{item.name.charAt(0)}</Text>
+												<Text style={{ fontSize: 12, fontWeight: "700", color: "#64748B", lineHeight: 16 }}>{item.name.charAt(0)}</Text>
 											</View>
 											<View className="ml-3">
-												<Text style={{ fontSize: 14, fontWeight: "700" }}>{item.name}</Text>
-												<Text style={{ fontSize: 10, color: "#64748B", fontWeight: "500" }}>
+												<Text style={{ fontSize: 14, fontWeight: "700", lineHeight: 18 }}>{item.name}</Text>
+												<Text style={{ fontSize: 10, lineHeight: 14, color: "#64748B", fontWeight: "500", marginTop: 1 }}>
 													In {formatTimeTo12h(item.startTime)}, Out {formatTimeTo12h(item.endTime)}
 												</Text>
 											</View>
 										</View>
 										<View className="flex-row items-center">
-											<Text style={{ fontSize: 14, fontWeight: "700", color: "#334155", marginRight: 6 }}>{toDurationLabel(item.startTime, item.endTime)}</Text>
+											<Text style={{ fontSize: 14, lineHeight: 18, fontWeight: "700", color: "#334155", marginRight: 6 }}>{toDurationLabel(item.startTime, item.endTime)}</Text>
 											<ChevronRight size={20} color="#CBD5E1" strokeWidth={2} />
 										</View>
 									</View>
