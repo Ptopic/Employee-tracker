@@ -160,10 +160,13 @@ export function HomeScreen() {
 								{scheduleItems.map((item) => (
 									<View key={item.id} className="flex-row items-center justify-between rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}>
 										<View className="flex-row items-center">
-											<View className="h-12 w-12 items-center justify-center rounded-full border" style={{ borderColor: "#F1F5F9", backgroundColor: "#F8FAFC" }}>
-												<User size={20} color="#94A3B8" strokeWidth={2} />
+											<View
+												className="items-center justify-center rounded-full border"
+												style={{ width: 56, height: 56, minWidth: 56, borderColor: "#F1F5F9", backgroundColor: "#F8FAFC", marginRight: 14 }}
+											>
+												<User size={24} color="#94A3B8" strokeWidth={2} />
 											</View>
-											<View className="ml-4">
+											<View>
 												<Text style={{ fontSize: 14, fontWeight: "700", lineHeight: 18 }}>{item.name}</Text>
 												<Text style={{ fontSize: 10, lineHeight: 14, color: "#64748B", fontWeight: "500", marginTop: 1 }}>
 													In {formatTimeTo12h(item.startTime)}, Out {formatTimeTo12h(item.endTime)}
