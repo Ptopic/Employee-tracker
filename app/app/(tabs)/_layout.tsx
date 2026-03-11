@@ -10,17 +10,20 @@ const BRAND = "#5B7B6C";
 function TabIcon({ name, focused }: { name: "index" | "calendar" | "employees" | "settings"; focused: boolean }) {
 	const color = focused ? "#0F172A" : "#94A3B8";
 
-	if (name === "index") return <Home size={28} color={color} strokeWidth={2} />;
-	if (name === "calendar") return <CalendarDays size={28} color={color} strokeWidth={2} />;
-	if (name === "employees") return <Users size={28} color={color} strokeWidth={2} />;
-	return <Settings size={28} color={color} strokeWidth={2} />;
+	if (name === "index") return <Home size={26} color={color} strokeWidth={2} />;
+	if (name === "calendar") return <CalendarDays size={26} color={color} strokeWidth={2} />;
+	if (name === "employees") return <Users size={26} color={color} strokeWidth={2} />;
+	return <Settings size={26} color={color} strokeWidth={2} />;
 }
 
 function TabItem({ label, focused, icon, onPress }: { label: string; focused: boolean; icon: ReactNode; onPress: () => void }) {
 	return (
 		<Pressable onPress={onPress} className="flex-1 items-center justify-center">
 			{icon}
-			<Text className={focused ? "text-slate-900" : "text-slate-400"} style={{ fontSize: 11, fontWeight: focused ? "700" : "500", marginTop: 2 }}>
+			<Text
+				className={focused ? "text-slate-900" : "text-slate-400"}
+				style={{ fontSize: 10, lineHeight: 12, fontWeight: focused ? "700" : "500", marginTop: 3 }}
+			>
 				{label}
 			</Text>
 		</Pressable>
@@ -60,9 +63,9 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 					})}
 				</View>
 			</View>
-			<View className="absolute top-0 -mt-[30px] rounded-full p-[6px]" style={{ backgroundColor: "rgba(91, 123, 108, 0.2)" }}>
-				<View className="h-14 w-14 items-center justify-center rounded-full" style={{ backgroundColor: BRAND }}>
-					<ScannerIcon />
+			<View className="absolute top-0 -mt-[28px] rounded-full p-[5px]" style={{ backgroundColor: "rgba(91, 123, 108, 0.2)" }}>
+				<View className="h-[52px] w-[52px] items-center justify-center rounded-full" style={{ backgroundColor: BRAND }}>
+					<ScannerIcon size={24} />
 				</View>
 			</View>
 		</View>
