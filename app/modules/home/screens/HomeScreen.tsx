@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from "react";
 import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import { router } from "expo-router";
 import { Bell, CalendarDays, ChevronDown, ChevronRight, Clock3, FileText, Plus, User, UserPlus, Users } from "lucide-react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
-import { useTodayEmployees, useTodayShifts } from "@/api/home/hooks";
+import { useTodayEmployees, useTodayShifts, useWeeklyHours } from "@/api/home/hooks";
 import Text from "@/components/Text";
 import { useAppState } from "@/shared/state/app-state";
 
@@ -66,9 +67,9 @@ function Card({ title, subtitle, value, unit, icon }: { title: string; subtitle:
 	);
 }
 
-function Action({ label, icon }: { label: string; icon: React.ReactNode }) {
+function Action({ label, icon, onPress }: { label: string; icon: React.ReactNode; onPress: () => void }) {
 	return (
-		<TouchableOpacity className="flex-1 items-center justify-center rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 12 }]}>
+		<TouchableOpacity onPress={onPress} className="flex-1 items-center justify-center rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 12 }]}>
 			<View className="rounded-lg p-2" style={{ backgroundColor: BRAND, marginBottom: 8 }}>
 				{icon}
 			</View>
@@ -88,39 +89,41 @@ export function HomeScreen() {
 	const managerId = selectedManagerId || userInfoQuery.data?.id;
 	const todayEmployeesQuery = useTodayEmployees(managerId);
 	const todayShiftsQuery = useTodayShifts(managerId);
+	const weeklyHoursQuery = useWeeklyHours(managerId);
 	const shifts = todayShiftsQuery.data ?? [];
 
-	const onRefresh = async () => Promise.all([userInfoQuery.refetch(), todayEmployeesQuery.refetch(), todayShiftsQuery.refetch()]);
+	const onRefresh = async () => Promise.all([userInfoQuery.refetch(), todayEmployeesQuery.refetch(), todayShiftsQuery.refetch(), weeklyHoursQuery.refetch()]);
 
-	const scheduledHours = shifts.reduce((acc, shift) => {
-		const [sh, sm] = shift.startTime.split(":").map(Number);
-		const [eh, em] = shift.endTime.split(":").map(Number);
-		let mins = eh * 60 + em - (sh * 60 + sm);
-		if (mins < 0) mins += 24 * 60;
-		return acc + mins;
-	}, 0);
+	const scheduledHours = weeklyHoursQuery.data?.totalHours ?? 0;
 
-	const scheduleItems = useMemo(() => {
-		const rows = shifts.flatMap((s) =>
-			s.assignments.map((a) => ({
-				id: a.id,
-				name: `${a.employee.firstName} ${a.employee.lastName}`,
-				startTime: s.startTime.slice(0, 5),
-				endTime: s.endTime.slice(0, 5),
-			})),
-		);
-		return rows.length
-			? rows.slice(0, 3)
-			: [
-					{ id: "1", name: "Bagus Fikri", startTime: "09:00", endTime: "17:56" },
-					{ id: "2", name: "Susi", startTime: "08:00", endTime: "16:00" },
-					{ id: "3", name: "Budi", startTime: "08:00", endTime: "16:00" },
-				];
-	}, [shifts]);
+	const scheduleItems = useMemo(
+		() =>
+			shifts
+				.flatMap((s) =>
+					s.assignments.map((a) => ({
+						id: a.id,
+						employeeId: a.employeeId,
+						name: `${a.employee.firstName} ${a.employee.lastName}`,
+						startTime: s.startTime.slice(0, 5),
+						endTime: s.endTime.slice(0, 5),
+					})),
+				)
+				.slice(0, 3),
+		[shifts],
+	);
 
 	return (
 		<SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
-			<ScrollView contentContainerStyle={{ paddingBottom: 120 }} refreshControl={<RefreshControl refreshing={userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading} onRefresh={onRefresh} tintColor={BRAND} />}>
+			<ScrollView
+				contentContainerStyle={{ paddingBottom: 120 }}
+				refreshControl={
+					<RefreshControl
+						refreshing={userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading || weeklyHoursQuery.isLoading}
+						onRefresh={onRefresh}
+						tintColor={BRAND}
+					/>
+				}
+			>
 				<View className="w-full self-center" style={{ maxWidth: 960 }}>
 					<View className="p-6 pb-4">
 						<View className="flex-row items-start justify-between" style={{ marginBottom: 32 }}>
@@ -143,42 +146,55 @@ export function HomeScreen() {
 
 					<View className="px-6" style={{ gap: 24 }}>
 						<View className="flex-row" style={{ gap: 16 }}>
-							<Card title="Scheduled" subtitle="Current Week" value={String(Math.round(scheduledHours / 60) || 164)} unit="Hrs" icon={<Clock3 size={16} color={BRAND} strokeWidth={2.5} />} />
-							<Card title="Working Today" subtitle="All Teams" value={String(todayEmployeesQuery.data?.count ?? 12)} unit="People" icon={<Users size={16} color={BRAND} strokeWidth={2.25} />} />
+							<Card title="Scheduled" subtitle="Current Week" value={String(Math.round(scheduledHours))} unit="Hrs" icon={<Clock3 size={16} color={BRAND} strokeWidth={2.5} />} />
+							<Card title="Working Today" subtitle="All Teams" value={String(todayEmployeesQuery.data?.count ?? 0)} unit="People" icon={<Users size={16} color={BRAND} strokeWidth={2.25} />} />
 						</View>
 						<View className="flex-row" style={{ gap: 12 }}>
-							<Action label="Add Employee" icon={<UserPlus size={20} color="#FFFFFF" strokeWidth={2} />} />
-							<Action label="Add Shift" icon={<Plus size={20} color="#FFFFFF" strokeWidth={2.5} />} />
-							<Action label="Export PDF" icon={<FileText size={20} color="#FFFFFF" strokeWidth={2} />} />
+							<Action label="Add Employee" onPress={() => router.push("/employees/add" as any)} icon={<UserPlus size={20} color="#FFFFFF" strokeWidth={2} />} />
+							<Action label="Add Shift" onPress={() => router.push("/shift/edit" as any)} icon={<Plus size={20} color="#FFFFFF" strokeWidth={2.5} />} />
+							<Action label="Export PDF" onPress={() => router.push("/export/preview" as any)} icon={<FileText size={20} color="#FFFFFF" strokeWidth={2} />} />
 						</View>
 						<View className="mt-1">
 							<View className="mb-4 flex-row items-center justify-between">
 								<Text style={{ fontSize: 20, fontWeight: "700" }}>Today's Schedule</Text>
-								<Text style={{ fontSize: 12, fontWeight: "600", color: BRAND }}>View Full</Text>
+								<TouchableOpacity onPress={() => router.push("/calendar" as any)}>
+									<Text style={{ fontSize: 12, fontWeight: "600", color: BRAND }}>View Full</Text>
+								</TouchableOpacity>
 							</View>
 							<View style={{ gap: 12 }}>
-								{scheduleItems.map((item) => (
-									<View key={item.id} className="flex-row items-center justify-between rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}>
-										<View className="flex-row items-center">
-											<View
-												className="items-center justify-center rounded-full border"
-												style={{ width: 40, height: 40, minWidth: 40, borderColor: "#E2E8F0", backgroundColor: "#F8FAFC", marginRight: 12 }}
-											>
-												<User size={20} color="#94A3B8" strokeWidth={2} />
+								{scheduleItems.length ? (
+									scheduleItems.map((item) => (
+										<TouchableOpacity
+											key={item.id}
+											onPress={() => router.push(`/employees/${item.employeeId}` as any)}
+											className="flex-row items-center justify-between rounded-2xl bg-white"
+											style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}
+										>
+											<View className="flex-row items-center">
+												<View
+													className="items-center justify-center rounded-full border"
+													style={{ width: 40, height: 40, minWidth: 40, borderColor: "#E2E8F0", backgroundColor: "#F8FAFC", marginRight: 12 }}
+												>
+													<User size={20} color="#94A3B8" strokeWidth={2} />
+												</View>
+												<View>
+													<Text style={{ fontSize: 14, fontWeight: "700", lineHeight: 18 }}>{item.name}</Text>
+													<Text style={{ fontSize: 10, lineHeight: 14, color: "#64748B", fontWeight: "500", marginTop: 1 }}>
+														In {formatTimeTo12h(item.startTime)}, Out {formatTimeTo12h(item.endTime)}
+													</Text>
+												</View>
 											</View>
-											<View>
-												<Text style={{ fontSize: 14, fontWeight: "700", lineHeight: 18 }}>{item.name}</Text>
-												<Text style={{ fontSize: 10, lineHeight: 14, color: "#64748B", fontWeight: "500", marginTop: 1 }}>
-													In {formatTimeTo12h(item.startTime)}, Out {formatTimeTo12h(item.endTime)}
-												</Text>
+											<View className="flex-row items-center">
+												<Text style={{ fontSize: 14, lineHeight: 18, fontWeight: "700", color: "#334155", marginRight: 6 }}>{toDurationLabel(item.startTime, item.endTime)}</Text>
+												<ChevronRight size={20} color="#CBD5E1" strokeWidth={2} />
 											</View>
-										</View>
-										<View className="flex-row items-center">
-											<Text style={{ fontSize: 14, lineHeight: 18, fontWeight: "700", color: "#334155", marginRight: 6 }}>{toDurationLabel(item.startTime, item.endTime)}</Text>
-											<ChevronRight size={20} color="#CBD5E1" strokeWidth={2} />
-										</View>
+										</TouchableOpacity>
+									))
+								) : (
+									<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+										<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>No shifts scheduled for today.</Text>
 									</View>
-								))}
+								)}
 							</View>
 						</View>
 					</View>
