@@ -9,12 +9,13 @@ import { useAppState } from "@/shared/state/app-state";
 
 const BRAND = "#5B7B6C";
 const BG = "#F8F9F8";
+const SURFACE_BORDER = "#F1F5F9";
 const CARD_SHADOW = {
 	shadowColor: "#000",
-	shadowOpacity: 0.05,
-	shadowOffset: { width: 0, height: 1 },
-	shadowRadius: 4,
-	elevation: 2,
+	shadowOpacity: 0.08,
+	shadowOffset: { width: 0, height: 2 },
+	shadowRadius: 8,
+	elevation: 3,
 } as const;
 
 function ScannerIcon() {
@@ -47,7 +48,7 @@ function toDurationLabel(startTime: string, endTime: string) {
 
 function Card({ title, subtitle, value, unit, icon }: { title: string; subtitle: string; value: string; unit: string; icon: React.ReactNode }) {
 	return (
-		<View className="flex-1 rounded-2xl border border-slate-50 bg-white p-4" style={CARD_SHADOW}>
+		<View className="flex-1 rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 			<View className="mb-1 flex-row items-center">
 				<View className="mr-2 rounded-full p-2" style={{ backgroundColor: "rgba(91, 123, 108, 0.1)" }}>
 					{icon}
@@ -67,7 +68,7 @@ function Card({ title, subtitle, value, unit, icon }: { title: string; subtitle:
 
 function Action({ label, icon }: { label: string; icon: React.ReactNode }) {
 	return (
-		<TouchableOpacity className="flex-1 items-center rounded-2xl border border-slate-50 bg-white p-3" style={CARD_SHADOW}>
+		<TouchableOpacity className="flex-1 items-center rounded-2xl bg-white p-3" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 			<View className="rounded-lg p-2" style={{ backgroundColor: BRAND }}>
 				{icon}
 			</View>
@@ -132,7 +133,7 @@ export function HomeScreen() {
 							</TouchableOpacity>
 						</View>
 						<View className="mt-8 flex-row">
-							<View className="flex-row items-center rounded-lg border border-slate-100 bg-white px-3 py-2" style={CARD_SHADOW}>
+							<View className="flex-row items-center rounded-lg bg-white px-3 py-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 								<CalendarDays size={20} color="#0F172A" strokeWidth={2} />
 								<Text style={{ marginHorizontal: 8, fontSize: 14, fontWeight: "700" }}>{getTodayDateLabel()}</Text>
 								<ChevronDown size={20} color="#0F172A" strokeWidth={2} />
@@ -157,7 +158,7 @@ export function HomeScreen() {
 							</View>
 							<View style={{ gap: 12 }}>
 								{scheduleItems.map((item) => (
-									<View key={item.id} className="flex-row items-center justify-between rounded-2xl border border-slate-50 bg-white p-4" style={CARD_SHADOW}>
+									<View key={item.id} className="flex-row items-center justify-between rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 										<View className="flex-row items-center">
 											<View className="h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-slate-100">
 												<Text style={{ fontSize: 12, fontWeight: "700", color: "#64748B" }}>{item.name.charAt(0)}</Text>
