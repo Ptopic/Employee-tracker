@@ -67,6 +67,21 @@ function Card({ title, subtitle, value, unit, icon }: { title: string; subtitle:
 	);
 }
 
+function StatsCardSkeleton() {
+	return (
+		<View className="flex-1 rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+			<View className="mb-2 flex-row items-center">
+				<View className="rounded-full" style={{ width: 32, height: 32, backgroundColor: "#E2E8F0", marginRight: 10 }} />
+				<View>
+					<View style={{ width: 84, height: 12, borderRadius: 6, backgroundColor: "#E2E8F0", marginBottom: 4 }} />
+					<View style={{ width: 64, height: 10, borderRadius: 6, backgroundColor: "#F1F5F9" }} />
+				</View>
+			</View>
+			<View style={{ width: 90, height: 28, borderRadius: 8, backgroundColor: "#E2E8F0", marginTop: 8 }} />
+		</View>
+	);
+}
+
 function Action({ label, icon, onPress }: { label: string; icon: React.ReactNode; onPress: () => void }) {
 	return (
 		<TouchableOpacity onPress={onPress} className="flex-1 items-center justify-center rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 12 }]}>
@@ -95,6 +110,8 @@ export function HomeScreen() {
 	const onRefresh = async () => Promise.all([userInfoQuery.refetch(), todayEmployeesQuery.refetch(), todayShiftsQuery.refetch(), weeklyHoursQuery.refetch()]);
 
 	const scheduledHours = weeklyHoursQuery.data?.totalHours ?? 0;
+	const isStatsLoading = weeklyHoursQuery.isLoading || todayEmployeesQuery.isLoading;
+	const isScheduleLoading = todayShiftsQuery.isLoading;
 
 	const scheduleItems = useMemo(
 		() =>
@@ -146,8 +163,17 @@ export function HomeScreen() {
 
 					<View className="px-6" style={{ gap: 24 }}>
 						<View className="flex-row" style={{ gap: 16 }}>
-							<Card title="Scheduled" subtitle="Current Week" value={String(Math.round(scheduledHours))} unit="Hrs" icon={<Clock3 size={16} color={BRAND} strokeWidth={2.5} />} />
-							<Card title="Working Today" subtitle="All Teams" value={String(todayEmployeesQuery.data?.count ?? 0)} unit="People" icon={<Users size={16} color={BRAND} strokeWidth={2.25} />} />
+							{isStatsLoading ? (
+								<>
+									<StatsCardSkeleton />
+									<StatsCardSkeleton />
+								</>
+							) : (
+								<>
+									<Card title="Scheduled" subtitle="Current Week" value={String(Math.round(scheduledHours))} unit="Hrs" icon={<Clock3 size={16} color={BRAND} strokeWidth={2.5} />} />
+									<Card title="Working Today" subtitle="All Teams" value={String(todayEmployeesQuery.data?.count ?? 0)} unit="People" icon={<Users size={16} color={BRAND} strokeWidth={2.25} />} />
+								</>
+							)}
 						</View>
 						<View className="flex-row" style={{ gap: 12 }}>
 							<Action label="Add Employee" onPress={() => router.push("/employees/add" as any)} icon={<UserPlus size={20} color="#FFFFFF" strokeWidth={2} />} />
@@ -162,7 +188,20 @@ export function HomeScreen() {
 								</TouchableOpacity>
 							</View>
 							<View style={{ gap: 12 }}>
-								{scheduleItems.length ? (
+								{isScheduleLoading ? (
+									Array.from({ length: 3 }).map((_, idx) => (
+										<View key={`schedule-skeleton-${idx}`} className="flex-row items-center justify-between rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}>
+											<View className="flex-row items-center">
+												<View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#E2E8F0", marginRight: 12 }} />
+												<View>
+													<View style={{ width: 96, height: 12, borderRadius: 6, backgroundColor: "#E2E8F0", marginBottom: 6 }} />
+													<View style={{ width: 140, height: 10, borderRadius: 6, backgroundColor: "#F1F5F9" }} />
+												</View>
+											</View>
+											<View style={{ width: 72, height: 16, borderRadius: 8, backgroundColor: "#E2E8F0" }} />
+										</View>
+									))
+								) : scheduleItems.length ? (
 									scheduleItems.map((item) => (
 										<TouchableOpacity
 											key={item.id}
