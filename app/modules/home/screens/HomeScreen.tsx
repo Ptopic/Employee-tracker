@@ -132,7 +132,8 @@ export function HomeScreen() {
 	return (
 		<SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
 			<ScrollView
-				contentContainerStyle={{ paddingBottom: 120 }}
+				alwaysBounceVertical
+				contentContainerStyle={{ paddingBottom: 120, flexGrow: 1 }}
 				refreshControl={
 					<RefreshControl
 						refreshing={userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading || weeklyHoursQuery.isLoading}
