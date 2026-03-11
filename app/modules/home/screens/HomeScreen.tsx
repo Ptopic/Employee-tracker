@@ -115,6 +115,8 @@ export function HomeScreen() {
 	const [selectedDate, setSelectedDate] = useState(new Date());
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const selectedDateIso = useMemo(() => toIsoDate(selectedDate), [selectedDate]);
+	const todayIso = toIsoDate(new Date());
+	const showNowButton = selectedDateIso !== todayIso;
 	const dayScheduleQuery = useDaySchedule(selectedDateIso);
 	const weeklyHoursQuery = useWeeklyHours(managerId, selectedDateIso);
 	const shifts = dayScheduleQuery.data?.shifts ?? [];
@@ -167,7 +169,7 @@ export function HomeScreen() {
 								<Bell size={24} color="#475569" strokeWidth={2} />
 							</TouchableOpacity>
 						</View>
-						<View className="flex-row">
+						<View className="flex-row items-center" style={{ gap: 8 }}>
 							<TouchableOpacity
 								onPress={() => setShowDatePicker(true)}
 								className="flex-row items-center rounded-lg bg-white px-3 py-2"
@@ -176,6 +178,15 @@ export function HomeScreen() {
 								<CalendarDays size={20} color="#0F172A" strokeWidth={2} />
 								<Text style={{ marginLeft: 8, fontSize: 14, fontWeight: "700" }}>{formatDateLabel(selectedDate)}</Text>
 							</TouchableOpacity>
+							{showNowButton ? (
+								<TouchableOpacity
+									onPress={() => setSelectedDate(new Date())}
+									className="rounded-lg px-3 py-2"
+									style={{ backgroundColor: BRAND }}
+								>
+									<Text style={{ fontSize: 12, fontWeight: "700", color: "#FFFFFF" }}>Now</Text>
+								</TouchableOpacity>
+							) : null}
 						</View>
 					</View>
 
