@@ -68,11 +68,11 @@ function Card({ title, subtitle, value, unit, icon }: { title: string; subtitle:
 
 function Action({ label, icon }: { label: string; icon: React.ReactNode }) {
 	return (
-		<TouchableOpacity className="flex-1 items-center justify-center rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, paddingVertical: 12, paddingHorizontal: 10 }]}>
+		<TouchableOpacity className="flex-1 items-center justify-center rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 12 }]}>
 			<View className="rounded-lg p-2" style={{ backgroundColor: BRAND, marginBottom: 8 }}>
 				{icon}
 			</View>
-			<Text style={{ fontSize: 10, fontWeight: "700", textAlign: "center" }}>{label}</Text>
+			<Text style={{ fontSize: 10, lineHeight: 14, fontWeight: "700", textAlign: "center" }}>{label}</Text>
 		</TouchableOpacity>
 	);
 }
