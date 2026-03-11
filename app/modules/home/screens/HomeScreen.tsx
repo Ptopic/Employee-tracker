@@ -12,10 +12,10 @@ const BG = "#F8F9F8";
 const SURFACE_BORDER = "#F1F5F9";
 const CARD_SHADOW = {
 	shadowColor: "#000",
-	shadowOpacity: 0.08,
-	shadowOffset: { width: 0, height: 2 },
-	shadowRadius: 8,
-	elevation: 3,
+	shadowOpacity: 0.05,
+	shadowOffset: { width: 0, height: 1 },
+	shadowRadius: 3,
+	elevation: 2,
 } as const;
 
 function ScannerIcon() {
