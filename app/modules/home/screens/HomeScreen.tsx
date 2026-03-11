@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import { Modal, NativeModules, Pressable, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
-import DatePicker from "react-native-date-picker";
 import { Bell, CalendarDays, ChevronRight, Clock3, FileText, Plus, User, UserPlus, Users } from "lucide-react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
@@ -132,6 +131,17 @@ export function HomeScreen() {
 	const workingPeopleCount = useMemo(() => new Set(shifts.flatMap((shift) => shift.assignments.map((a) => a.employeeId))).size, [shifts]);
 	const isStatsLoading = weeklyHoursQuery.isLoading || dayScheduleQuery.isLoading;
 	const isScheduleLoading = dayScheduleQuery.isLoading;
+	const hasNativeDatePicker = Boolean((NativeModules as any)?.RNDatePicker);
+	const DatePickerComponent = hasNativeDatePicker ? require("react-native-date-picker").default : null;
+	const dateOptions = useMemo(
+		() =>
+			Array.from({ length: 31 }, (_, index) => {
+				const date = new Date(selectedDate);
+				date.setDate(selectedDate.getDate() - 15 + index);
+				return date;
+			}),
+		[selectedDate],
+	);
 
 	const scheduleItems = useMemo(
 		() =>
@@ -258,17 +268,46 @@ export function HomeScreen() {
 				</View>
 			</ScrollView>
 
-			<DatePicker
-				modal
-				mode="date"
-				open={showDatePicker}
-				date={selectedDate}
-				onConfirm={(date) => {
-					setSelectedDate(date);
-					setShowDatePicker(false);
-				}}
-				onCancel={() => setShowDatePicker(false)}
-			/>
+			{DatePickerComponent ? (
+				<DatePickerComponent
+					modal
+					mode="date"
+					open={showDatePicker}
+					date={selectedDate}
+					onConfirm={(date) => {
+						setSelectedDate(date);
+						setShowDatePicker(false);
+					}}
+					onCancel={() => setShowDatePicker(false)}
+				/>
+			) : (
+				<Modal visible={showDatePicker} transparent animationType="fade" onRequestClose={() => setShowDatePicker(false)}>
+					<Pressable className="flex-1 justify-end" style={{ backgroundColor: "rgba(15, 23, 42, 0.35)" }} onPress={() => setShowDatePicker(false)}>
+						<Pressable className="rounded-t-3xl bg-white px-6 pt-5 pb-8" onPress={() => {}}>
+							<Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12 }}>Select date</Text>
+							<ScrollView style={{ maxHeight: 320 }}>
+								{dateOptions.map((date) => {
+									const iso = toIsoDate(date);
+									const selected = iso === selectedDateIso;
+									return (
+										<TouchableOpacity
+											key={iso}
+											onPress={() => {
+												setSelectedDate(date);
+												setShowDatePicker(false);
+											}}
+											className="rounded-xl px-3 py-3"
+											style={{ backgroundColor: selected ? "rgba(91, 123, 108, 0.1)" : "transparent", marginBottom: 4 }}
+										>
+											<Text style={{ fontSize: 14, fontWeight: selected ? "700" : "500", color: selected ? "#1E293B" : "#475569" }}>{formatDateLabel(date)}</Text>
+										</TouchableOpacity>
+									);
+								})}
+							</ScrollView>
+						</Pressable>
+					</Pressable>
+				</Modal>
+			)}
 		</SafeAreaView>
 	);
 }
