@@ -123,7 +123,7 @@ export function HomeScreen() {
 			<ScrollView contentContainerStyle={{ paddingBottom: 120 }} refreshControl={<RefreshControl refreshing={userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading} onRefresh={onRefresh} tintColor={BRAND} />}>
 				<View className="w-full self-center" style={{ maxWidth: 960 }}>
 					<View className="p-6 pb-4">
-						<View className="flex-row items-start justify-between" style={{ marginBottom: 32 }}>
+						<View className="flex-row items-start justify-between" style={{ marginBottom: 20 }}>
 							<View style={{ paddingTop: 2 }}>
 								<Text style={{ color: "#94A3B8", fontSize: 14, fontWeight: "500", marginBottom: 2 }}>Good Morning,</Text>
 								<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30 }}>{userInfoQuery.data?.fullName || "Akhmad Maariz"}</Text>
