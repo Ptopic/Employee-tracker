@@ -1,18 +1,39 @@
 import { useEffect, useMemo } from "react";
 import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
-import { Bell, CalendarDays, ChevronDown, ChevronRight, Clock3, FileText, Plus, UserPlus, Users } from "lucide-react-native";
+import Svg, { Circle, Path } from "react-native-svg";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
 import { useTodayEmployees, useTodayShifts } from "@/api/home/hooks";
 import Text from "@/components/Text";
 import { useAppState } from "@/shared/state/app-state";
 
+function Icon({ path, size = 20, stroke = "#475569", strokeWidth = 2 }: { path: string; size?: number; stroke?: string; strokeWidth?: number }) {
+	return (
+		<Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+			<Path d={path} stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+		</Svg>
+	);
+}
+
+function ScannerIcon() {
+	return (
+		<Svg width={28} height={28} viewBox="0 0 24 24" fill="none">
+			<Path d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" stroke="#FFFFFF" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+			<Circle cx="12" cy="12" r="3" stroke="#FFFFFF" strokeWidth={2} />
+		</Svg>
+	);
+}
+
+const iconPaths = {
+	bell: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9",
+	clock: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+	team: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+	addEmployee: "M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z",
+	addShift: "M12 4v16m8-8H4",
+	exportPdf: "M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z",
+};
+
 function getTodayDateLabel() {
-	return new Date().toLocaleDateString("en-US", {
-		weekday: "long",
-		day: "numeric",
-		month: "long",
-		year: "numeric",
-	});
+	return new Date().toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
 function formatTimeTo12h(time: string) {
@@ -27,95 +48,30 @@ function toDurationLabel(startTime: string, endTime: string) {
 	const [endH, endM] = endTime.split(":").map(Number);
 	let minutes = endH * 60 + endM - (startH * 60 + startM);
 	if (minutes < 0) minutes += 24 * 60;
-	const h = Math.floor(minutes / 60);
-	const m = minutes % 60;
-	return `${h}h ${String(m).padStart(2, "0")}m`;
+	return `${Math.floor(minutes / 60)}h ${String(minutes % 60).padStart(2, "0")}m`;
 }
 
-function DashboardStatCard({
-	title,
-	subtitle,
-	value,
-	unit,
-	icon,
-}: {
-	title: string;
-	subtitle: string;
-	value: string;
-	unit: string;
-	icon: React.ReactNode;
-}) {
+function Card({ title, subtitle, value, unit, iconPath }: { title: string; subtitle: string; value: string; unit: string; iconPath: string }) {
 	return (
-		<View
-			className="flex-1 rounded-2xl border border-[#F8FAFC] bg-white p-4"
-			style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}
-		>
+		<View className="flex-1 rounded-2xl border border-slate-50 bg-white p-4" style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}>
 			<View className="mb-1 flex-row items-center">
-				<View className="mr-2 rounded-full bg-[#5B7B6C]/10 p-2">{icon}</View>
+				<View className="mr-2 rounded-full bg-[#5B7B6C]/10 p-2"><Icon path={iconPath} size={16} stroke="#5B7B6C" strokeWidth={2.5} /></View>
 				<View>
-					<Text className="text-[#0F172A]" style={{ fontSize: 14, fontWeight: "700", lineHeight: 20 }}>
-						{title}
-					</Text>
-					<Text className="text-[#94A3B8]" style={{ fontSize: 10, fontWeight: "400", lineHeight: 14 }}>
-						{subtitle}
-					</Text>
+					<Text style={{ fontSize: 14, fontWeight: "700" }}> {title}</Text>
+					<Text style={{ fontSize: 10, color: "#94A3B8" }}>{subtitle}</Text>
 				</View>
 			</View>
-			<View className="mt-2 flex-row items-end">
-				<Text className="text-[#0F172A]" style={{ fontSize: 24, fontWeight: "700", lineHeight: 30 }}>
-					{value}
-				</Text>
-				<Text className="ml-1 text-[#94A3B8]" style={{ fontSize: 14, fontWeight: "500", lineHeight: 20 }}>
-					{unit}
-				</Text>
-			</View>
+			<Text style={{ fontSize: 24, fontWeight: "700", marginTop: 8 }}>{value}<Text style={{ fontSize: 14, color: "#94A3B8", fontWeight: "500" }}> {unit}</Text></Text>
 		</View>
 	);
 }
 
-function PrimaryAction({ label, icon }: { label: string; icon: React.ReactNode }) {
+function Action({ label, iconPath, strokeWidth = 2 }: { label: string; iconPath: string; strokeWidth?: number }) {
 	return (
-		<TouchableOpacity
-			className="flex-1 items-center justify-center rounded-2xl border border-[#F8FAFC] bg-white p-3"
-			style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}
-		>
-			<View className="rounded-lg bg-[#5B7B6C] p-2">{icon}</View>
-			<Text className="mt-2 text-center text-[#0F172A]" style={{ fontSize: 10, fontWeight: "700", lineHeight: 14 }}>
-				{label}
-			</Text>
+		<TouchableOpacity className="flex-1 items-center rounded-2xl border border-slate-50 bg-white p-3" style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}>
+			<View className="rounded-lg bg-[#5B7B6C] p-2"><Icon path={iconPath} size={20} stroke="#FFF" strokeWidth={strokeWidth} /></View>
+			<Text style={{ fontSize: 10, fontWeight: "700", marginTop: 8, textAlign: "center" }}>{label}</Text>
 		</TouchableOpacity>
-	);
-}
-
-function ScheduleCard({ name, startTime, endTime }: { name: string; startTime: string; endTime: string }) {
-	return (
-		<View
-			className="flex-row items-center justify-between rounded-2xl border border-[#F8FAFC] bg-white p-4"
-			style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}
-		>
-			<View className="flex-row items-center">
-				<View className="h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-[#F1F5F9] bg-[#F1F5F9]">
-					<Text className="text-[#64748B]" style={{ fontSize: 12, fontWeight: "700", lineHeight: 16 }}>
-						{name.charAt(0)}
-					</Text>
-				</View>
-				<View className="ml-3">
-					<Text className="text-[#0F172A]" style={{ fontSize: 14, fontWeight: "700", lineHeight: 20 }}>
-						{name}
-					</Text>
-					<Text className="text-[#64748B]" style={{ fontSize: 10, fontWeight: "500", lineHeight: 14 }}>
-						In {formatTimeTo12h(startTime)}, Out {formatTimeTo12h(endTime)}
-					</Text>
-				</View>
-			</View>
-
-			<View className="flex-row items-center">
-				<Text className="text-[#334155]" style={{ fontSize: 14, fontWeight: "700", lineHeight: 20 }}>
-					{toDurationLabel(startTime, endTime)}
-				</Text>
-				<ChevronRight size={20} color="#CBD5E1" strokeWidth={2.1} />
-			</View>
-		</View>
 	);
 }
 
@@ -130,119 +86,76 @@ export function HomeScreen() {
 	const managerId = selectedManagerId || userInfoQuery.data?.id;
 	const todayEmployeesQuery = useTodayEmployees(managerId);
 	const todayShiftsQuery = useTodayShifts(managerId);
-
-	const isLoading = userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading;
-	const onRefresh = async () => {
-		await Promise.all([userInfoQuery.refetch(), todayEmployeesQuery.refetch(), todayShiftsQuery.refetch()]);
-	};
-
-	const fullName = userInfoQuery.data?.fullName || "Akhmad Maariz";
 	const shifts = todayShiftsQuery.data ?? [];
+
+	const onRefresh = async () => Promise.all([userInfoQuery.refetch(), todayEmployeesQuery.refetch(), todayShiftsQuery.refetch()]);
+
 	const scheduledHours = shifts.reduce((acc, shift) => {
-		const [startH, startM] = shift.startTime.split(":").map(Number);
-		const [endH, endM] = shift.endTime.split(":").map(Number);
-		let minutes = endH * 60 + endM - (startH * 60 + startM);
-		if (minutes < 0) minutes += 24 * 60;
-		return acc + minutes;
+		const [sh, sm] = shift.startTime.split(":").map(Number);
+		const [eh, em] = shift.endTime.split(":").map(Number);
+		let mins = eh * 60 + em - (sh * 60 + sm);
+		if (mins < 0) mins += 24 * 60;
+		return acc + mins;
 	}, 0);
 
-	const scheduledHoursDisplay = String(Math.round(scheduledHours / 60) || 164);
-	const employeesWorkingDisplay = String(todayEmployeesQuery.data?.count ?? 12);
-
 	const scheduleItems = useMemo(() => {
-		const flattened = shifts.flatMap((shift) =>
-			shift.assignments.map((assignment) => ({
-				id: assignment.id,
-				name: `${assignment.employee.firstName} ${assignment.employee.lastName}`,
-				startTime: shift.startTime.slice(0, 5),
-				endTime: shift.endTime.slice(0, 5),
-			})),
-		);
-		if (flattened.length) return flattened.slice(0, 3);
-		return [
-			{ id: "demo-1", name: "Bagus Fikri", startTime: "09:00", endTime: "17:00" },
-			{ id: "demo-2", name: "Susi", startTime: "08:00", endTime: "16:00" },
-			{ id: "demo-3", name: "Budi", startTime: "08:00", endTime: "16:00" },
+		const rows = shifts.flatMap((s) => s.assignments.map((a) => ({ id: a.id, name: `${a.employee.firstName} ${a.employee.lastName}`, startTime: s.startTime.slice(0, 5), endTime: s.endTime.slice(0, 5) })));
+		return rows.length ? rows.slice(0, 3) : [
+			{ id: "1", name: "Bagus Fikri", startTime: "09:00", endTime: "17:56" },
+			{ id: "2", name: "Susi", startTime: "08:00", endTime: "16:00" },
+			{ id: "3", name: "Budi", startTime: "08:00", endTime: "16:00" },
 		];
 	}, [shifts]);
 
 	return (
 		<SafeAreaView className="flex-1 bg-[#F8F9F8]">
-			<ScrollView
-				className="flex-1"
-				contentContainerStyle={{ paddingBottom: 120 }}
-				showsVerticalScrollIndicator={false}
-				refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#5B7B6C" />}
-			>
-				<View className="px-6 pb-4 pt-6">
+			<ScrollView contentContainerStyle={{ paddingBottom: 120 }} refreshControl={<RefreshControl refreshing={userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading} onRefresh={onRefresh} tintColor="#5B7B6C" />}>
+				<View className="p-6 pb-4">
 					<View className="flex-row items-start justify-between">
 						<View>
-							<Text className="text-[#94A3B8]" style={{ fontSize: 14, fontWeight: "500", lineHeight: 20 }}>
-								Good Morning,
-							</Text>
-							<Text className="text-[#0F172A]" style={{ fontSize: 24, fontWeight: "700", lineHeight: 32 }}>
-								{fullName}
-							</Text>
+							<Text style={{ color: "#94A3B8", fontSize: 14, fontWeight: "500" }}>Good Morning,</Text>
+							<Text style={{ fontSize: 24, fontWeight: "700" }}>{userInfoQuery.data?.fullName || "Akhmad Maariz"}</Text>
 						</View>
-						<TouchableOpacity
-							aria-label="Notifications"
-							className="rounded-full bg-white p-2"
-							style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}
-						>
-							<Bell size={24} color="#475569" strokeWidth={2} />
+						<TouchableOpacity className="rounded-full bg-white p-2" style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}>
+							<Icon path={iconPaths.bell} size={24} stroke="#475569" strokeWidth={2} />
 						</TouchableOpacity>
 					</View>
-
-					<View className="mt-8 flex-row items-center justify-between">
-						<View
-							className="flex-row items-center rounded-lg border border-[#F1F5F9] bg-white px-3 py-2"
-							style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}
-						>
-							<CalendarDays size={20} color="#0F172A" strokeWidth={2} />
-							<Text className="mx-2 text-[#0F172A]" style={{ fontSize: 14, fontWeight: "700", lineHeight: 20 }}>
-								{getTodayDateLabel()}
-							</Text>
-							<ChevronDown size={20} color="#0F172A" strokeWidth={2} />
+					<View className="mt-8 flex-row">
+						<View className="flex-row items-center rounded-lg border border-slate-100 bg-white px-3 py-2" style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}>
+							<Icon path="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z" size={20} stroke="#0F172A" />
+							<Text style={{ marginHorizontal: 8, fontSize: 14, fontWeight: "700" }}>{getTodayDateLabel()}</Text>
+							<Icon path="m6 9 6 6 6-6" size={20} stroke="#0F172A" />
 						</View>
 					</View>
 				</View>
 
 				<View className="space-y-6 px-6">
 					<View className="flex-row gap-4">
-						<DashboardStatCard
-							title="Scheduled"
-							subtitle="Current Week"
-							value={scheduledHoursDisplay}
-							unit="Hrs"
-							icon={<Clock3 size={16} color="#5B7B6C" strokeWidth={2.5} />}
-						/>
-						<DashboardStatCard
-							title="Working Today"
-							subtitle="All Teams"
-							value={employeesWorkingDisplay}
-							unit="People"
-							icon={<Users size={16} color="#5B7B6C" strokeWidth={2.5} />}
-						/>
+						<Card title="Scheduled" subtitle="Current Week" value={String(Math.round(scheduledHours / 60) || 164)} unit="Hrs" iconPath={iconPaths.clock} />
+						<Card title="Working Today" subtitle="All Teams" value={String(todayEmployeesQuery.data?.count ?? 12)} unit="People" iconPath={iconPaths.team} />
 					</View>
-
 					<View className="flex-row gap-3">
-						<PrimaryAction label="Add Employee" icon={<UserPlus size={20} color="#FFFFFF" strokeWidth={2.2} />} />
-						<PrimaryAction label="Add Shift" icon={<Plus size={20} color="#FFFFFF" strokeWidth={2.5} />} />
-						<PrimaryAction label="Export PDF" icon={<FileText size={20} color="#FFFFFF" strokeWidth={2.2} />} />
+						<Action label="Add Employee" iconPath={iconPaths.addEmployee} />
+						<Action label="Add Shift" iconPath={iconPaths.addShift} strokeWidth={2.5} />
+						<Action label="Export PDF" iconPath={iconPaths.exportPdf} />
 					</View>
-
 					<View className="mt-1">
 						<View className="mb-4 flex-row items-center justify-between">
-							<Text className="text-[#0F172A]" style={{ fontSize: 20, fontWeight: "700", lineHeight: 28 }}>
-								Today's Schedule
-							</Text>
-							<Text className="text-[#5B7B6C]" style={{ fontSize: 12, fontWeight: "600", lineHeight: 16 }}>
-								View Full
-							</Text>
+							<Text style={{ fontSize: 20, fontWeight: "700" }}>Today's Schedule</Text>
+							<Text style={{ fontSize: 12, fontWeight: "600", color: "#5B7B6C" }}>View Full</Text>
 						</View>
 						<View className="space-y-3">
 							{scheduleItems.map((item) => (
-								<ScheduleCard key={item.id} name={item.name} startTime={item.startTime} endTime={item.endTime} />
+								<View key={item.id} className="flex-row items-center justify-between rounded-2xl border border-slate-50 bg-white p-4" style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 1 }, shadowRadius: 4, elevation: 2 }}>
+									<View className="flex-row items-center">
+										<View className="h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-slate-100"><Text style={{ fontSize: 12, fontWeight: "700", color: "#64748B" }}>{item.name.charAt(0)}</Text></View>
+										<View className="ml-3">
+											<Text style={{ fontSize: 14, fontWeight: "700" }}>{item.name}</Text>
+											<Text style={{ fontSize: 10, color: "#64748B", fontWeight: "500" }}>In {formatTimeTo12h(item.startTime)}, Out {formatTimeTo12h(item.endTime)}</Text>
+										</View>
+									</View>
+									<View className="flex-row items-center"><Text style={{ fontSize: 14, fontWeight: "700", color: "#334155", marginRight: 6 }}>{toDurationLabel(item.startTime, item.endTime)}</Text><Icon path="m9 18 6-6-6-6" size={20} stroke="#CBD5E1" /></View>
+								</View>
 							))}
 						</View>
 					</View>
@@ -251,3 +164,5 @@ export function HomeScreen() {
 		</SafeAreaView>
 	);
 }
+
+export { ScannerIcon };
