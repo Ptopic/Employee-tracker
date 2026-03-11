@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import { Tabs, type BottomTabBarProps } from "expo-router";
+import { router, Tabs, type BottomTabBarProps } from "expo-router";
 import { CalendarDays, Home, Settings, Users } from "lucide-react-native";
-import { Pressable, View } from "react-native";
+import { Pressable, TouchableOpacity, View } from "react-native";
 import Text from "@/components/Text";
 import { ScannerIcon } from "@/modules/home/screens/HomeScreen";
 
@@ -63,11 +63,15 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 					})}
 				</View>
 			</View>
-			<View className="absolute top-0 -mt-[27px] rounded-full p-[6px]" style={{ backgroundColor: "rgba(91, 123, 108, 0.2)" }}>
+			<TouchableOpacity
+				onPress={() => router.push("/shift/edit" as any)}
+				className="absolute top-0 -mt-[27px] rounded-full p-[6px]"
+				style={{ backgroundColor: "rgba(91, 123, 108, 0.2)" }}
+			>
 				<View className="h-[54px] w-[54px] items-center justify-center rounded-full" style={{ backgroundColor: BRAND }}>
 					<ScannerIcon size={25} />
 				</View>
-			</View>
+			</TouchableOpacity>
 		</View>
 	);
 }
