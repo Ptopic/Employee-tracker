@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { Bell, CalendarDays, ChevronDown, ChevronRight, Clock3, FileText, Plus, User, UserPlus, Users } from "lucide-react-native";
@@ -96,6 +96,7 @@ function Action({ label, icon, onPress }: { label: string; icon: React.ReactNode
 export function HomeScreen() {
 	const { selectedManagerId, setSelectedManagerId } = useAppState();
 	const userInfoQuery = useGetUserInfo();
+	const [isRefreshing, setIsRefreshing] = useState(false);
 
 	useEffect(() => {
 		if (!selectedManagerId && userInfoQuery.data?.id) setSelectedManagerId(userInfoQuery.data.id);
@@ -107,7 +108,14 @@ export function HomeScreen() {
 	const weeklyHoursQuery = useWeeklyHours(managerId);
 	const shifts = todayShiftsQuery.data ?? [];
 
-	const onRefresh = async () => Promise.all([userInfoQuery.refetch(), todayEmployeesQuery.refetch(), todayShiftsQuery.refetch(), weeklyHoursQuery.refetch()]);
+	const onRefresh = async () => {
+		setIsRefreshing(true);
+		try {
+			await Promise.all([userInfoQuery.refetch(), todayEmployeesQuery.refetch(), todayShiftsQuery.refetch(), weeklyHoursQuery.refetch()]);
+		} finally {
+			setIsRefreshing(false);
+		}
+	};
 
 	const scheduledHours = weeklyHoursQuery.data?.totalHours ?? 0;
 	const isStatsLoading = weeklyHoursQuery.isLoading || todayEmployeesQuery.isLoading;
@@ -134,13 +142,7 @@ export function HomeScreen() {
 			<ScrollView
 				alwaysBounceVertical
 				contentContainerStyle={{ paddingBottom: 120, flexGrow: 1 }}
-				refreshControl={
-					<RefreshControl
-						refreshing={userInfoQuery.isLoading || todayEmployeesQuery.isLoading || todayShiftsQuery.isLoading || weeklyHoursQuery.isLoading}
-						onRefresh={onRefresh}
-						tintColor={BRAND}
-					/>
-				}
+				refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={BRAND} />}
 			>
 				<View className="w-full self-center" style={{ maxWidth: 960 }}>
 					<View className="p-6 pb-4">
