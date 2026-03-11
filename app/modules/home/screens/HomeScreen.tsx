@@ -58,9 +58,9 @@ function Card({ title, subtitle, value, unit, icon }: { title: string; subtitle:
 					<Text style={{ fontSize: 10, color: "#94A3B8", lineHeight: 14, marginTop: 1 }}>{subtitle}</Text>
 				</View>
 			</View>
-			<Text style={{ fontSize: 24, fontWeight: "700", marginTop: 8 }}>
+			<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 32, marginTop: 8, paddingBottom: 2 }}>
 				{value}
-				<Text style={{ fontSize: 14, color: "#94A3B8", fontWeight: "500" }}> {unit}</Text>
+				<Text style={{ fontSize: 14, lineHeight: 20, color: "#94A3B8", fontWeight: "500" }}> {unit}</Text>
 			</Text>
 		</View>
 	);
