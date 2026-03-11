@@ -36,7 +36,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
 	return (
 		<View className="absolute bottom-0 left-0 right-0 items-center">
-			<View className="h-[72px] w-full max-w-[960px] flex-row items-center bg-white px-4 pb-[8px]" style={{ shadowColor: "#000", shadowOpacity: 0.05, shadowOffset: { width: 0, height: -4 }, shadowRadius: 10, elevation: 4 }}>
+			<View className="h-[72px] w-full max-w-[960px] flex-row items-center bg-white px-4 pt-[4px] pb-[8px]" style={{ shadowColor: "#000", shadowOpacity: 0.05, shadowOffset: { width: 0, height: -4 }, shadowRadius: 10, elevation: 4 }}>
 				<View className="flex-1 flex-row">
 					{orderedNames.slice(0, 2).map((name) => {
 						const route = routeMap.get(name);
