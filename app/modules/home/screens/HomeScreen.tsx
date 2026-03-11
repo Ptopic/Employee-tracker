@@ -162,9 +162,9 @@ export function HomeScreen() {
 										<View className="flex-row items-center">
 											<View
 												className="items-center justify-center rounded-full border"
-												style={{ width: 56, height: 56, minWidth: 56, borderColor: "#F1F5F9", backgroundColor: "#F8FAFC", marginRight: 14 }}
+												style={{ width: 40, height: 40, minWidth: 40, borderColor: "#E2E8F0", backgroundColor: "#F8FAFC", marginRight: 12 }}
 											>
-												<User size={24} color="#94A3B8" strokeWidth={2} />
+												<User size={20} color="#94A3B8" strokeWidth={2} />
 											</View>
 											<View>
 												<Text style={{ fontSize: 14, fontWeight: "700", lineHeight: 18 }}>{item.name}</Text>
