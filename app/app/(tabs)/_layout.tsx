@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { Tabs, type BottomTabBarProps } from "expo-router";
-import { ArrowUpToLine, ChartNoAxesColumn, House, ScanLine, Settings } from "lucide-react-native";
-import { Pressable, Text, View } from "react-native";
+import { BriefcaseBusiness, ChartNoAxesColumn, House, ScanLine, Settings } from "lucide-react-native";
+import { Pressable, View } from "react-native";
+import Text from "@/components/Text";
 
 function TabItem({
 	label,
@@ -17,10 +18,7 @@ function TabItem({
 	return (
 		<Pressable onPress={onPress} className="items-center justify-center px-1">
 			{icon}
-			<Text
-				className={focused ? "text-[#111827]" : "text-[#6B7280]"}
-				style={{ fontSize: 12, fontWeight: "500", lineHeight: 16, marginTop: 4 }}
-			>
+			<Text className={`subcaption mt-1 ${focused ? "text-[#5B7B6C]" : "text-[#94A3B8]"}`} style={{ fontWeight: "600" }}>
 				{label}
 			</Text>
 		</Pressable>
@@ -30,7 +28,10 @@ function TabItem({
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 	return (
 		<View className="absolute bottom-0 left-0 right-0">
-			<View className="h-[78px] bg-white border-t border-[#E8EBEE] px-6">
+			<View
+				className="h-[82px] border-t border-[#EEF2F1] bg-white px-7"
+				style={{ shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: -4 }, shadowRadius: 10, elevation: 8 }}
+			>
 				<View className="flex-1 flex-row items-center justify-between">
 					{state.routes.map((route, index) => {
 						const focused = state.index === index;
@@ -39,60 +40,30 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 							if (!focused) navigation.navigate(route.name);
 						};
 
-						const iconColor = focused ? "#111827" : "#6B7280";
+						const iconColor = focused ? "#5B7B6C" : "#94A3B8";
 						const label = String(options.title ?? route.name);
 
 						if (route.name === "index") {
-							return (
-								<TabItem
-									key={route.key}
-									label={label}
-									focused={focused}
-									onPress={onPress}
-									icon={<House size={20} color={iconColor} strokeWidth={2.2} />}
-								/>
-							);
+							return <TabItem key={route.key} label={label} focused={focused} onPress={onPress} icon={<House size={20} color={iconColor} strokeWidth={2.3} />} />;
 						}
 						if (route.name === "calendar") {
-							return (
-								<TabItem
-									key={route.key}
-									label={label}
-									focused={focused}
-									onPress={onPress}
-									icon={<ChartNoAxesColumn size={20} color={iconColor} strokeWidth={2.2} />}
-								/>
-							);
+							return <TabItem key={route.key} label={label} focused={focused} onPress={onPress} icon={<ChartNoAxesColumn size={20} color={iconColor} strokeWidth={2.3} />} />;
 						}
 						if (route.name === "employees") {
-							return (
-								<TabItem
-									key={route.key}
-									label={label}
-									focused={focused}
-									onPress={onPress}
-									icon={<ArrowUpToLine size={20} color={iconColor} strokeWidth={2.2} />}
-								/>
-							);
+							return <TabItem key={route.key} label={label} focused={focused} onPress={onPress} icon={<BriefcaseBusiness size={20} color={iconColor} strokeWidth={2.3} />} />;
 						}
 						if (route.name === "settings") {
-							return (
-								<TabItem
-									key={route.key}
-									label={label}
-									focused={focused}
-									onPress={onPress}
-									icon={<Settings size={20} color={iconColor} strokeWidth={2.2} />}
-								/>
-							);
+							return <TabItem key={route.key} label={label} focused={focused} onPress={onPress} icon={<Settings size={20} color={iconColor} strokeWidth={2.3} />} />;
 						}
 						return null;
 					})}
 				</View>
 			</View>
 
-			<View className="absolute -top-7 left-1/2 -ml-8 h-16 w-16 items-center justify-center rounded-full border-4 border-[#EEF2F1] bg-[#5F857A]">
-				<ScanLine size={24} color="#FFFFFF" strokeWidth={2.2} />
+			<View className="absolute -top-8 left-1/2 -ml-[34px] h-[68px] w-[68px] items-center justify-center rounded-full bg-[#5B7B6C]/20">
+				<View className="h-14 w-14 items-center justify-center rounded-full bg-[#5B7B6C]">
+					<ScanLine size={24} color="#FFFFFF" strokeWidth={2.2} />
+				</View>
 			</View>
 		</View>
 	);

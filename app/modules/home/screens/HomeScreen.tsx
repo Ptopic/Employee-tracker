@@ -1,14 +1,11 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
-import { ArrowUpCircle, Bell, CheckCircle2, MapPin, RefreshCw } from "lucide-react-native";
+import { Bell, CalendarDays, ChevronDown, Clock3, Users } from "lucide-react-native";
 import type { ReactNode } from "react";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
 import { useTodayEmployees, useTodayShifts } from "@/api/home/hooks";
-import type { TodayShift } from "@/api/home/types";
 import Text from "@/components/Text";
 import { useAppState } from "@/shared/state/app-state";
-
-const LOCATION_LABEL = "Office, West Jakarta, Indonesia";
 
 function getTodayDateLabel() {
 	return new Date().toLocaleDateString("en-US", {
@@ -19,109 +16,31 @@ function getTodayDateLabel() {
 	});
 }
 
-function durationBetweenTimes(startTime: string, endTime: string) {
-	const [startH, startM] = startTime.split(":").map(Number);
-	const [endH, endM] = endTime.split(":").map(Number);
-	let minutes = endH * 60 + endM - (startH * 60 + startM);
-	if (minutes < 0) minutes += 24 * 60;
-	const hours = Math.floor(minutes / 60);
-	const mins = minutes % 60;
-	return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
-}
-
-function getRange(shifts: TodayShift[]) {
-	if (!shifts.length) return { first: "07:58", last: "17:00" };
-	const sorted = [...shifts].sort((a, b) => a.startTime.localeCompare(b.startTime));
-	const sortedEnd = [...shifts].sort((a, b) => b.endTime.localeCompare(a.endTime));
-	return { first: sorted[0].startTime.slice(0, 5), last: sortedEnd[0].endTime.slice(0, 5) };
-}
-
-function StatTile({
+function HomeMetricCard({
 	title,
 	subtitle,
 	value,
 	unit,
-	muted,
 	icon,
 }: {
 	title: string;
 	subtitle: string;
 	value: string;
-	unit?: string;
-	muted?: boolean;
+	unit: string;
 	icon: ReactNode;
 }) {
 	return (
-		<View className="h-[112px] flex-1 rounded-2xl bg-[#F1F3F3] px-3 py-3">
-			<View className="flex-row items-center gap-2">
-				{icon}
-				<View>
-					<Text className={muted ? "text-[#CDD2D8]" : "text-[#121212]"} style={{ fontSize: 13, fontWeight: "600", lineHeight: 17 }}>
-						{title}
-					</Text>
-					<Text className={muted ? "text-[#D8DCE1]" : "text-[#9CA3AF]"} style={{ fontSize: 12, fontWeight: "400", lineHeight: 16 }}>
-						{subtitle}
-					</Text>
-				</View>
-			</View>
-			<View className="mt-2.5 flex-row items-end">
-				<Text className={muted ? "text-[#CFD4DA]" : "text-[#111827]"} style={{ fontSize: 54, fontWeight: "700", lineHeight: 54, letterSpacing: -1 }}>
-					{value}
-				</Text>
-				{unit ? (
-					<Text className={muted ? "text-[#CFD4DA]" : "text-[#6B7280]"} style={{ fontSize: 14, fontWeight: "400", lineHeight: 18, marginLeft: 4, marginBottom: 6 }}>
-						{unit}
-					</Text>
-				) : null}
-			</View>
-		</View>
-	);
-}
-
-function HistoryMetric({ value, label, withDivider }: { value: string; label: string; withDivider?: boolean }) {
-	return (
-		<View className={`flex-1 pl-2 ${withDivider ? "border-l border-[#EDEFF2]" : ""}`}>
-			<Text className="text-[#111827]" style={{ fontSize: 18, fontWeight: "600", lineHeight: 22 }}>
-				{value}
-			</Text>
-			<Text className="text-[#9CA3AF]" style={{ fontSize: 11, fontWeight: "400", lineHeight: 14, marginTop: 2 }}>
-				{label}
-			</Text>
-		</View>
-	);
-}
-
-function HistoryRow({
-	dayNumber,
-	weekday,
-	checkIn,
-	checkOut,
-	totalHours,
-}: {
-	dayNumber: string;
-	weekday: string;
-	checkIn: string;
-	checkOut: string;
-	totalHours: string;
-}) {
-	return (
-		<View className="rounded-2xl bg-white px-3 py-3 mb-2.5">
+		<View className="flex-1 rounded-2xl border border-[#EEF1EF] bg-white px-4 py-4" style={{ shadowColor: "#000", shadowOpacity: 0.04, shadowOffset: { width: 0, height: 3 }, shadowRadius: 8, elevation: 2 }}>
 			<View className="flex-row items-center">
-				<View className="h-16 w-14 rounded-xl bg-[#5F857A] items-center justify-center">
-					<Text className="text-white" style={{ fontSize: 20, fontWeight: "700", lineHeight: 24 }}>{dayNumber}</Text>
-					<Text className="text-white" style={{ fontSize: 12, fontWeight: "400", lineHeight: 16 }}>{weekday}</Text>
-				</View>
-				<View className="ml-3 flex-1 flex-row">
-					<HistoryMetric value={checkIn} label="Check In" />
-					<HistoryMetric value={checkOut} label="Check Out" withDivider />
-					<HistoryMetric value={totalHours} label="Total Hours" withDivider />
+				<View className="mr-2 h-8 w-8 items-center justify-center rounded-full bg-[#5B7B6C]/10">{icon}</View>
+				<View className="flex-1">
+					<Text className="caption text-[#1F2937]" style={{ fontWeight: "700" }}>{title}</Text>
+					<Text className="subcaption text-[#94A3B8]">{subtitle}</Text>
 				</View>
 			</View>
-			<View className="mt-2.5 ml-[68px] flex-row items-center">
-				<MapPin size={13} color="#5F857A" strokeWidth={2.2} />
-				<Text className="text-[#6B7280]" style={{ fontSize: 12, fontWeight: "400", lineHeight: 16, marginLeft: 6 }}>
-					{LOCATION_LABEL}
-				</Text>
+			<View className="mt-3 flex-row items-end">
+				<Text className="heading-large-bold text-[#111827]">{value}</Text>
+				<Text className="body-small ml-1.5 text-[#94A3B8]">{unit}</Text>
 			</View>
 		</View>
 	);
@@ -146,110 +65,64 @@ export function HomeScreen() {
 
 	const fullName = userInfoQuery.data?.fullName || "Akhmad Maariz";
 	const shifts = todayShiftsQuery.data ?? [];
-	const { first, last } = getRange(shifts);
-	const todayEmployees = todayEmployeesQuery.data?.count ?? 15;
-	const absence = Math.max(todayEmployees - shifts.length, 0);
-
-	const previewRows = useMemo(
-		() => [
-			{ id: "preview-1", dayNumber: "22", weekday: "Wed", checkIn: "07:57", checkOut: "17:00", totalHours: "08:03" },
-			{ id: "preview-2", dayNumber: "21", weekday: "Tue", checkIn: "08:03", checkOut: "17:08", totalHours: "08:05" },
-			{ id: "preview-3", dayNumber: "20", weekday: "Mon", checkIn: "07:59", checkOut: "17:00", totalHours: "08:01" },
-		],
-		[],
-	);
+	const scheduledHours = shifts.reduce((acc, shift) => {
+		const [startH, startM] = shift.startTime.split(":").map(Number);
+		const [endH, endM] = shift.endTime.split(":").map(Number);
+		let minutes = endH * 60 + endM - (startH * 60 + startM);
+		if (minutes < 0) minutes += 24 * 60;
+		return acc + minutes;
+	}, 0);
+	const scheduledHoursDisplay = String(Math.round(scheduledHours / 60) || 164);
+	const employeesWorkingDisplay = String(todayEmployeesQuery.data?.count ?? 15);
 
 	return (
-		<SafeAreaView className="flex-1 bg-[#F4F5F5]">
+		<SafeAreaView className="flex-1 bg-[#F8F9F8]">
 			<ScrollView
 				className="flex-1"
-				contentContainerStyle={{ paddingBottom: 112 }}
+				contentContainerStyle={{ paddingBottom: 126 }}
 				showsVerticalScrollIndicator={false}
-				refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} />}
+				refreshControl={<RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#5B7B6C" />}
 			>
-				<View className="px-5 pt-1">
-					<View className="flex-row justify-between items-start">
+				<View className="px-6 pb-4 pt-3">
+					<View className="flex-row items-start justify-between">
 						<View>
-							<Text className="text-[#6B7280]" style={{ fontSize: 14, fontWeight: "400", lineHeight: 20 }}>Good Morning,</Text>
-							<Text className="text-[#111827]" style={{ fontSize: 22, fontWeight: "700", lineHeight: 28, marginTop: 1 }}>{fullName}</Text>
+							<Text className="body-small text-[#94A3B8]" style={{ fontWeight: "500" }}>Good Morning,</Text>
+							<Text className="heading-bold text-[#111827]" style={{ fontWeight: "700" }}>{fullName}</Text>
 						</View>
-						<TouchableOpacity className="h-10 w-10 rounded-full bg-white items-center justify-center">
-							<Bell size={20} color="#111827" strokeWidth={1.9} />
+						<TouchableOpacity
+							className="h-10 w-10 items-center justify-center rounded-full border border-[#EEF2F1] bg-white"
+							style={{ shadowColor: "#000", shadowOpacity: 0.05, shadowOffset: { width: 0, height: 2 }, shadowRadius: 6, elevation: 2 }}
+						>
+							<Bell size={20} color="#475569" strokeWidth={2.1} />
 						</TouchableOpacity>
 					</View>
-					<Text className="mt-3 text-[#6B7280]" style={{ fontSize: 13, fontWeight: "400", lineHeight: 18 }}>{getTodayDateLabel()}</Text>
-					<View className="mt-3 self-end flex-row items-center rounded-full bg-[#5F857A] px-3 py-2">
-						<View className="h-4 w-4 rounded-full bg-white items-center justify-center">
-							<MapPin size={10} color="#5F857A" strokeWidth={2.4} />
+
+					<View className="mt-6 flex-row items-center justify-between">
+						<View className="flex-row items-center rounded-xl border border-[#EEF2F1] bg-white px-3 py-2" style={{ shadowColor: "#000", shadowOpacity: 0.05, shadowOffset: { width: 0, height: 2 }, shadowRadius: 6, elevation: 1 }}>
+							<CalendarDays size={18} color="#334155" strokeWidth={2} />
+							<Text className="caption mx-2 text-[#0F172A]" style={{ fontWeight: "700" }}>{getTodayDateLabel()}</Text>
+							<ChevronDown size={18} color="#475569" strokeWidth={2} />
 						</View>
-						<Text className="ml-2 text-white" style={{ fontSize: 13, fontWeight: "500", lineHeight: 16 }}>West Jakarta, Indonesia</Text>
 					</View>
 				</View>
 
-				<View className="mt-3 px-5">
-					<View className="flex-row gap-2.5">
-						<StatTile
-							title="Check In"
-							subtitle="Early"
-							value={first}
-							icon={<View className="h-6 w-6 rounded-full bg-[#DCE7E3] items-center justify-center"><CheckCircle2 size={14} color="#4F796E" strokeWidth={2.4} /></View>}
+				<View className="px-6">
+					<View className="flex-row gap-3">
+						<HomeMetricCard
+							title="Scheduled"
+							subtitle="Current Week"
+							value={scheduledHoursDisplay}
+							unit="Hrs"
+							icon={<Clock3 size={16} color="#5B7B6C" strokeWidth={2.4} />}
 						/>
-						<StatTile
-							title="Check Out"
-							subtitle="Not Yet"
-							value={last}
-							muted
-							icon={<View className="h-6 w-6 rounded-full bg-[#ECEFF3] items-center justify-center"><ArrowUpCircle size={14} color="#D4D9DF" strokeWidth={2.4} /></View>}
-						/>
-					</View>
-					<View className="mt-2.5 flex-row gap-2.5">
-						<StatTile
-							title="Absence"
-							subtitle="November"
-							value={String(absence)}
-							unit="Day"
-							icon={<View className="h-6 w-6 rounded-full bg-[#DCE7E3] items-center justify-center"><ArrowUpCircle size={14} color="#4F796E" strokeWidth={2.4} /></View>}
-						/>
-						<StatTile
-							title="Total Attended"
-							subtitle="November"
-							value={String(todayEmployees)}
-							unit="Day"
-							icon={<View className="h-6 w-6 rounded-full bg-[#DCE7E3] items-center justify-center"><RefreshCw size={14} color="#4F796E" strokeWidth={2.4} /></View>}
+						<HomeMetricCard
+							title="Employees"
+							subtitle="Working Today"
+							value={employeesWorkingDisplay}
+							unit="People"
+							icon={<Users size={16} color="#5B7B6C" strokeWidth={2.4} />}
 						/>
 					</View>
-				</View>
-
-				<View className="mt-4 px-5 flex-row items-center justify-between">
-					<Text className="text-[#111827]" style={{ fontSize: 20, fontWeight: "700", lineHeight: 28 }}>Attendance History</Text>
-					<Text className="text-[#6B7280]" style={{ fontSize: 14, fontWeight: "500", lineHeight: 20 }}>See More</Text>
-				</View>
-
-				<View className="mt-2.5 px-5">
-					{shifts.length
-						? shifts.map((shift: TodayShift) => {
-								const date = new Date(shift.date);
-								return (
-									<HistoryRow
-										key={shift.id}
-										dayNumber={String(date.getUTCDate())}
-										weekday={date.toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" })}
-										checkIn={shift.startTime.slice(0, 5)}
-										checkOut={shift.endTime.slice(0, 5)}
-										totalHours={durationBetweenTimes(shift.startTime, shift.endTime)}
-									/>
-								);
-							})
-						: previewRows.map((row) => (
-								<HistoryRow
-									key={row.id}
-									dayNumber={row.dayNumber}
-									weekday={row.weekday}
-									checkIn={row.checkIn}
-									checkOut={row.checkOut}
-									totalHours={row.totalHours}
-								/>
-							))}
 				</View>
 			</ScrollView>
 		</SafeAreaView>
