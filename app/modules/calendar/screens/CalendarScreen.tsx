@@ -182,7 +182,7 @@ export function CalendarScreen() {
 			contentContainerStyle={{ paddingHorizontal: 10, paddingTop: 14, paddingBottom: 28 }}
 			refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={BRAND} />}
 		>
-			<View className="mb-8 flex-row items-center justify-between" style={{ paddingHorizontal: 2 }}>
+			<View className="mb-12 flex-row items-center justify-between" style={{ paddingHorizontal: 2 }}>
 				<TouchableOpacity
 					onPress={() => setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))}
 					className="items-center justify-center rounded-full bg-white"
