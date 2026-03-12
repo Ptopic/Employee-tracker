@@ -42,16 +42,26 @@ function formatDateLabel(date: Date) {
 	return date.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
+function extractHHmm(value: string) {
+	if (!value) return "00:00";
+	if (/^\d{2}:\d{2}/.test(value)) return value.slice(0, 5);
+	const isoMatch = value.match(/T(\d{2}:\d{2})/);
+	if (isoMatch?.[1]) return isoMatch[1];
+	const looseMatch = value.match(/(\d{2}):(\d{2})/);
+	if (looseMatch?.[1] && looseMatch?.[2]) return `${looseMatch[1]}:${looseMatch[2]}`;
+	return "00:00";
+}
+
 function formatTimeTo12h(time: string) {
-	const [hours, minutes] = time.split(":").map(Number);
+	const [hours, minutes] = extractHHmm(time).split(":").map(Number);
 	const period = hours >= 12 ? "PM" : "AM";
 	const normalized = hours % 12 || 12;
 	return `${String(normalized).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${period}`;
 }
 
 function toDurationLabel(startTime: string, endTime: string) {
-	const [startH, startM] = startTime.split(":").map(Number);
-	const [endH, endM] = endTime.split(":").map(Number);
+	const [startH, startM] = extractHHmm(startTime).split(":").map(Number);
+	const [endH, endM] = extractHHmm(endTime).split(":").map(Number);
 	let minutes = endH * 60 + endM - (startH * 60 + startM);
 	if (minutes < 0) minutes += 24 * 60;
 	return `${Math.floor(minutes / 60)}h ${String(minutes % 60).padStart(2, "0")}m`;
@@ -144,8 +154,8 @@ export function HomeScreen() {
 						id: a.id,
 						employeeId: a.employeeId,
 						name: `${a.employee.firstName} ${a.employee.lastName}`,
-						startTime: s.startTime.slice(0, 5),
-						endTime: s.endTime.slice(0, 5),
+						startTime: extractHHmm(s.startTime),
+						endTime: extractHHmm(s.endTime),
 					})),
 				)
 				.slice(0, 3),

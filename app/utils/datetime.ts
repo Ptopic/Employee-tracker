@@ -1,7 +1,23 @@
 import type { FirstDayOfWeek, TimeFormat } from "@/api/settings/types";
 
+const extractHHmm = (value: string) => {
+	if (!value) return null;
+	if (/^\d{2}:\d{2}/.test(value)) return value.slice(0, 5);
+
+	const isoMatch = value.match(/T(\d{2}:\d{2})/);
+	if (isoMatch?.[1]) return isoMatch[1];
+
+	const looseMatch = value.match(/(\d{2}):(\d{2})/);
+	if (looseMatch?.[1] && looseMatch?.[2]) return `${looseMatch[1]}:${looseMatch[2]}`;
+
+	return null;
+};
+
 export const formatTime = (value: string, format: TimeFormat) => {
-	const [hoursRaw, minutesRaw] = value.slice(0, 5).split(":");
+	const hhmm = extractHHmm(value);
+	if (!hhmm) return value;
+
+	const [hoursRaw, minutesRaw] = hhmm.split(":");
 	const hours = Number(hoursRaw);
 	const minutes = Number(minutesRaw);
 

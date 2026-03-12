@@ -17,7 +17,15 @@ import { Button, DatePickerField, EmployeePickerField, FieldError, FieldLabel, T
 const BRAND = "#5B7B6C";
 const BG = "#F8F9F8";
 
-const normalizeTime = (v?: string) => (v ? v.slice(0, 5) : "09:00");
+const normalizeTime = (v?: string) => {
+	if (!v) return "09:00";
+	if (/^\d{2}:\d{2}/.test(v)) return v.slice(0, 5);
+	const isoMatch = v.match(/T(\d{2}:\d{2})/);
+	if (isoMatch?.[1]) return isoMatch[1];
+	const looseMatch = v.match(/(\d{2}):(\d{2})/);
+	if (looseMatch?.[1] && looseMatch?.[2]) return `${looseMatch[1]}:${looseMatch[2]}`;
+	return "09:00";
+};
 const toIsoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 const toDateAtTime = (baseDate: Date, hhmm: string) => {
 	const [h, m] = hhmm.split(":").map(Number);
