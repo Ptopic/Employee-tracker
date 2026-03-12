@@ -237,7 +237,7 @@ export function CalendarScreen() {
 				))}
 			</View>
 
-			<View style={{ marginTop: 24 }}>
+			<View style={{ marginTop: 24, paddingHorizontal: 6 }}>
 				<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26, marginBottom: 12 }}>Daily Overview</Text>
 				<View style={{ gap: 12 }}>
 					{scheduleItems.length ? (
