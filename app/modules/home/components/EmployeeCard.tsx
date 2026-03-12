@@ -24,6 +24,7 @@ export function EmployeeCard({
 }) {
 	return (
 		<TouchableOpacity
+			activeOpacity={1}
 			onPress={onPress}
 			className="flex-row items-center justify-between rounded-2xl bg-white"
 			style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}

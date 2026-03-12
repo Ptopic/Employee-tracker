@@ -265,6 +265,7 @@ export function HomeScreen() {
 												overshootRight={false}
 												renderRightActions={() => (
 													<TouchableOpacity
+														activeOpacity={1}
 														onPress={() => confirmDeleteShift(item.shiftId)}
 														className="items-center justify-center"
 														style={{
