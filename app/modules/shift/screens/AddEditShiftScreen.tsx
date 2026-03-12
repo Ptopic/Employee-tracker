@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { Modal, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import { Modal, SafeAreaView, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { CalendarDays, CheckCircle2, ChevronDown, Clock3, X } from "lucide-react-native";
 import { Formik } from "formik";
