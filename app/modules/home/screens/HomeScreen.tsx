@@ -258,36 +258,37 @@ export function HomeScreen() {
 									))
 								) : scheduleItems.length ? (
 									scheduleItems.map((item) => (
-										<Swipeable
-											key={item.id}
-											renderRightActions={() => (
-												<TouchableOpacity
-													onPress={() => confirmDeleteShift(item.shiftId)}
-													className="items-center justify-center rounded-2xl"
-													style={{
-														width: 88,
-														marginLeft: 8,
-														backgroundColor: "#FEE2E2",
-														borderWidth: 1,
-														borderColor: "#FCA5A5",
-													}}
-												>
-													<Trash2 size={18} color="#B91C1C" strokeWidth={2.25} />
-													<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#B91C1C" }}>Delete</Text>
-												</TouchableOpacity>
-											)}
-										>
-											<EmployeeCard
-												name={item.name}
-												timeLabel={`${item.startTime}-${item.endTime}`}
-												duration={toDurationLabel(item.startTime, item.endTime)}
-												onPress={() =>
-													router.push(
-														`/shift/edit?shiftId=${item.shiftId}&date=${item.date.slice(0, 10)}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
-													)
-												}
-											/>
-										</Swipeable>
+										<View key={item.id} style={{ borderRadius: 16, overflow: "hidden" }}>
+											<Swipeable
+												friction={2}
+												rightThreshold={42}
+												overshootRight={false}
+												renderRightActions={() => (
+													<TouchableOpacity
+														onPress={() => confirmDeleteShift(item.shiftId)}
+														className="items-center justify-center"
+														style={{
+															width: 92,
+															backgroundColor: "#EF4444",
+														}}
+													>
+														<Trash2 size={18} color="#FFFFFF" strokeWidth={2.25} />
+														<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>Delete</Text>
+													</TouchableOpacity>
+												)}
+											>
+												<EmployeeCard
+													name={item.name}
+													timeLabel={`${item.startTime}-${item.endTime}`}
+													duration={toDurationLabel(item.startTime, item.endTime)}
+													onPress={() =>
+														router.push(
+															`/shift/edit?shiftId=${item.shiftId}&date=${item.date.slice(0, 10)}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
+														)
+													}
+												/>
+											</Swipeable>
+										</View>
 									))
 								) : (
 									<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
