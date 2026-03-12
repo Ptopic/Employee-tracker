@@ -5,6 +5,8 @@ import Text from "@/components/Text";
 import { AlertTriangleIconFull, CheckCircledIconFull } from "@/shared/svgs";
 import { getTailwindHexColor } from "./getTailwindColor";
 
+const BRAND_SUCCESS = "#5B7B6C";
+
 export const CustomToastProvider = ({
 	children,
 }: {
@@ -32,7 +34,7 @@ export const CustomToastProvider = ({
 						<CheckCircledIconFull
 							width={24}
 							height={24}
-							color={getTailwindHexColor("green400")}
+							color={BRAND_SUCCESS}
 						/>
 						<Text className="body-small-regular">{toast.message}</Text>
 					</View>
@@ -76,8 +78,8 @@ const styles = StyleSheet.create({
 		padding: 10,
 		margin: 5,
 		borderWidth: 1,
-		borderColor: getTailwindHexColor("green400"),
-		shadowColor: getTailwindHexColor("green400"),
+		borderColor: BRAND_SUCCESS,
+		shadowColor: BRAND_SUCCESS,
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.25,
 		shadowRadius: 3.84,
