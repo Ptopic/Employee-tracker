@@ -236,9 +236,23 @@ export function SettingsScreen() {
 						<FieldLabel label="Company Name" />
 						<Input value={companyName} onChangeText={setCompanyName} placeholder="Enter company name" />
 						<View style={{ height: 10 }} />
-						<Button variant="secondary" text={uploadLogo.isPending ? "Uploading logo..." : "Upload Company Logo"} onPress={handlePickLogo} disabled={uploadLogo.isPending} />
+						<TouchableOpacity
+							onPress={handlePickLogo}
+							disabled={uploadLogo.isPending}
+							className="items-center justify-center rounded-xl"
+							style={{ height: 46, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "transparent", opacity: uploadLogo.isPending ? 0.7 : 1 }}
+						>
+							<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>{uploadLogo.isPending ? "Uploading logo..." : "Upload Company Logo"}</Text>
+						</TouchableOpacity>
 						<View style={{ height: 10 }} />
-						<Button variant="primary" text={saveCompany.isPending ? "Saving..." : "Save Company Settings"} onPress={handleSaveCompany} disabled={isBusy} />
+						<TouchableOpacity
+							onPress={handleSaveCompany}
+							disabled={isBusy}
+							className="items-center justify-center rounded-xl"
+							style={{ height: 46, backgroundColor: BRAND, opacity: isBusy ? 0.7 : 1 }}
+						>
+							<Text style={{ fontSize: 14, fontWeight: "700", color: "#FFFFFF" }}>{saveCompany.isPending ? "Saving..." : "Save Company Settings"}</Text>
+						</TouchableOpacity>
 					</Card>
 				</View>
 
@@ -247,15 +261,66 @@ export function SettingsScreen() {
 					<Card>
 						<FieldLabel label="Time Format" />
 						<View className="flex-row" style={{ gap: 10, marginBottom: 12 }}>
-							<View className="flex-1"><Button variant={timeFormat === "12h" ? "primary" : "secondary"} text="12h" onPress={() => setTimeFormat("12h")} /></View>
-							<View className="flex-1"><Button variant={timeFormat === "24h" ? "primary" : "secondary"} text="24h" onPress={() => setTimeFormat("24h")} /></View>
+							<TouchableOpacity
+								onPress={() => setTimeFormat("12h")}
+								className="flex-1 items-center justify-center rounded-xl"
+								style={{
+									height: 42,
+									backgroundColor: timeFormat === "12h" ? BRAND : "transparent",
+									borderWidth: timeFormat === "12h" ? 0 : 1,
+									borderColor: "#E2E8F0",
+								}}
+							>
+								<Text style={{ fontSize: 13, fontWeight: timeFormat === "12h" ? "700" : "600", color: timeFormat === "12h" ? "#FFFFFF" : "#64748B" }}>12h</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								onPress={() => setTimeFormat("24h")}
+								className="flex-1 items-center justify-center rounded-xl"
+								style={{
+									height: 42,
+									backgroundColor: timeFormat === "24h" ? BRAND : "transparent",
+									borderWidth: timeFormat === "24h" ? 0 : 1,
+									borderColor: "#E2E8F0",
+								}}
+							>
+								<Text style={{ fontSize: 13, fontWeight: timeFormat === "24h" ? "700" : "600", color: timeFormat === "24h" ? "#FFFFFF" : "#64748B" }}>24h</Text>
+							</TouchableOpacity>
 						</View>
 						<FieldLabel label="First Day of Week" />
 						<View className="flex-row" style={{ gap: 10, marginBottom: 12 }}>
-							<View className="flex-1"><Button variant={firstDayOfWeek === "Sunday" ? "primary" : "secondary"} text="Sunday" onPress={() => setFirstDayOfWeek("Sunday")} /></View>
-							<View className="flex-1"><Button variant={firstDayOfWeek === "Monday" ? "primary" : "secondary"} text="Monday" onPress={() => setFirstDayOfWeek("Monday")} /></View>
+							<TouchableOpacity
+								onPress={() => setFirstDayOfWeek("Sunday")}
+								className="flex-1 items-center justify-center rounded-xl"
+								style={{
+									height: 42,
+									backgroundColor: firstDayOfWeek === "Sunday" ? BRAND : "transparent",
+									borderWidth: firstDayOfWeek === "Sunday" ? 0 : 1,
+									borderColor: "#E2E8F0",
+								}}
+							>
+								<Text style={{ fontSize: 13, fontWeight: firstDayOfWeek === "Sunday" ? "700" : "600", color: firstDayOfWeek === "Sunday" ? "#FFFFFF" : "#64748B" }}>Sunday</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								onPress={() => setFirstDayOfWeek("Monday")}
+								className="flex-1 items-center justify-center rounded-xl"
+								style={{
+									height: 42,
+									backgroundColor: firstDayOfWeek === "Monday" ? BRAND : "transparent",
+									borderWidth: firstDayOfWeek === "Monday" ? 0 : 1,
+									borderColor: "#E2E8F0",
+								}}
+							>
+								<Text style={{ fontSize: 13, fontWeight: firstDayOfWeek === "Monday" ? "700" : "600", color: firstDayOfWeek === "Monday" ? "#FFFFFF" : "#64748B" }}>Monday</Text>
+							</TouchableOpacity>
 						</View>
-						<Button variant="primary" text={savePreferences.isPending ? "Saving..." : "Save Preferences"} onPress={handleSavePreferences} disabled={isBusy} />
+						<TouchableOpacity
+							onPress={handleSavePreferences}
+							disabled={isBusy}
+							className="items-center justify-center rounded-xl"
+							style={{ height: 46, backgroundColor: BRAND, opacity: isBusy ? 0.7 : 1 }}
+						>
+							<Text style={{ fontSize: 14, fontWeight: "700", color: "#FFFFFF" }}>{savePreferences.isPending ? "Saving..." : "Save Preferences"}</Text>
+						</TouchableOpacity>
 					</Card>
 				</View>
 
