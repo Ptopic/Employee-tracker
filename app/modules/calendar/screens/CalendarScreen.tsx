@@ -254,7 +254,7 @@ export function CalendarScreen() {
 												paddingTop: 9,
 												paddingBottom: 8,
 												opacity: isCurrentMonth ? 1 : 0.45,
-												marginBottom: isSelected ? 4 : 0,
+												marginBottom: 0,
 											},
 										]}
 									>
@@ -269,7 +269,10 @@ export function CalendarScreen() {
 												<Text style={{ fontSize: 10, fontWeight: "700", color: "#64748B" }}>{count}</Text>
 												<Users size={12} color="#64748B" strokeWidth={2.2} />
 											</View>
-											<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginTop: 2 }} />
+											<View
+												className="rounded-full"
+												style={{ width: "100%", height: 4, backgroundColor: statusColor, marginTop: 2, marginBottom: isSelected ? 4 : 0 }}
+											/>
 										</View>
 									</TouchableOpacity>
 								);
