@@ -1,15 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import DatePicker from "react-native-date-picker";
 import { Bell, CalendarDays, Clock3, FileText, Plus, UserPlus, Users } from "lucide-react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
-import { useWeeklyHours } from "@/api/home/hooks";
 import { useDaySchedule } from "@/api/shifts/hooks";
 import Text from "@/components/Text";
 import { EmployeeCard } from "@/modules/home/components/EmployeeCard";
-import { useAppState } from "@/shared/state/app-state";
 
 const BRAND = "#5B7B6C";
 const BG = "#F8F9F8";
@@ -107,36 +105,38 @@ function Action({ label, icon, onPress }: { label: string; icon: React.ReactNode
 }
 
 export function HomeScreen() {
-	const { selectedManagerId, setSelectedManagerId } = useAppState();
 	const userInfoQuery = useGetUserInfo();
 	const [isRefreshing, setIsRefreshing] = useState(false);
-
-	useEffect(() => {
-		if (!selectedManagerId && userInfoQuery.data?.id) setSelectedManagerId(userInfoQuery.data.id);
-	}, [selectedManagerId, setSelectedManagerId, userInfoQuery.data?.id]);
-
-	const managerId = selectedManagerId || userInfoQuery.data?.id;
 	const [selectedDate, setSelectedDate] = useState(new Date());
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const selectedDateIso = useMemo(() => toIsoDate(selectedDate), [selectedDate]);
 	const todayIso = toIsoDate(new Date());
 	const showNowButton = selectedDateIso !== todayIso;
 	const dayScheduleQuery = useDaySchedule(selectedDateIso);
-	const weeklyHoursQuery = useWeeklyHours(managerId, selectedDateIso);
 	const shifts = dayScheduleQuery.data?.shifts ?? [];
 
 	const onRefresh = async () => {
 		setIsRefreshing(true);
 		try {
-			await Promise.all([userInfoQuery.refetch(), dayScheduleQuery.refetch(), weeklyHoursQuery.refetch()]);
+			await Promise.all([userInfoQuery.refetch(), dayScheduleQuery.refetch()]);
 		} finally {
 			setIsRefreshing(false);
 		}
 	};
 
-	const scheduledHours = weeklyHoursQuery.data?.totalHours ?? 0;
+	const scheduledHours = useMemo(() => {
+		let minutes = 0;
+		for (const shift of shifts) {
+			const [startH, startM] = extractHHmm(shift.startTime).split(":").map(Number);
+			const [endH, endM] = extractHHmm(shift.endTime).split(":").map(Number);
+			let diff = endH * 60 + endM - (startH * 60 + startM);
+			if (diff < 0) diff += 24 * 60;
+			minutes += diff;
+		}
+		return minutes / 60;
+	}, [shifts]);
 	const workingPeopleCount = useMemo(() => new Set(shifts.flatMap((shift) => shift.assignments.map((a) => a.employeeId))).size, [shifts]);
-	const isStatsLoading = weeklyHoursQuery.isLoading || dayScheduleQuery.isLoading;
+	const isStatsLoading = dayScheduleQuery.isLoading;
 	const isScheduleLoading = dayScheduleQuery.isLoading;
 
 	const scheduleItems = useMemo(
@@ -203,7 +203,7 @@ export function HomeScreen() {
 								</>
 							) : (
 								<>
-									<Card title="Scheduled" subtitle="Current Week" value={String(Math.round(scheduledHours))} unit="Hrs" icon={<Clock3 size={16} color={BRAND} strokeWidth={2.5} />} />
+									<Card title="Scheduled" subtitle="Selected Date" value={String(Number.isInteger(scheduledHours) ? scheduledHours : Number(scheduledHours.toFixed(1)))} unit="Hrs" icon={<Clock3 size={16} color={BRAND} strokeWidth={2.5} />} />
 									<Card title="Working Today" subtitle="Selected Date" value={String(workingPeopleCount)} unit="People" icon={<Users size={16} color={BRAND} strokeWidth={2.25} />} />
 								</>
 							)}
