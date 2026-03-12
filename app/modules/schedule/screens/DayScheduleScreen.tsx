@@ -1,7 +1,8 @@
 import { useLocalSearchParams, router } from "expo-router";
 import { Alert, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
-import { CalendarDays, Plus } from "lucide-react-native";
+import { CalendarDays, Plus, Trash2 } from "lucide-react-native";
 import { useDeleteShift, useDaySchedule } from "@/api/shifts/hooks";
+import Swipeable from "react-native-gesture-handler/Swipeable";
 import Text from "@/components/Text";
 import { Button } from "@/components/ui";
 import { EmployeeCard } from "@/modules/home/components/EmployeeCard";
@@ -75,10 +76,10 @@ export function DayScheduleScreen() {
 				refreshControl={<RefreshControl refreshing={dayScheduleQuery.isRefetching} onRefresh={() => dayScheduleQuery.refetch()} tintColor={BRAND} />}
 			>
 				<View className="mb-5">
-					<Text style={{ fontSize: 28, fontWeight: "700", lineHeight: 34, marginBottom: 12 }}>Day Schedule</Text>
+					<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30, marginBottom: 10 }}>Day Schedule</Text>
 					<View className="flex-row items-center self-start rounded-xl bg-white px-3 py-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 						<CalendarDays size={18} color="#0F172A" strokeWidth={2} />
-						<Text style={{ marginLeft: 8, fontSize: 13, fontWeight: "700" }}>{formatDateLabel(day)}</Text>
+						<Text style={{ marginLeft: 8, fontSize: 14, fontWeight: "700" }}>{formatDateLabel(day)}</Text>
 					</View>
 				</View>
 
@@ -97,22 +98,37 @@ export function DayScheduleScreen() {
 								</View>
 							))
 						: scheduleItems.map((item) => (
-								<View key={item.id}>
-									<EmployeeCard
-										name={item.name}
-										timeLabel={`${formatTime(item.startTime, timeFormat)}-${formatTime(item.endTime, timeFormat)}`}
-										duration={toDurationLabel(item.startTime, item.endTime)}
-										onPress={() =>
-											router.push(
-												`/shift/edit?shiftId=${item.shiftId}&date=${day}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
-											)
-										}
-									/>
-									<View className="mt-2 flex-row justify-end">
-										<TouchableOpacity onPress={() => confirmDelete(item.shiftId)} className="rounded-lg px-3 py-2" style={{ backgroundColor: "#FEE2E2" }}>
-											<Text style={{ fontSize: 12, fontWeight: "700", color: "#B91C1C" }}>Delete shift</Text>
-										</TouchableOpacity>
-									</View>
+								<View key={item.id} style={{ borderRadius: 16, overflow: "hidden" }}>
+									<Swipeable
+										friction={1.15}
+										rightThreshold={36}
+										dragOffsetFromRightEdge={12}
+										overshootFriction={8}
+										overshootRight={false}
+										renderRightActions={() => (
+											<TouchableOpacity
+												activeOpacity={1}
+												onPress={() => confirmDelete(item.shiftId)}
+												className="items-center justify-center"
+												style={{ width: 92, backgroundColor: "#EF4444" }}
+											>
+												<Trash2 size={18} color="#FFFFFF" strokeWidth={2.25} />
+												<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>Delete</Text>
+											</TouchableOpacity>
+										)}
+									>
+										<EmployeeCard
+											rounded={false}
+											name={item.name}
+											timeLabel={`${formatTime(item.startTime, timeFormat)}-${formatTime(item.endTime, timeFormat)}`}
+											duration={toDurationLabel(item.startTime, item.endTime)}
+											onPress={() =>
+												router.push(
+													`/shift/edit?shiftId=${item.shiftId}&date=${day}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
+												)
+											}
+										/>
+									</Swipeable>
 								</View>
 							))}
 
