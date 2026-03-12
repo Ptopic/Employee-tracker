@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { TouchableOpacity, View } from "react-native";
-import Text from "@/components/Text";
+import { TextInput, View } from "react-native";
 
 const SURFACE_BORDER = "#F1F5F9";
 const CARD_SHADOW = {
@@ -13,28 +12,33 @@ const CARD_SHADOW = {
 
 export function Input({
 	value,
+	onChangeText,
+	onBlur,
 	placeholder,
-	onPress,
+	leftIcon,
 	rightIcon,
-	valueColor = "#0F172A",
+	height = 56,
 }: {
 	value: string;
+	onChangeText: (value: string) => void;
+	onBlur?: () => void;
 	placeholder?: string;
-	onPress: () => void;
+	leftIcon?: ReactNode;
 	rightIcon?: ReactNode;
-	valueColor?: string;
+	height?: number;
 }) {
-	const hasValue = Boolean(value);
 	return (
-		<TouchableOpacity
-			onPress={onPress}
-			className="flex-row items-center rounded-2xl bg-white px-4"
-			style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}
-		>
-			<Text style={{ flex: 1, fontSize: 14, fontWeight: "500", color: hasValue ? valueColor : "#94A3B8" }}>
-				{hasValue ? value : placeholder || "Select"}
-			</Text>
-			<View>{rightIcon}</View>
-		</TouchableOpacity>
+		<View className="flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { height, borderWidth: 1, borderColor: SURFACE_BORDER }]}> 
+			{leftIcon ? <View style={{ marginRight: 8 }}>{leftIcon}</View> : null}
+			<TextInput
+				value={value}
+				onChangeText={onChangeText}
+				onBlur={onBlur}
+				placeholder={placeholder}
+				placeholderTextColor="#94A3B8"
+				style={{ flex: 1, fontSize: 14, fontWeight: "500", color: "#0F172A" }}
+			/>
+			{rightIcon ? <View style={{ marginLeft: 8 }}>{rightIcon}</View> : null}
+		</View>
 	);
 }

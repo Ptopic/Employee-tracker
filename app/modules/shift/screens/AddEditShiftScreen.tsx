@@ -2,14 +2,14 @@ import { useMemo, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import { Modal, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import DatePicker from "react-native-date-picker";
-import { CalendarDays, CheckCircle2, ChevronDown, Clock3, X } from "lucide-react-native";
+import { CheckCircle2, X } from "lucide-react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useToast } from "react-native-toast-notifications";
 import { useSaveShift, useShiftEmployees } from "@/api/shifts/hooks";
 import shiftsRequests from "@/api/shifts/requests";
 import Text from "@/components/Text";
-import { Button, FieldError, FieldLabel, Input, TextArea } from "@/components/ui";
+import { Button, DatePickerField, EmployeePickerField, FieldError, FieldLabel, TextArea, TimePickerField } from "@/components/ui";
 
 const BRAND = "#5B7B6C";
 const BG = "#F8F9F8";
@@ -112,29 +112,24 @@ export function AddEditShiftScreen() {
 							<View style={{ gap: 16 }}>
 								<View>
 									<FieldLabel label="Date" />
-									<Input
+									<DatePickerField
 										value={selectedDateLabel}
 										onPress={() => {
 											setFieldTouched("date", true);
 											setShowDatePicker(true);
 										}}
-										rightIcon={<CalendarDays size={20} color={BRAND} strokeWidth={2} />}
-										valueColor="#0F172A"
 									/>
 									<FieldError error={touched.date ? (errors.date as string | undefined) : undefined} />
 								</View>
 
 								<View>
 									<FieldLabel label="Employee" />
-									<Input
+									<EmployeePickerField
 										value={selectedEmployeeName}
-										placeholder="Select employee"
 										onPress={() => {
 											setFieldTouched("employeeId", true);
 											setShowEmployeePicker(true);
 										}}
-										rightIcon={<ChevronDown size={18} color="#94A3B8" strokeWidth={2} />}
-										valueColor="#0F172A"
 									/>
 									<FieldError error={touched.employeeId ? (errors.employeeId as string | undefined) : undefined} />
 								</View>
@@ -142,27 +137,23 @@ export function AddEditShiftScreen() {
 								<View className="flex-row" style={{ gap: 12 }}>
 									<View className="flex-1">
 										<FieldLabel label="Start Time" />
-										<Input
+										<TimePickerField
 											value={values.startTime}
 											onPress={() => {
 												setFieldTouched("startTime", true);
 												setShowStartPicker(true);
 											}}
-											rightIcon={<Clock3 size={20} color={BRAND} strokeWidth={2} />}
-											valueColor="#0F172A"
 										/>
 										<FieldError error={touched.startTime ? (errors.startTime as string | undefined) : undefined} />
 									</View>
 									<View className="flex-1">
 										<FieldLabel label="End Time" />
-										<Input
+										<TimePickerField
 											value={values.endTime}
 											onPress={() => {
 												setFieldTouched("endTime", true);
 												setShowEndPicker(true);
 											}}
-											rightIcon={<Clock3 size={20} color={BRAND} strokeWidth={2} />}
-											valueColor="#0F172A"
 										/>
 										<FieldError error={touched.endTime ? (errors.endTime as string | undefined) : undefined} />
 									</View>
