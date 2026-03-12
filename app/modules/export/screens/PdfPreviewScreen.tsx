@@ -86,7 +86,7 @@ export function PdfPreviewScreen() {
 					<View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#CBD5E1" }} />
 				</View>
 
-				<View className="mb-8 mt-4 flex-row items-center justify-between">
+				<View className="mb-10 mt-4 flex-row items-center justify-between">
 					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26, letterSpacing: -0.2 }}>Export Weekly PDF</Text>
 					<TouchableOpacity className="items-center justify-center rounded-full" style={{ width: 40, height: 40, backgroundColor: "#F1F5F9" }} onPress={() => router.back()}>
 						<X size={20} color="#64748B" strokeWidth={2} />
