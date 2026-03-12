@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { PanResponder, RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { ChevronLeft, ChevronRight, Users } from "lucide-react-native";
 import { useQueryClient } from "@tanstack/react-query";
@@ -127,6 +127,34 @@ export function CalendarScreen() {
 		return rows;
 	}, [cells]);
 
+	const monthSwipeLockRef = useRef(false);
+	const monthPanResponder = useMemo(
+		() =>
+			PanResponder.create({
+				onMoveShouldSetPanResponder: (_, gesture) =>
+					Math.abs(gesture.dx) > Math.abs(gesture.dy) && Math.abs(gesture.dx) > 12,
+				onPanResponderRelease: (_, gesture) => {
+					if (monthSwipeLockRef.current) return;
+					if (gesture.dx <= -40) {
+						monthSwipeLockRef.current = true;
+						setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1));
+						setTimeout(() => {
+							monthSwipeLockRef.current = false;
+						}, 180);
+						return;
+					}
+					if (gesture.dx >= 40) {
+						monthSwipeLockRef.current = true;
+						setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1));
+						setTimeout(() => {
+							monthSwipeLockRef.current = false;
+						}, 180);
+					}
+				},
+			}),
+		[],
+	);
+
 	const onRefresh = async () => {
 		setIsRefreshing(true);
 		try {
@@ -163,78 +191,80 @@ export function CalendarScreen() {
 				</TouchableOpacity>
 			</View>
 
-			<View className="mb-4 flex-row">
-				{weekDays.map((day) => (
-					<View key={day} className="flex-1 items-center">
-						<Text
-							style={{
-								fontSize: 10,
-								fontWeight: "700",
-								color: "#94A3B8",
-								textTransform: "uppercase",
-								letterSpacing: 1.15,
-							}}
-						>
-							{day}
-						</Text>
-					</View>
-				))}
-			</View>
+			<View {...monthPanResponder.panHandlers}>
+				<View className="mb-4 flex-row">
+					{weekDays.map((day) => (
+						<View key={day} className="flex-1 items-center">
+							<Text
+								style={{
+									fontSize: 10,
+									fontWeight: "700",
+									color: "#94A3B8",
+									textTransform: "uppercase",
+									letterSpacing: 1.15,
+								}}
+							>
+								{day}
+							</Text>
+						</View>
+					))}
+				</View>
 
-			<View style={{ gap: GRID_GAP }}>
-				{cellRows.map((row, rowIndex) => (
-					<View key={`row-${rowIndex}`} className="flex-row" style={{ gap: GRID_GAP }}>
-						{row.map((date) => {
-							const dayIso = toIsoDate(date);
-							const isCurrentMonth = date.getMonth() === monthDate.getMonth();
-							const isSelected = selectedDayIso === dayIso;
-							const daySummary = summaryMap.get(dayIso);
-							const count = daySummary?.employeeCount ?? 0;
+				<View style={{ gap: GRID_GAP }}>
+					{cellRows.map((row, rowIndex) => (
+						<View key={`row-${rowIndex}`} className="flex-row" style={{ gap: GRID_GAP }}>
+							{row.map((date) => {
+								const dayIso = toIsoDate(date);
+								const isCurrentMonth = date.getMonth() === monthDate.getMonth();
+								const isSelected = selectedDayIso === dayIso;
+								const daySummary = summaryMap.get(dayIso);
+								const count = daySummary?.employeeCount ?? 0;
 
-							const statusColor =
-								daySummary?.staffingStatus === "full"
-									? BRAND
-									: daySummary?.staffingStatus === "partial"
-										? "#FBBF24"
-										: "#F43F5E";
+								const statusColor =
+									daySummary?.staffingStatus === "full"
+										? BRAND
+										: daySummary?.staffingStatus === "partial"
+											? "#FBBF24"
+											: "#F43F5E";
 
-							return (
-								<TouchableOpacity
-									key={dayIso}
-									onPress={() => setSelectedDayIso(dayIso)}
-									className="rounded-2xl bg-white"
-									style={[
-										CARD_SHADOW,
-										{
-											width: CELL_SIZE,
-											height: CELL_HEIGHT,
-											borderWidth: 1,
-											borderColor: isSelected ? "rgba(91,123,108,0.2)" : SURFACE_BORDER,
-											paddingHorizontal: 9,
-											paddingTop: 9,
-											paddingBottom: 8,
-											opacity: isCurrentMonth ? 1 : 0.45,
-										},
-									]}
-								>
-									<View className="items-center">
-										<Text style={{ fontSize: 12, fontWeight: isSelected ? "700" : "600", color: isSelected ? BRAND : "#0F172A" }}>
-											{date.getDate()}
-										</Text>
-									</View>
-
-									<View className="items-center" style={{ marginTop: "auto" }}>
-										<View className="flex-row items-center" style={{ gap: 2 }}>
-											<Text style={{ fontSize: 10, fontWeight: "700", color: "#64748B" }}>{count}</Text>
-											<Users size={12} color="#64748B" strokeWidth={2.2} />
+								return (
+									<TouchableOpacity
+										key={dayIso}
+										onPress={() => setSelectedDayIso(dayIso)}
+										className="rounded-2xl bg-white"
+										style={[
+											CARD_SHADOW,
+											{
+												width: CELL_SIZE,
+												height: CELL_HEIGHT,
+												borderWidth: 1,
+												borderColor: isSelected ? "rgba(91,123,108,0.2)" : SURFACE_BORDER,
+												paddingHorizontal: 9,
+												paddingTop: 9,
+												paddingBottom: 8,
+												opacity: isCurrentMonth ? 1 : 0.45,
+											},
+										]}
+									>
+										<View className="items-center">
+											<Text style={{ fontSize: 12, fontWeight: isSelected ? "700" : "600", color: isSelected ? BRAND : "#0F172A" }}>
+												{date.getDate()}
+											</Text>
 										</View>
-										<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginTop: 4 }} />
-									</View>
-								</TouchableOpacity>
-							);
-						})}
-					</View>
-				))}
+
+										<View className="items-center" style={{ marginTop: "auto" }}>
+											<View className="flex-row items-center" style={{ gap: 2 }}>
+												<Text style={{ fontSize: 10, fontWeight: "700", color: "#64748B" }}>{count}</Text>
+												<Users size={12} color="#64748B" strokeWidth={2.2} />
+											</View>
+											<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginTop: 4 }} />
+										</View>
+									</TouchableOpacity>
+								);
+							})}
+						</View>
+					))}
+				</View>
 			</View>
 
 			<View style={{ marginTop: 24, paddingHorizontal: 6 }}>
