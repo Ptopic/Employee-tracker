@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { SafeAreaView, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { Modal, SafeAreaView, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
 import DatePicker from "react-native-date-picker";
-import { CalendarDays, CheckCircle2, Clock3, Search, X } from "lucide-react-native";
+import { CalendarDays, CheckCircle2, ChevronDown, Clock3, X } from "lucide-react-native";
 import { useSaveShift, useShiftEmployees } from "@/api/shifts/hooks";
 import shiftsRequests from "@/api/shifts/requests";
 import Text from "@/components/Text";
@@ -19,90 +19,50 @@ const CARD_SHADOW = {
 } as const;
 
 const normalizeTime = (v?: string) => (v ? v.slice(0, 5) : "09:00");
-
-const toIsoDate = (date: Date) => {
-	const y = date.getFullYear();
-	const m = String(date.getMonth() + 1).padStart(2, "0");
-	const d = String(date.getDate()).padStart(2, "0");
-	return `${y}-${m}-${d}`;
-};
-
+const toIsoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 const toDateAtTime = (baseDate: Date, hhmm: string) => {
 	const [h, m] = hhmm.split(":").map(Number);
 	const next = new Date(baseDate);
 	next.setHours(h, m, 0, 0);
 	return next;
 };
-
-const toTimeLabel = (date: Date) =>
-	`${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+const toTimeLabel = (date: Date) => `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 
 export function AddEditShiftScreen() {
-	const params = useLocalSearchParams<{
-		date?: string;
-		shiftId?: string;
-		startTime?: string;
-		endTime?: string;
-		employeeIds?: string;
-	}>();
+	const params = useLocalSearchParams<{ date?: string; shiftId?: string; startTime?: string; endTime?: string; employeeIds?: string }>();
 
 	const baseDate = params.date ? new Date(`${params.date}T00:00:00`) : new Date();
 	const [date, setDate] = useState<Date>(baseDate);
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [showStartPicker, setShowStartPicker] = useState(false);
 	const [showEndPicker, setShowEndPicker] = useState(false);
+	const [showEmployeePicker, setShowEmployeePicker] = useState(false);
 
 	const [startTime, setStartTime] = useState(normalizeTime(params.startTime));
 	const [endTime, setEndTime] = useState(normalizeTime(params.endTime || "17:00"));
-	const [search, setSearch] = useState("");
 	const [notes, setNotes] = useState("");
-	const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(
-		params.employeeIds ? params.employeeIds.split(",").filter(Boolean) : [],
-	);
+	const initialEmployeeIds = params.employeeIds ? params.employeeIds.split(",").filter(Boolean) : [];
+	const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>(initialEmployeeIds[0] ?? "");
 	const [warning, setWarning] = useState<string | null>(null);
 
 	const employeesQuery = useShiftEmployees();
 	const saveShiftMutation = useSaveShift();
+	const employees = useMemo(() => employeesQuery.data ?? [], [employeesQuery.data]);
+	const selectedEmployeeName = useMemo(() => {
+		const selected = employees.find((e) => e.id === selectedEmployeeId);
+		return selected ? `${selected.firstName} ${selected.lastName}` : "Select employee";
+	}, [employees, selectedEmployeeId]);
 
-	const employees = useMemo(() => {
-		const list = employeesQuery.data ?? [];
-		if (!search.trim()) return list;
-		const term = search.trim().toLowerCase();
-		return list.filter((e) => `${e.firstName} ${e.lastName}`.toLowerCase().includes(term));
-	}, [employeesQuery.data, search]);
-
-	const selectedDateLabel = date.toLocaleDateString("en-US", {
-		weekday: "long",
-		day: "numeric",
-		month: "long",
-		year: "numeric",
-	});
-
-	const payload = {
-		date: toIsoDate(date),
-		startTime,
-		endTime,
-		employeeIds: selectedEmployeeIds,
-	};
-
-	const toggleEmployee = (employeeId: string) => {
-		setSelectedEmployeeIds((current) =>
-			current.includes(employeeId)
-				? current.filter((id) => id !== employeeId)
-				: [...current, employeeId],
-		);
-	};
+	const selectedDateLabel = date.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
 	const handleSave = async () => {
 		setWarning(null);
+		const payload = { date: toIsoDate(date), startTime, endTime, employeeIds: selectedEmployeeId ? [selectedEmployeeId] : [] };
 		if (startTime >= endTime) {
 			setWarning("End time must be later than start time.");
 			return;
 		}
-
-		if (!selectedEmployeeIds.length) {
-			setWarning("Warning: Empty shift is allowed, but no employees are assigned.");
-		}
+		if (!selectedEmployeeId) setWarning("Warning: Empty shift is allowed, but no employees are assigned.");
 
 		const overlap = await shiftsRequests.validateOverlap({ ...payload, shiftId: params.shiftId });
 		if (overlap && !overlap.valid) {
@@ -122,59 +82,40 @@ export function AddEditShiftScreen() {
 				</View>
 
 				<View className="mb-5 mt-3 flex-row items-center justify-between">
-					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26 }}>{params.shiftId ? "Edit Shift" : "Add New Shift"}</Text>
+					<Text style={{ fontSize: 32, fontWeight: "700", lineHeight: 38 }}>{params.shiftId ? "Edit Shift" : "Add New Shift"}</Text>
 					<TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: "#F1F5F9" }} onPress={() => router.back()}>
 						<X size={20} color="#64748B" strokeWidth={2} />
 					</TouchableOpacity>
 				</View>
 
-				<View style={{ gap: 12 }}>
+				<View style={{ gap: 20 }}>
 					<View>
-						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>Date</Text>
-						<TouchableOpacity
-							onPress={() => setShowDatePicker(true)}
-							className="h-14 flex-row items-center rounded-2xl bg-white px-4"
-							style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}
-						>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Date</Text>
+						<TouchableOpacity onPress={() => setShowDatePicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 							<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{selectedDateLabel}</Text>
 							<CalendarDays size={20} color={BRAND} strokeWidth={2} />
 						</TouchableOpacity>
 					</View>
 
 					<View>
-						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>Employee</Text>
-						<View className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-							<Search size={18} color="#94A3B8" strokeWidth={2} />
-							<TextInput
-								className="ml-2 flex-1"
-								style={{ fontSize: 14, fontWeight: "500", color: "#0F172A" }}
-								placeholder="Search employee"
-								placeholderTextColor="#94A3B8"
-								value={search}
-								onChangeText={setSearch}
-							/>
-						</View>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Employee</Text>
+						<TouchableOpacity onPress={() => setShowEmployeePicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+							<Text style={{ flex: 1, fontSize: 14, fontWeight: "500", color: selectedEmployeeId ? "#0F172A" : "#94A3B8" }}>{selectedEmployeeName}</Text>
+							<ChevronDown size={18} color="#94A3B8" strokeWidth={2} />
+						</TouchableOpacity>
 					</View>
 
 					<View className="flex-row" style={{ gap: 12 }}>
 						<View className="flex-1">
-							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>Start Time</Text>
-							<TouchableOpacity
-								onPress={() => setShowStartPicker(true)}
-								className="h-14 flex-row items-center rounded-2xl bg-white px-4"
-								style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}
-							>
+							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Start Time</Text>
+							<TouchableOpacity onPress={() => setShowStartPicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 								<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{startTime}</Text>
 								<Clock3 size={20} color={BRAND} strokeWidth={2} />
 							</TouchableOpacity>
 						</View>
 						<View className="flex-1">
-							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>End Time</Text>
-							<TouchableOpacity
-								onPress={() => setShowEndPicker(true)}
-								className="h-14 flex-row items-center rounded-2xl bg-white px-4"
-								style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}
-							>
+							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>End Time</Text>
+							<TouchableOpacity onPress={() => setShowEndPicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 								<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{endTime}</Text>
 								<Clock3 size={20} color={BRAND} strokeWidth={2} />
 							</TouchableOpacity>
@@ -182,7 +123,7 @@ export function AddEditShiftScreen() {
 					</View>
 
 					<View>
-						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>Notes / Description</Text>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Notes / Description</Text>
 						<TextInput
 							multiline
 							numberOfLines={3}
@@ -194,41 +135,6 @@ export function AddEditShiftScreen() {
 							style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, fontSize: 14, color: "#0F172A", textAlignVertical: "top", minHeight: 96 }]}
 						/>
 					</View>
-
-					<View>
-						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.4 }}>Employees</Text>
-						{employees.length ? (
-							<View className="rounded-2xl bg-white p-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, maxHeight: 220 }]}>
-								<ScrollView>
-									{employees.map((employee) => {
-										const checked = selectedEmployeeIds.includes(employee.id);
-										return (
-											<TouchableOpacity
-												key={employee.id}
-												onPress={() => toggleEmployee(employee.id)}
-												className="flex-row items-center rounded-xl px-2 py-2"
-												style={{ backgroundColor: checked ? "rgba(91, 123, 108, 0.1)" : "transparent" }}
-											>
-												<View
-													className="mr-3 h-5 w-5 items-center justify-center rounded-md"
-													style={{ borderWidth: 1.5, borderColor: checked ? BRAND : "#94A3B8", backgroundColor: checked ? BRAND : "transparent" }}
-												>
-													{checked ? <CheckCircle2 size={12} color="#FFFFFF" strokeWidth={2.5} /> : null}
-												</View>
-												<Text style={{ fontSize: 14, fontWeight: "600", color: "#0F172A" }}>
-													{employee.firstName} {employee.lastName}
-												</Text>
-											</TouchableOpacity>
-										);
-									})}
-								</ScrollView>
-							</View>
-						) : (
-							<View className="h-14 items-center justify-center rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-								<Text style={{ fontSize: 13, color: "#94A3B8" }}>No employees found.</Text>
-							</View>
-						)}
-					</View>
 				</View>
 
 				{warning ? (
@@ -238,12 +144,7 @@ export function AddEditShiftScreen() {
 				) : null}
 
 				<View className="mt-6" style={{ gap: 10 }}>
-					<TouchableOpacity
-						onPress={handleSave}
-						disabled={saveShiftMutation.isPending}
-						className="h-14 flex-row items-center justify-center rounded-2xl"
-						style={{ backgroundColor: BRAND, opacity: saveShiftMutation.isPending ? 0.7 : 1, shadowColor: BRAND, shadowOpacity: 0.25, shadowOffset: { width: 0, height: 8 }, shadowRadius: 16, elevation: 6 }}
-					>
+					<TouchableOpacity onPress={handleSave} disabled={saveShiftMutation.isPending} className="h-14 flex-row items-center justify-center rounded-2xl" style={{ backgroundColor: BRAND, opacity: saveShiftMutation.isPending ? 0.7 : 1, shadowColor: BRAND, shadowOpacity: 0.25, shadowOffset: { width: 0, height: 8 }, shadowRadius: 16, elevation: 6 }}>
 						<CheckCircle2 size={20} color="#FFFFFF" strokeWidth={2.2} />
 						<Text style={{ marginLeft: 8, fontSize: 16, fontWeight: "700", color: "#FFFFFF" }}>{saveShiftMutation.isPending ? "Saving..." : "Save Shift"}</Text>
 					</TouchableOpacity>
@@ -253,39 +154,33 @@ export function AddEditShiftScreen() {
 				</View>
 			</ScrollView>
 
-			<DatePicker
-				modal
-				mode="date"
-				open={showDatePicker}
-				date={date}
-				onConfirm={(selected) => {
-					setDate(selected);
-					setShowDatePicker(false);
-				}}
-				onCancel={() => setShowDatePicker(false)}
-			/>
-			<DatePicker
-				modal
-				mode="time"
-				open={showStartPicker}
-				date={toDateAtTime(date, startTime)}
-				onConfirm={(selected) => {
-					setStartTime(toTimeLabel(selected));
-					setShowStartPicker(false);
-				}}
-				onCancel={() => setShowStartPicker(false)}
-			/>
-			<DatePicker
-				modal
-				mode="time"
-				open={showEndPicker}
-				date={toDateAtTime(date, endTime)}
-				onConfirm={(selected) => {
-					setEndTime(toTimeLabel(selected));
-					setShowEndPicker(false);
-				}}
-				onCancel={() => setShowEndPicker(false)}
-			/>
+			<Modal visible={showEmployeePicker} transparent animationType="fade" onRequestClose={() => setShowEmployeePicker(false)}>
+				<TouchableOpacity activeOpacity={1} onPress={() => setShowEmployeePicker(false)} style={{ flex: 1, backgroundColor: "rgba(15,23,42,0.35)", justifyContent: "flex-end" }}>
+					<View style={{ backgroundColor: "#fff", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: 360 }}>
+						<Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 10 }}>Select employee</Text>
+						<ScrollView>
+							{employees.map((employee) => (
+								<TouchableOpacity
+									key={employee.id}
+									onPress={() => {
+										setSelectedEmployeeId(employee.id);
+										setShowEmployeePicker(false);
+									}}
+									style={{ paddingVertical: 12 }}
+								>
+									<Text style={{ fontSize: 16, fontWeight: selectedEmployeeId === employee.id ? "700" : "500", color: "#0F172A" }}>
+										{employee.firstName} {employee.lastName}
+									</Text>
+								</TouchableOpacity>
+							))}
+						</ScrollView>
+					</View>
+				</TouchableOpacity>
+			</Modal>
+
+			<DatePicker modal mode="date" open={showDatePicker} date={date} onConfirm={(selected) => { setDate(selected); setShowDatePicker(false); }} onCancel={() => setShowDatePicker(false)} />
+			<DatePicker modal mode="time" open={showStartPicker} date={toDateAtTime(date, startTime)} onConfirm={(selected) => { setStartTime(toTimeLabel(selected)); setShowStartPicker(false); }} onCancel={() => setShowStartPicker(false)} />
+			<DatePicker modal mode="time" open={showEndPicker} date={toDateAtTime(date, endTime)} onConfirm={(selected) => { setEndTime(toTimeLabel(selected)); setShowEndPicker(false); }} onCancel={() => setShowEndPicker(false)} />
 		</SafeAreaView>
 	);
 }
