@@ -118,7 +118,7 @@ export function CalendarScreen() {
 	);
 
 	const GRID_GAP = 4;
-	const CALENDAR_WIDTH = windowWidth - 32;
+	const CALENDAR_WIDTH = windowWidth - 20;
 	const CELL_SIZE = Math.floor((CALENDAR_WIDTH - GRID_GAP * 6) / 7);
 	const CELL_HEIGHT = CELL_SIZE + 10;
 	const cellRows = useMemo(() => {
@@ -140,10 +140,10 @@ export function CalendarScreen() {
 		<ScrollView
 			className="flex-1"
 			style={{ backgroundColor: BG }}
-			contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 28 }}
+			contentContainerStyle={{ paddingHorizontal: 10, paddingTop: 14, paddingBottom: 28 }}
 			refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={BRAND} />}
 		>
-			<View className="mb-10 flex-row items-center justify-between" style={{ paddingHorizontal: 8 }}>
+			<View className="mb-8 flex-row items-center justify-between" style={{ paddingHorizontal: 2 }}>
 				<TouchableOpacity
 					onPress={() => setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))}
 					className="items-center justify-center rounded-full bg-white"
