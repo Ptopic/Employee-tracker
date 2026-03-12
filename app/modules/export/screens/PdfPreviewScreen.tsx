@@ -1,6 +1,6 @@
 import { useLocalSearchParams, router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Modal, Platform, SafeAreaView, ScrollView, Share, TouchableOpacity, UIManager, View } from "react-native";
+import { Alert, Modal, NativeModules, Platform, SafeAreaView, ScrollView, Share, TouchableOpacity, UIManager, View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import DatePicker from "react-native-date-picker";
 import { endOfWeek, format, startOfWeek } from "date-fns";
@@ -46,7 +46,9 @@ export function PdfPreviewScreen() {
 	const selectedWeekStart = useMemo(() => toIsoDate(selectedWeekStartDate), [selectedWeekStartDate]);
 	const hasNativeDateTimePicker = useMemo(() => {
 		try {
-			return Boolean(UIManager.getViewManagerConfig?.("RNDateTimePicker"));
+			const hasViewManager = Boolean(UIManager.getViewManagerConfig?.("RNDateTimePicker"));
+			const hasNativeModule = Boolean((NativeModules as any)?.RNDateTimePicker);
+			return hasViewManager || hasNativeModule;
 		} catch {
 			return false;
 		}
@@ -144,7 +146,8 @@ export function PdfPreviewScreen() {
 									mode="date"
 									display="inline"
 									themeVariant="light"
-									style={{ height: 360, alignSelf: "stretch" }}
+									locale="en-US"
+									style={{ height: 380, alignSelf: "stretch" }}
 									onChange={(_, date) => {
 										if (date) setIosTempDate(date);
 									}}
