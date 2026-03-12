@@ -2,6 +2,7 @@ import { useLocalSearchParams, router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, SafeAreaView, ScrollView, Share, TouchableOpacity, View } from "react-native";
 import DatePicker from "react-native-date-picker";
+import { endOfWeek, format, startOfWeek } from "date-fns";
 import { CalendarDays, Download, FileText, X } from "lucide-react-native";
 import { useToast } from "react-native-toast-notifications";
 import { useExportWeeklyPdf, useWeeklyPreview } from "@/api/export/hooks";
@@ -20,31 +21,7 @@ const CARD_SHADOW = {
 } as const;
 
 function toIsoDate(date: Date) {
-	const y = date.getFullYear();
-	const m = String(date.getMonth() + 1).padStart(2, "0");
-	const d = String(date.getDate()).padStart(2, "0");
-	return `${y}-${m}-${d}`;
-}
-
-function mondayFor(date: Date) {
-	const d = new Date(date);
-	const day = (d.getDay() + 6) % 7;
-	d.setDate(d.getDate() - day);
-	d.setHours(0, 0, 0, 0);
-	return d;
-}
-
-function formatWeekRange(weekStart: string, weekEnd?: string) {
-	if (!weekStart) return "--";
-	const start = new Date(`${weekStart}T00:00:00`);
-	const end = weekEnd ? new Date(`${weekEnd}T00:00:00`) : new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
-
-	const startMonth = start.toLocaleDateString("en-US", { month: "long" });
-	const startDay = start.toLocaleDateString("en-US", { day: "2-digit" });
-	const endMonth = end.toLocaleDateString("en-US", { month: "long" });
-	const endDay = end.toLocaleDateString("en-US", { day: "2-digit" });
-	const year = end.toLocaleDateString("en-US", { year: "numeric" });
-	return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${year}`;
+	return format(date, "yyyy-MM-dd");
 }
 
 export function PdfPreviewScreen() {
@@ -54,16 +31,26 @@ export function PdfPreviewScreen() {
 	const exporter = useExportWeeklyPdf();
 	const [showWeekPicker, setShowWeekPicker] = useState(false);
 
-	const initialDate = params.weekStart ? new Date(`${params.weekStart}T00:00:00`) : mondayFor(new Date());
-	const [selectedWeekStart, setSelectedWeekStart] = useState(toIsoDate(mondayFor(initialDate)));
+	const initialDate = params.weekStart ? new Date(`${params.weekStart}T00:00:00`) : new Date();
+	const [selectedDate, setSelectedDate] = useState(initialDate);
+
+	const selectedWeekStartDate = useMemo(
+		() => startOfWeek(selectedDate, { weekStartsOn: 1 }),
+		[selectedDate],
+	);
+	const selectedWeekEndDate = useMemo(
+		() => endOfWeek(selectedDate, { weekStartsOn: 1 }),
+		[selectedDate],
+	);
+	const selectedWeekStart = useMemo(() => toIsoDate(selectedWeekStartDate), [selectedWeekStartDate]);
 
 	useEffect(() => {
 		if (selectedWeekStart) preview.mutate(selectedWeekStart);
 	}, [selectedWeekStart]);
 
 	const weekRangeLabel = useMemo(
-		() => formatWeekRange(selectedWeekStart, preview.data?.weekEnd),
-		[preview.data?.weekEnd, selectedWeekStart],
+		() => `${format(selectedWeekStartDate, "MMMM dd")} - ${format(selectedWeekEndDate, "MMMM dd, yyyy")}`,
+		[selectedWeekEndDate, selectedWeekStartDate],
 	);
 
 	const handleExport = async () => {
@@ -136,9 +123,9 @@ export function PdfPreviewScreen() {
 				modal
 				mode="date"
 				open={showWeekPicker}
-				date={new Date(`${selectedWeekStart}T00:00:00`)}
+				date={selectedDate}
 				onConfirm={(date) => {
-					setSelectedWeekStart(toIsoDate(mondayFor(date)));
+					setSelectedDate(date);
 					setShowWeekPicker(false);
 				}}
 				onCancel={() => setShowWeekPicker(false)}
