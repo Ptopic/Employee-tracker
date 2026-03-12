@@ -154,7 +154,7 @@ export function AddEditShiftScreen() {
 					</View>
 				) : null}
 
-				<View className="mt-4" style={{ gap: 12 }}>
+				<View style={{ marginTop: 16, gap: 12 }}>
 					<TouchableOpacity
 						onPress={handleSave}
 						disabled={saveShiftMutation.isPending}
