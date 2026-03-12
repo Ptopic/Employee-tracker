@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Switch, View } from "react-native";
+import { CheckCircle2 } from "lucide-react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import Text from "@/components/Text";
