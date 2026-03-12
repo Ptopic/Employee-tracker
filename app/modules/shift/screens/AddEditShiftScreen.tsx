@@ -64,6 +64,8 @@ export function AddEditShiftScreen() {
 		<Formik
 			initialValues={initialValues}
 			validationSchema={shiftSchema}
+			validateOnChange={false}
+			validateOnBlur={false}
 			onSubmit={async (values, { setSubmitting }) => {
 				try {
 					const payload = {
