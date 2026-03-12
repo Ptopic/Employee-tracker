@@ -76,21 +76,21 @@ export function AddEditShiftScreen() {
 
 	return (
 		<SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
-			<ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 28 }}>
-				<View className="items-center pt-1">
-					<View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#E2E8F0" }} />
+			<ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 28, paddingTop: 4 }}>
+				<View className="items-center pt-1 pb-1">
+					<View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#CBD5E1" }} />
 				</View>
 
-				<View className="mb-5 mt-3 flex-row items-center justify-between">
-					<Text style={{ fontSize: 32, fontWeight: "700", lineHeight: 38 }}>{params.shiftId ? "Edit Shift" : "Add New Shift"}</Text>
+				<View className="mb-6 mt-4 flex-row items-center justify-between">
+					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26 }}>{params.shiftId ? "Edit Shift" : "Add New Shift"}</Text>
 					<TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: "#F1F5F9" }} onPress={() => router.back()}>
 						<X size={20} color="#64748B" strokeWidth={2} />
 					</TouchableOpacity>
 				</View>
 
-				<View style={{ gap: 20 }}>
+				<View style={{ gap: 16 }}>
 					<View>
-						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Date</Text>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Date</Text>
 						<TouchableOpacity onPress={() => setShowDatePicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 							<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{selectedDateLabel}</Text>
 							<CalendarDays size={20} color={BRAND} strokeWidth={2} />
@@ -98,7 +98,7 @@ export function AddEditShiftScreen() {
 					</View>
 
 					<View>
-						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Employee</Text>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Employee</Text>
 						<TouchableOpacity onPress={() => setShowEmployeePicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 							<Text style={{ flex: 1, fontSize: 14, fontWeight: "500", color: selectedEmployeeId ? "#0F172A" : "#94A3B8" }}>{selectedEmployeeName}</Text>
 							<ChevronDown size={18} color="#94A3B8" strokeWidth={2} />
@@ -107,14 +107,14 @@ export function AddEditShiftScreen() {
 
 					<View className="flex-row" style={{ gap: 12 }}>
 						<View className="flex-1">
-							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Start Time</Text>
+							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Start Time</Text>
 							<TouchableOpacity onPress={() => setShowStartPicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 								<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{startTime}</Text>
 								<Clock3 size={20} color={BRAND} strokeWidth={2} />
 							</TouchableOpacity>
 						</View>
 						<View className="flex-1">
-							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>End Time</Text>
+							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>End Time</Text>
 							<TouchableOpacity onPress={() => setShowEndPicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 								<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{endTime}</Text>
 								<Clock3 size={20} color={BRAND} strokeWidth={2} />
@@ -123,7 +123,7 @@ export function AddEditShiftScreen() {
 					</View>
 
 					<View>
-						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Notes / Description</Text>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Notes / Description</Text>
 						<TextInput
 							multiline
 							numberOfLines={3}
