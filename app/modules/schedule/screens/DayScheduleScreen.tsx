@@ -70,7 +70,7 @@ export function DayScheduleScreen() {
 				contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 120, paddingTop: 10 }}
 				refreshControl={<RefreshControl refreshing={dayScheduleQuery.isRefetching} onRefresh={() => dayScheduleQuery.refetch()} tintColor={BRAND} />}
 			>
-				<View className="mb-5">
+				<View className="mb-4">
 					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26, marginBottom: 4 }}>Today's Schedule</Text>
 				</View>
 
