@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { Modal, SafeAreaView, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { Modal, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { CalendarDays, CheckCircle2, ChevronDown, Clock3, X } from "lucide-react-native";
 import { Formik } from "formik";
@@ -9,17 +9,10 @@ import { useToast } from "react-native-toast-notifications";
 import { useSaveShift, useShiftEmployees } from "@/api/shifts/hooks";
 import shiftsRequests from "@/api/shifts/requests";
 import Text from "@/components/Text";
+import { FormActionButton, FormFieldError, FormFieldLabel, FormPickerField, FormTextArea } from "@/components/form";
 
 const BRAND = "#5B7B6C";
 const BG = "#F8F9F8";
-const SURFACE_BORDER = "#F1F5F9";
-const CARD_SHADOW = {
-	shadowColor: "#000",
-	shadowOpacity: 0.05,
-	shadowOffset: { width: 0, height: 1 },
-	shadowRadius: 3,
-	elevation: 2,
-} as const;
 
 const normalizeTime = (v?: string) => (v ? v.slice(0, 5) : "09:00");
 const toIsoDate = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -118,110 +111,84 @@ export function AddEditShiftScreen() {
 
 							<View style={{ gap: 16 }}>
 								<View>
-									<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Date</Text>
-									<TouchableOpacity
+									<FormFieldLabel label="Date" />
+									<FormPickerField
+										value={selectedDateLabel}
 										onPress={() => {
 											setFieldTouched("date", true);
 											setShowDatePicker(true);
 										}}
-										className="flex-row items-center rounded-2xl bg-white px-4"
-										style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}
-									>
-										<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{selectedDateLabel}</Text>
-										<CalendarDays size={20} color={BRAND} strokeWidth={2} />
-									</TouchableOpacity>
-									{touched.date && errors.date ? <Text style={{ marginTop: 6, color: "#DC2626", fontSize: 12 }}>{errors.date}</Text> : null}
+										rightIcon={<CalendarDays size={20} color={BRAND} strokeWidth={2} />}
+										valueColor="#0F172A"
+									/>
+									<FormFieldError error={touched.date ? (errors.date as string | undefined) : undefined} />
 								</View>
 
 								<View>
-									<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Employee</Text>
-									<TouchableOpacity
+									<FormFieldLabel label="Employee" />
+									<FormPickerField
+										value={selectedEmployeeName}
+										placeholder="Select employee"
 										onPress={() => {
 											setFieldTouched("employeeId", true);
 											setShowEmployeePicker(true);
 										}}
-										className="flex-row items-center rounded-2xl bg-white px-4"
-										style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}
-									>
-										<Text style={{ flex: 1, fontSize: 14, fontWeight: "500", color: values.employeeId ? "#0F172A" : "#94A3B8" }}>{selectedEmployeeName}</Text>
-										<ChevronDown size={18} color="#94A3B8" strokeWidth={2} />
-									</TouchableOpacity>
-									{touched.employeeId && errors.employeeId ? <Text style={{ marginTop: 6, color: "#DC2626", fontSize: 12 }}>{errors.employeeId}</Text> : null}
+										rightIcon={<ChevronDown size={18} color="#94A3B8" strokeWidth={2} />}
+										valueColor="#0F172A"
+									/>
+									<FormFieldError error={touched.employeeId ? (errors.employeeId as string | undefined) : undefined} />
 								</View>
 
 								<View className="flex-row" style={{ gap: 12 }}>
 									<View className="flex-1">
-										<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Start Time</Text>
-										<TouchableOpacity
+										<FormFieldLabel label="Start Time" />
+										<FormPickerField
+											value={values.startTime}
 											onPress={() => {
 												setFieldTouched("startTime", true);
 												setShowStartPicker(true);
 											}}
-											className="flex-row items-center rounded-2xl bg-white px-4"
-											style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}
-										>
-											<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{values.startTime}</Text>
-											<Clock3 size={20} color={BRAND} strokeWidth={2} />
-										</TouchableOpacity>
-										{touched.startTime && errors.startTime ? <Text style={{ marginTop: 6, color: "#DC2626", fontSize: 12 }}>{errors.startTime}</Text> : null}
+											rightIcon={<Clock3 size={20} color={BRAND} strokeWidth={2} />}
+											valueColor="#0F172A"
+										/>
+										<FormFieldError error={touched.startTime ? (errors.startTime as string | undefined) : undefined} />
 									</View>
 									<View className="flex-1">
-										<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>End Time</Text>
-										<TouchableOpacity
+										<FormFieldLabel label="End Time" />
+										<FormPickerField
+											value={values.endTime}
 											onPress={() => {
 												setFieldTouched("endTime", true);
 												setShowEndPicker(true);
 											}}
-											className="flex-row items-center rounded-2xl bg-white px-4"
-											style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}
-										>
-											<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{values.endTime}</Text>
-											<Clock3 size={20} color={BRAND} strokeWidth={2} />
-										</TouchableOpacity>
-										{touched.endTime && errors.endTime ? <Text style={{ marginTop: 6, color: "#DC2626", fontSize: 12 }}>{errors.endTime}</Text> : null}
+											rightIcon={<Clock3 size={20} color={BRAND} strokeWidth={2} />}
+											valueColor="#0F172A"
+										/>
+										<FormFieldError error={touched.endTime ? (errors.endTime as string | undefined) : undefined} />
 									</View>
 								</View>
 
 								<View>
-									<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Notes / Description</Text>
-									<View style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, borderRadius: 16, backgroundColor: "#FFFFFF" }]}>
-										<TextInput
-											multiline
-											numberOfLines={3}
-											value={values.notes}
-											onChangeText={handleChange("notes")}
-											onBlur={handleBlur("notes")}
-											placeholder="Add specific tasks or instructions..."
-											placeholderTextColor="#94A3B8"
-											style={{ minHeight: 96, textAlignVertical: "top", padding: 16, fontSize: 13, color: "#0F172A" }}
-										/>
-									</View>
-									{touched.notes && errors.notes ? <Text style={{ marginTop: 6, color: "#DC2626", fontSize: 12 }}>{errors.notes}</Text> : null}
+									<FormFieldLabel label="Notes / Description" />
+									<FormTextArea
+										value={values.notes}
+										onChangeText={handleChange("notes")}
+										onBlur={() => setFieldTouched("notes", true)}
+										placeholder="Add specific tasks or instructions..."
+									/>
+									<FormFieldError error={touched.notes ? (errors.notes as string | undefined) : undefined} />
 								</View>
 							</View>
 
 							<View style={{ marginTop: 16, gap: 12 }}>
-								<TouchableOpacity
+								<FormActionButton
+									variant="primary"
+									text={isSubmitting || saveShiftMutation.isPending ? "Saving..." : "Save Shift"}
 									onPress={() => handleSubmit()}
 									disabled={isSubmitting || saveShiftMutation.isPending}
-									className="flex-row items-center justify-center rounded-2xl"
-									style={{
-										height: 56,
-										backgroundColor: BRAND,
-										opacity: isSubmitting || saveShiftMutation.isPending ? 0.7 : 1,
-										shadowColor: BRAND,
-										shadowOpacity: 0.25,
-										shadowOffset: { width: 0, height: 8 },
-										shadowRadius: 12,
-										elevation: 5,
-									}}
-								>
-									<CheckCircle2 size={20} color="#FFFFFF" strokeWidth={2.2} />
-									<Text style={{ marginLeft: 8, fontSize: 16, lineHeight: 20, fontWeight: "700", color: "#FFFFFF" }}>{isSubmitting || saveShiftMutation.isPending ? "Saving..." : "Save Shift"}</Text>
-								</TouchableOpacity>
-								<TouchableOpacity onPress={() => router.back()} className="items-center justify-center rounded-2xl border" style={{ height: 56, borderColor: "#E2E8F0", backgroundColor: "transparent" }}>
-									<Text style={{ fontSize: 16, lineHeight: 20, fontWeight: "600", color: "#64748B" }}>Cancel</Text>
-								</TouchableOpacity>
+									leftIcon={<CheckCircle2 size={20} color="#FFFFFF" strokeWidth={2.2} />}
+								/>
+								<FormActionButton variant="secondary" text="Cancel" onPress={() => router.back()} />
 							</View>
 						</ScrollView>
 
