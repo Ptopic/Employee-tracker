@@ -8,6 +8,7 @@ import { SHIFTS_MONTH, useDaySchedule, useDeleteShift, useMonthShifts } from "@/
 import shiftsRequests from "@/api/shifts/requests";
 import Text from "@/components/Text";
 import { EmployeeCard } from "@/modules/home/components/EmployeeCard";
+import { useAppState } from "@/shared/state/app-state";
 import { usePreferencesState } from "@/shared/state/preferences-state";
 import { buildWeekDays, dayIndexForWeekStart } from "@/utils/datetime";
 
@@ -49,6 +50,7 @@ const toDurationLabel = (startTime: string, endTime: string) => {
 
 export function CalendarScreen() {
 	const { firstDayOfWeek } = usePreferencesState();
+	const { setSelectedCalendarDate } = useAppState();
 	const [monthDate, setMonthDate] = useState(new Date());
 	const [selectedDayIso, setSelectedDayIso] = useState(toIsoDate(new Date()));
 	const [isRefreshing, setIsRefreshing] = useState(false);
@@ -67,6 +69,10 @@ export function CalendarScreen() {
 			setSelectedDayIso(toIsoDate(new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)));
 		}
 	}, [monthDate, selectedDayIso]);
+
+	useEffect(() => {
+		setSelectedCalendarDate(selectedDayIso);
+	}, [selectedDayIso, setSelectedCalendarDate]);
 
 	const monthShiftsQuery = useMonthShifts(toIsoDate(monthStart), toIsoDate(monthEnd));
 	const dayScheduleQuery = useDaySchedule(selectedDayIso);

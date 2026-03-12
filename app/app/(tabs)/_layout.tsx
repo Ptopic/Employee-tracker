@@ -4,8 +4,16 @@ import { CalendarDays, Home, Settings, Users } from "lucide-react-native";
 import { Pressable, TouchableOpacity, View } from "react-native";
 import Text from "@/components/Text";
 import { ScannerIcon } from "@/modules/home/screens/HomeScreen";
+import { useAppState } from "@/shared/state/app-state";
 
 const BRAND = "#5B7B6C";
+
+const toIsoDate = (d: Date) => {
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, "0");
+	const day = String(d.getDate()).padStart(2, "0");
+	return `${y}-${m}-${day}`;
+};
 
 function TabIcon({ name, focused }: { name: "index" | "calendar" | "employees" | "settings"; focused: boolean }) {
 	const color = focused ? "#0F172A" : "#94A3B8";
@@ -31,8 +39,11 @@ function TabItem({ label, focused, icon, onPress }: { label: string; focused: bo
 }
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+	const { selectedCalendarDate } = useAppState();
 	const routeMap = new Map(state.routes.map((r) => [r.name, r]));
 	const orderedNames: Array<"index" | "calendar" | "employees" | "settings"> = ["index", "calendar", "employees", "settings"];
+	const activeRouteName = state.routes[state.index]?.name;
+	const createShiftDate = activeRouteName === "calendar" ? (selectedCalendarDate ?? toIsoDate(new Date())) : toIsoDate(new Date());
 
 	return (
 		<View className="absolute bottom-0 left-0 right-0 items-center">
@@ -64,7 +75,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 				</View>
 			</View>
 			<TouchableOpacity
-				onPress={() => router.push("/shift/edit" as any)}
+				onPress={() => router.push(`/shift/edit?date=${createShiftDate}` as any)}
 				className="absolute top-0 -mt-[27px] rounded-full p-[6px]"
 				style={{ backgroundColor: "rgba(91, 123, 108, 0.2)" }}
 			>
