@@ -141,17 +141,19 @@ export function PdfPreviewScreen() {
 							</View>
 							<Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 10 }}>Select any date</Text>
 							{hasNativeDateTimePicker ? (
-								<DateTimePicker
-									value={iosTempDate}
-									mode="date"
-									display="inline"
-									themeVariant="light"
-									locale="en-US"
-									style={{ height: 380, alignSelf: "stretch" }}
-									onChange={(_, date) => {
-										if (date) setIosTempDate(date);
-									}}
-								/>
+								<View style={{ width: "100%", alignItems: "center" }}>
+									<DateTimePicker
+										value={iosTempDate}
+										mode="date"
+										display="inline"
+										themeVariant="light"
+										locale="en-US"
+										style={{ height: 380, width: "100%", maxWidth: 520 }}
+										onChange={(_, date) => {
+											if (date) setIosTempDate(date);
+										}}
+									/>
+								</View>
 							) : (
 								<DatePicker
 									modal={false}
