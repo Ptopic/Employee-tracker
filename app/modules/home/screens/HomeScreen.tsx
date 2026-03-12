@@ -149,6 +149,9 @@ export function HomeScreen() {
 						name: `${a.employee.firstName} ${a.employee.lastName}`,
 						startTime: extractHHmm(s.startTime),
 						endTime: extractHHmm(s.endTime),
+						shiftId: s.id,
+						date: s.date,
+						employeeIds: s.assignments.map((assignment) => assignment.employeeId),
 					})),
 				)
 				.slice(0, 3),
@@ -241,7 +244,11 @@ export function HomeScreen() {
 											name={item.name}
 											timeLabel={`${item.startTime}-${item.endTime}`}
 											duration={toDurationLabel(item.startTime, item.endTime)}
-											onPress={() => router.push(`/employees/${item.employeeId}` as any)}
+											onPress={() =>
+												router.push(
+													`/shift/edit?shiftId=${item.shiftId}&date=${item.date.slice(0, 10)}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
+												)
+											}
 										/>
 									))
 								) : (
