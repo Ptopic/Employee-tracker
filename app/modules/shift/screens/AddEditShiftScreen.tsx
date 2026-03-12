@@ -1,15 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import { ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { CheckCircle2, X } from "lucide-react-native";
+import BottomSheet from "@gorhom/bottom-sheet";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useToast } from "react-native-toast-notifications";
 import { useEmployeesList } from "@/api/employees/hooks";
 import { useSaveShift } from "@/api/shifts/hooks";
 import shiftsRequests from "@/api/shifts/requests";
-import ModalComponent from "@/components/ModalComponent";
+import DrawerModal from "@/components/DrawerModal";
 import Text from "@/components/Text";
 import { Button, DatePickerField, EmployeePickerField, FieldError, FieldLabel, TextArea, TimePickerField } from "@/components/ui";
 
@@ -52,6 +53,15 @@ export function AddEditShiftScreen() {
 	const [showStartPicker, setShowStartPicker] = useState(false);
 	const [showEndPicker, setShowEndPicker] = useState(false);
 	const [showEmployeePicker, setShowEmployeePicker] = useState(false);
+	const employeeDrawerRef = useRef<BottomSheet>(null);
+
+	useEffect(() => {
+		if (showEmployeePicker) {
+			employeeDrawerRef.current?.snapToIndex(0);
+		} else {
+			employeeDrawerRef.current?.close();
+		}
+	}, [showEmployeePicker]);
 
 	const initialEmployeeIds = params.employeeIds ? params.employeeIds.split(",").filter(Boolean) : [];
 	const initialValues = {
@@ -187,18 +197,11 @@ export function AddEditShiftScreen() {
 							</View>
 						</ScrollView>
 
-						<ModalComponent
-							modalVisible={showEmployeePicker}
-							setModalVisible={setShowEmployeePicker}
-							overlayStyle={{ justifyContent: "flex-end", alignItems: "stretch" }}
-							modalStyle={{
-								width: "100%",
-								maxHeight: 420,
-								borderTopLeftRadius: 24,
-								borderTopRightRadius: 24,
-								borderBottomLeftRadius: 0,
-								borderBottomRightRadius: 0,
-								padding: 20,
+						<DrawerModal
+							ref={employeeDrawerRef}
+							snapPoints={["56%"]}
+							onChange={(index) => {
+								if (index === -1) setShowEmployeePicker(false);
 							}}
 						>
 							<View className="items-center pb-3">
@@ -254,7 +257,7 @@ export function AddEditShiftScreen() {
 									})}
 								</ScrollView>
 							)}
-						</ModalComponent>
+						</DrawerModal>
 
 						<DatePicker
 							modal
