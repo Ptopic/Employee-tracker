@@ -86,12 +86,12 @@ export function EmployeeForm({
 							<View className="flex-row" style={{ gap: 12 }}>
 								<View className="flex-1">
 									<FieldLabel label="Age" />
-									<Input value={values.age} onChangeText={handleChange("age")} onBlur={handleBlur("age")} placeholder="25" />
+									<Input type="number" value={values.age} onChangeText={handleChange("age")} onBlur={handleBlur("age")} placeholder="25" />
 									<FieldError error={touched.age ? (errors.age as string | undefined) : undefined} />
 								</View>
 								<View className="flex-1">
 									<FieldLabel label="Hourly Rate ($)" />
-									<Input value={values.hourlyRate} onChangeText={handleChange("hourlyRate")} onBlur={handleBlur("hourlyRate")} placeholder="25.00" />
+									<Input type="decimal" value={values.hourlyRate} onChangeText={handleChange("hourlyRate")} onBlur={handleBlur("hourlyRate")} placeholder="25.00" />
 									<FieldError error={touched.hourlyRate ? (errors.hourlyRate as string | undefined) : undefined} />
 								</View>
 							</View>

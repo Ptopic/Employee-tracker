@@ -18,6 +18,7 @@ export function Input({
 	leftIcon,
 	rightIcon,
 	height = 56,
+	type = "text",
 }: {
 	value: string;
 	onChangeText: (value: string) => void;
@@ -26,7 +27,10 @@ export function Input({
 	leftIcon?: ReactNode;
 	rightIcon?: ReactNode;
 	height?: number;
+	type?: "text" | "number" | "decimal";
 }) {
+	const keyboardType = type === "number" ? "number-pad" : type === "decimal" ? "decimal-pad" : "default";
+
 	return (
 		<View className="flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { height, borderWidth: 1, borderColor: SURFACE_BORDER }]}> 
 			{leftIcon ? <View style={{ marginRight: 8 }}>{leftIcon}</View> : null}
@@ -36,7 +40,8 @@ export function Input({
 				onBlur={onBlur}
 				placeholder={placeholder}
 				placeholderTextColor="#94A3B8"
-				style={{ flex: 1, fontSize: 14, fontWeight: "500", color: "#0F172A" }}
+				keyboardType={keyboardType}
+				style={{ flex: 1, fontSize: 13, fontWeight: "500", color: "#0F172A" }}
 			/>
 			{rightIcon ? <View style={{ marginLeft: 8 }}>{rightIcon}</View> : null}
 		</View>
