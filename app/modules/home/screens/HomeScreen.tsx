@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import DatePicker from "react-native-date-picker";
-import { Bell, CalendarDays, ChevronRight, Clock3, FileText, Plus, User, UserPlus, Users } from "lucide-react-native";
+import { Bell, CalendarDays, Clock3, FileText, Plus, UserPlus, Users } from "lucide-react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
 import { useWeeklyHours } from "@/api/home/hooks";
 import { useDaySchedule } from "@/api/shifts/hooks";
 import Text from "@/components/Text";
+import { EmployeeCard } from "@/modules/home/components/EmployeeCard";
 import { useAppState } from "@/shared/state/app-state";
 
 const BRAND = "#5B7B6C";
@@ -232,31 +233,13 @@ export function HomeScreen() {
 									))
 								) : scheduleItems.length ? (
 									scheduleItems.map((item) => (
-										<TouchableOpacity
+										<EmployeeCard
 											key={item.id}
+											name={item.name}
+											timeLabel={`In ${formatTimeTo12h(item.startTime)}, Out ${formatTimeTo12h(item.endTime)}`}
+											duration={toDurationLabel(item.startTime, item.endTime)}
 											onPress={() => router.push(`/employees/${item.employeeId}` as any)}
-											className="flex-row items-center justify-between rounded-2xl bg-white"
-											style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}
-										>
-											<View className="flex-row items-center">
-												<View
-													className="items-center justify-center rounded-full border"
-													style={{ width: 40, height: 40, minWidth: 40, borderColor: "#E2E8F0", backgroundColor: "#F8FAFC", marginRight: 12 }}
-												>
-													<User size={20} color="#94A3B8" strokeWidth={2} />
-												</View>
-												<View>
-													<Text style={{ fontSize: 14, fontWeight: "700", lineHeight: 18 }}>{item.name}</Text>
-													<Text style={{ fontSize: 10, lineHeight: 14, color: "#64748B", fontWeight: "500", marginTop: 1 }}>
-														In {formatTimeTo12h(item.startTime)}, Out {formatTimeTo12h(item.endTime)}
-													</Text>
-												</View>
-											</View>
-											<View className="flex-row items-center">
-												<Text style={{ fontSize: 14, lineHeight: 18, fontWeight: "700", color: "#334155", marginRight: 6 }}>{toDurationLabel(item.startTime, item.endTime)}</Text>
-												<ChevronRight size={20} color="#CBD5E1" strokeWidth={2} />
-											</View>
-										</TouchableOpacity>
+										/>
 									))
 								) : (
 									<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
