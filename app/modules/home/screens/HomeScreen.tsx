@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import DatePicker from "react-native-date-picker";
@@ -9,6 +9,7 @@ import { useDaySchedule, useDeleteShift } from "@/api/shifts/hooks";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import Text from "@/components/Text";
 import { EmployeeCard } from "@/modules/home/components/EmployeeCard";
+import { useAppState } from "@/shared/state/app-state";
 
 const BRAND = "#5B7B6C";
 const BG = "#F8F9F8";
@@ -107,10 +108,15 @@ function Action({ label, icon, onPress }: { label: string; icon: React.ReactNode
 
 export function HomeScreen() {
 	const userInfoQuery = useGetUserInfo();
+	const { setSelectedHomeDate } = useAppState();
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [selectedDate, setSelectedDate] = useState(new Date());
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const selectedDateIso = useMemo(() => toIsoDate(selectedDate), [selectedDate]);
+
+	useEffect(() => {
+		setSelectedHomeDate(selectedDateIso);
+	}, [selectedDateIso, setSelectedHomeDate]);
 	const todayIso = toIsoDate(new Date());
 	const showNowButton = selectedDateIso !== todayIso;
 	const dayScheduleQuery = useDaySchedule(selectedDateIso);
@@ -232,7 +238,7 @@ export function HomeScreen() {
 						</View>
 						<View className="flex-row" style={{ gap: 12 }}>
 							<Action label="Add Employee" onPress={() => router.push("/employees/add" as any)} icon={<UserPlus size={20} color="#FFFFFF" strokeWidth={2} />} />
-							<Action label="Add Shift" onPress={() => router.push("/shift/edit" as any)} icon={<Plus size={20} color="#FFFFFF" strokeWidth={2.5} />} />
+							<Action label="Add Shift" onPress={() => router.push(`/shift/edit?date=${selectedDateIso}` as any)} icon={<Plus size={20} color="#FFFFFF" strokeWidth={2.5} />} />
 							<Action label="Export PDF" onPress={() => router.push("/export/preview" as any)} icon={<FileText size={20} color="#FFFFFF" strokeWidth={2} />} />
 						</View>
 						<View className="mt-1">

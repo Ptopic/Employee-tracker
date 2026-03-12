@@ -39,11 +39,16 @@ function TabItem({ label, focused, icon, onPress }: { label: string; focused: bo
 }
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-	const { selectedCalendarDate } = useAppState();
+	const { selectedCalendarDate, selectedHomeDate } = useAppState();
 	const routeMap = new Map(state.routes.map((r) => [r.name, r]));
 	const orderedNames: Array<"index" | "calendar" | "employees" | "settings"> = ["index", "calendar", "employees", "settings"];
 	const activeRouteName = state.routes[state.index]?.name;
-	const createShiftDate = activeRouteName === "calendar" ? (selectedCalendarDate ?? toIsoDate(new Date())) : toIsoDate(new Date());
+	const createShiftDate =
+		activeRouteName === "calendar"
+			? (selectedCalendarDate ?? toIsoDate(new Date()))
+			: activeRouteName === "index"
+				? (selectedHomeDate ?? toIsoDate(new Date()))
+				: toIsoDate(new Date());
 
 	return (
 		<View className="absolute bottom-0 left-0 right-0 items-center">
