@@ -120,6 +120,7 @@ export function SettingsScreen() {
 		() => saveCompany.isPending || savePreferences.isPending || uploadLogo.isPending,
 		[saveCompany.isPending, savePreferences.isPending, uploadLogo.isPending],
 	);
+	const profileImageUrl = userInfoQuery.data?.picture || logoUrl;
 
 	const handlePickLogo = async () => {
 		setErrorText(null);
@@ -190,7 +191,7 @@ export function SettingsScreen() {
 				<View className="items-center" style={{ marginBottom: 26 }}>
 					<View style={{ position: "relative", marginBottom: 10 }}>
 						<View className="items-center justify-center overflow-hidden rounded-full bg-white" style={[CARD_SHADOW, { width: 92, height: 92, borderWidth: 3, borderColor: "#FFFFFF" }]}>
-							{logoUrl ? <Image source={{ uri: logoUrl }} style={{ width: 92, height: 92 }} contentFit="cover" /> : <User size={34} color="#94A3B8" strokeWidth={2.1} />}
+							{profileImageUrl ? <Image source={{ uri: profileImageUrl }} style={{ width: 92, height: 92 }} contentFit="cover" /> : <User size={34} color="#94A3B8" strokeWidth={2.1} />}
 						</View>
 						<Pressable onPress={handlePickLogo} className="items-center justify-center rounded-full" style={{ position: "absolute", right: -2, bottom: -2, width: 28, height: 28, backgroundColor: BRAND, borderWidth: 2, borderColor: "#fff" }}>
 							<Pencil size={14} color="#FFFFFF" strokeWidth={2.3} />
