@@ -207,7 +207,7 @@ export function AddEditShiftScreen() {
 							<View className="items-center pb-3">
 								<View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#CBD5E1" }} />
 							</View>
-							<Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12 }}>Select employee</Text>
+							<Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12, paddingHorizontal: 4 }}>Select employee</Text>
 
 							{employeesQuery.isLoading ? (
 								<View className="items-center justify-center" style={{ paddingVertical: 28 }}>
