@@ -248,8 +248,8 @@ export function CalendarScreen() {
 											{
 												width: CELL_SIZE,
 												height: CELL_HEIGHT,
-												borderWidth: 1,
-												borderColor: isSelected ? "rgba(91,123,108,0.2)" : SURFACE_BORDER,
+												borderWidth: isSelected ? 2 : 1,
+												borderColor: isSelected ? BRAND : SURFACE_BORDER,
 												paddingHorizontal: 9,
 												paddingTop: 9,
 												paddingBottom: 8,
