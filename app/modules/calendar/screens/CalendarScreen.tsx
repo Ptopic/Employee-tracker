@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { RefreshControl, ScrollView, TouchableOpacity, View } from "react-native";
+import { RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { ChevronLeft, ChevronRight, CalendarCheck2, Users } from "lucide-react-native";
 import { useQueryClient } from "@tanstack/react-query";
@@ -33,6 +33,7 @@ export function CalendarScreen() {
 	const [selectedDayIso, setSelectedDayIso] = useState(toIsoDate(new Date()));
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const queryClient = useQueryClient();
+	const { width: windowWidth } = useWindowDimensions();
 
 	const monthStart = useMemo(() => new Date(monthDate.getFullYear(), monthDate.getMonth(), 1), [monthDate]);
 	const monthEnd = useMemo(() => new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0), [monthDate]);
@@ -85,6 +86,15 @@ export function CalendarScreen() {
 		month: "long",
 		day: "numeric",
 	});
+
+	const GRID_GAP = 12;
+	const CALENDAR_WIDTH = windowWidth - 32;
+	const CELL_SIZE = Math.floor((CALENDAR_WIDTH - GRID_GAP * 6) / 7);
+	const cellRows = useMemo(() => {
+		const rows: Date[][] = [];
+		for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+		return rows;
+	}, [cells]);
 
 	const onRefresh = async () => {
 		setIsRefreshing(true);
@@ -140,56 +150,60 @@ export function CalendarScreen() {
 				))}
 			</View>
 
-			<View className="flex-row flex-wrap" style={{ rowGap: 12 }}>
-				{cells.map((date) => {
-					const dayIso = toIsoDate(date);
-					const isCurrentMonth = date.getMonth() === monthDate.getMonth();
-					const isSelected = selectedDayIso === dayIso;
-					const daySummary = summaryMap.get(dayIso);
-					const count = daySummary?.employeeCount ?? 0;
+			<View style={{ gap: GRID_GAP }}>
+				{cellRows.map((row, rowIndex) => (
+					<View key={`row-${rowIndex}`} className="flex-row" style={{ gap: GRID_GAP }}>
+						{row.map((date) => {
+							const dayIso = toIsoDate(date);
+							const isCurrentMonth = date.getMonth() === monthDate.getMonth();
+							const isSelected = selectedDayIso === dayIso;
+							const daySummary = summaryMap.get(dayIso);
+							const count = daySummary?.employeeCount ?? 0;
 
-					const statusColor =
-						daySummary?.staffingStatus === "full"
-							? BRAND
-							: daySummary?.staffingStatus === "partial"
-								? "#FBBF24"
-								: "#F43F5E";
+							const statusColor =
+								daySummary?.staffingStatus === "full"
+									? BRAND
+									: daySummary?.staffingStatus === "partial"
+										? "#FBBF24"
+										: "#F43F5E";
 
-					return (
-						<View key={dayIso} style={{ width: "14.285%", paddingHorizontal: 3 }}>
-							<TouchableOpacity
-								onPress={() => setSelectedDayIso(dayIso)}
-								className="rounded-2xl bg-white"
-								style={[
-									CARD_SHADOW,
-									{
-										aspectRatio: 1,
-										borderWidth: 1,
-										borderColor: isSelected ? "rgba(91,123,108,0.2)" : SURFACE_BORDER,
-										paddingHorizontal: 8,
-										paddingTop: 7,
-										paddingBottom: 6,
-										opacity: isCurrentMonth ? 1 : 0.45,
-									},
-								]}
-							>
-								<View className="items-center">
-									<Text style={{ fontSize: 12, fontWeight: isSelected ? "700" : "600", color: isSelected ? BRAND : "#0F172A" }}>
-										{date.getDate()}
-									</Text>
-								</View>
-
-								<View className="items-center" style={{ marginTop: "auto" }}>
-									<View className="flex-row items-center" style={{ gap: 2 }}>
-										<Text style={{ fontSize: 10, fontWeight: "700", color: "#64748B" }}>{count}</Text>
-										<Users size={12} color="#64748B" strokeWidth={2.2} />
+							return (
+								<TouchableOpacity
+									key={dayIso}
+									onPress={() => setSelectedDayIso(dayIso)}
+									className="rounded-2xl bg-white"
+									style={[
+										CARD_SHADOW,
+										{
+											width: CELL_SIZE,
+											height: CELL_SIZE,
+											borderWidth: 1,
+											borderColor: isSelected ? "rgba(91,123,108,0.2)" : SURFACE_BORDER,
+											paddingHorizontal: 8,
+											paddingTop: 7,
+											paddingBottom: 6,
+											opacity: isCurrentMonth ? 1 : 0.45,
+										},
+									]}
+								>
+									<View className="items-center">
+										<Text style={{ fontSize: 12, fontWeight: isSelected ? "700" : "600", color: isSelected ? BRAND : "#0F172A" }}>
+											{date.getDate()}
+										</Text>
 									</View>
-									<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginTop: 4 }} />
-								</View>
-							</TouchableOpacity>
-						</View>
-					);
-				})}
+
+									<View className="items-center" style={{ marginTop: "auto" }}>
+										<View className="flex-row items-center" style={{ gap: 2 }}>
+											<Text style={{ fontSize: 10, fontWeight: "700", color: "#64748B" }}>{count}</Text>
+											<Users size={12} color="#64748B" strokeWidth={2.2} />
+										</View>
+										<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginTop: 4 }} />
+									</View>
+								</TouchableOpacity>
+							);
+						})}
+					</View>
+				))}
 			</View>
 
 			<View style={{ marginTop: 30 }}>
