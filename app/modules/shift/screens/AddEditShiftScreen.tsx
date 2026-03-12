@@ -1,13 +1,15 @@
 import { useMemo, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { Modal, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { CheckCircle2, X } from "lucide-react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { useToast } from "react-native-toast-notifications";
-import { useSaveShift, useShiftEmployees } from "@/api/shifts/hooks";
+import { useEmployeesList } from "@/api/employees/hooks";
+import { useSaveShift } from "@/api/shifts/hooks";
 import shiftsRequests from "@/api/shifts/requests";
+import ModalComponent from "@/components/ModalComponent";
 import Text from "@/components/Text";
 import { Button, DatePickerField, EmployeePickerField, FieldError, FieldLabel, TextArea, TimePickerField } from "@/components/ui";
 
@@ -41,7 +43,7 @@ const shiftSchema = Yup.object({
 export function AddEditShiftScreen() {
 	const params = useLocalSearchParams<{ date?: string; shiftId?: string; startTime?: string; endTime?: string; employeeIds?: string }>();
 	const toast = useToast();
-	const employeesQuery = useShiftEmployees();
+	const employeesQuery = useEmployeesList({ status: "ACTIVE", sortBy: "name", sortOrder: "asc" });
 	const saveShiftMutation = useSaveShift();
 	const employees = useMemo(() => employeesQuery.data ?? [], [employeesQuery.data]);
 
@@ -185,12 +187,49 @@ export function AddEditShiftScreen() {
 							</View>
 						</ScrollView>
 
-						<Modal visible={showEmployeePicker} transparent animationType="fade" onRequestClose={() => setShowEmployeePicker(false)}>
-							<TouchableOpacity activeOpacity={1} onPress={() => setShowEmployeePicker(false)} style={{ flex: 1, backgroundColor: "rgba(15,23,42,0.35)", justifyContent: "flex-end" }}>
-								<View style={{ backgroundColor: "#fff", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: 360 }}>
-									<Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 10 }}>Select employee</Text>
-									<ScrollView>
-										{employees.map((employee) => (
+						<ModalComponent
+							modalVisible={showEmployeePicker}
+							setModalVisible={setShowEmployeePicker}
+							overlayStyle={{ justifyContent: "flex-end", alignItems: "stretch" }}
+							modalStyle={{
+								width: "100%",
+								maxHeight: 420,
+								borderTopLeftRadius: 24,
+								borderTopRightRadius: 24,
+								borderBottomLeftRadius: 0,
+								borderBottomRightRadius: 0,
+								padding: 20,
+							}}
+						>
+							<View className="items-center pb-3">
+								<View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#CBD5E1" }} />
+							</View>
+							<Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 12 }}>Select employee</Text>
+
+							{employeesQuery.isLoading ? (
+								<View className="items-center justify-center" style={{ paddingVertical: 28 }}>
+									<ActivityIndicator size="small" color={BRAND} />
+									<Text style={{ marginTop: 10, color: "#64748B", fontSize: 13 }}>Loading employees...</Text>
+								</View>
+							) : employeesQuery.isError ? (
+								<View className="rounded-2xl bg-slate-50 items-center" style={{ paddingVertical: 24, paddingHorizontal: 16 }}>
+									<Text style={{ fontSize: 15, fontWeight: "600", color: "#334155" }}>Could not load employees</Text>
+									<Text style={{ fontSize: 13, color: "#64748B", marginTop: 6, textAlign: "center" }}>
+										Please try again in a moment.
+									</Text>
+								</View>
+							) : employees.length === 0 ? (
+								<View className="rounded-2xl bg-slate-50 items-center" style={{ paddingVertical: 24, paddingHorizontal: 16 }}>
+									<Text style={{ fontSize: 15, fontWeight: "600", color: "#334155" }}>No employees yet</Text>
+									<Text style={{ fontSize: 13, color: "#64748B", marginTop: 6, textAlign: "center" }}>
+										Add an employee first, then assign them to a shift.
+									</Text>
+								</View>
+							) : (
+								<ScrollView showsVerticalScrollIndicator={false}>
+									{employees.map((employee) => {
+										const isSelected = values.employeeId === employee.id;
+										return (
 											<TouchableOpacity
 												key={employee.id}
 												onPress={() => {
@@ -198,17 +237,24 @@ export function AddEditShiftScreen() {
 													setFieldTouched("employeeId", true);
 													setShowEmployeePicker(false);
 												}}
-												style={{ paddingVertical: 12 }}
+												className="rounded-xl px-3"
+												style={{
+													paddingVertical: 12,
+													marginBottom: 6,
+													backgroundColor: isSelected ? "#E7EFEA" : "#FFFFFF",
+													borderWidth: 1,
+													borderColor: isSelected ? BRAND : "#E2E8F0",
+												}}
 											>
-												<Text style={{ fontSize: 16, fontWeight: values.employeeId === employee.id ? "700" : "500", color: "#0F172A" }}>
+												<Text style={{ fontSize: 15, fontWeight: isSelected ? "700" : "500", color: "#0F172A" }}>
 													{employee.firstName} {employee.lastName}
 												</Text>
 											</TouchableOpacity>
-										))}
-									</ScrollView>
-								</View>
-							</TouchableOpacity>
-						</Modal>
+										);
+									})}
+								</ScrollView>
+							)}
+						</ModalComponent>
 
 						<DatePicker
 							modal
