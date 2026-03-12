@@ -41,8 +41,9 @@ const DrawerModal = forwardRef<Ref, IProps>((props, ref) => {
 			enableHandlePanningGesture={true}
 			enableContentPanningGesture={true}
 			handleComponent={() => null}
+			backgroundStyle={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: "#fff" }}
 		>
-			<BottomSheetView className="p-[10] bg-white">
+			<BottomSheetView className="p-[10] bg-white" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
 				{props.children}
 			</BottomSheetView>
 		</BottomSheet>
