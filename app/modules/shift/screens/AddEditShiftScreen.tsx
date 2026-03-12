@@ -137,7 +137,7 @@ export function AddEditShiftScreen() {
 								{
 									borderWidth: 1,
 									borderColor: SURFACE_BORDER,
-									fontSize: 14,
+									fontSize: 13,
 									color: "#0F172A",
 									textAlignVertical: "top",
 									minHeight: 96,
