@@ -1,10 +1,23 @@
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, TextInput, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { router } from "expo-router";
+import { ArrowDownUp, Plus, Search } from "lucide-react-native";
 import { useEmployeesList } from "@/api/employees/hooks";
 import type { EmployeeStatus } from "@/api/employees/types";
 import Text from "@/components/Text";
+import { Input } from "@/components/ui";
 import { EmployeeListItem } from "../components/EmployeeListItem";
+
+const BRAND = "#5B7B6C";
+const BG = "#F8F9F8";
+const SURFACE_BORDER = "#F1F5F9";
+const CARD_SHADOW = {
+	shadowColor: "#000",
+	shadowOpacity: 0.05,
+	shadowOffset: { width: 0, height: 1 },
+	shadowRadius: 3,
+	elevation: 2,
+} as const;
 
 export function EmployeesListScreen() {
 	const [search, setSearch] = useState("");
@@ -23,84 +36,113 @@ export function EmployeesListScreen() {
 	);
 
 	const employeesQuery = useEmployeesList(filters);
+	const employees = employeesQuery.data ?? [];
 
 	return (
-		<View className="flex-1 bg-gray-100">
-			<ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 96 }}>
-				<View className="flex-row items-center justify-between mb-4">
+		<View className="flex-1" style={{ backgroundColor: BG }}>
+			<ScrollView bounces={false} overScrollMode="never" contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 10, paddingBottom: 110 }}>
+				<View className="mb-6 flex-row items-center justify-between">
 					<View>
-						<Text className="text-2xl font-bold">Employees</Text>
-						<Text className="text-gray-500">Manage your roster</Text>
+						<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30, color: "#0F172A" }}>Employees</Text>
+						<Text style={{ fontSize: 12, lineHeight: 16, color: "#94A3B8", marginTop: 2 }}>Manage your roster</Text>
 					</View>
 					<Pressable
 						onPress={() => router.push("/employees/add" as any)}
-						className="rounded-lg bg-black px-4 py-2"
+						className="flex-row items-center rounded-xl"
+						style={{ backgroundColor: BRAND, paddingHorizontal: 14, paddingVertical: 10 }}
 					>
-						<Text className="text-white font-semibold">➕ Add Employee</Text>
+						<Plus size={16} color="#FFFFFF" strokeWidth={2.6} />
+						<Text style={{ color: "#FFFFFF", fontSize: 12, fontWeight: "700", marginLeft: 6 }}>Add Employee</Text>
 					</Pressable>
 				</View>
 
-				<TextInput
+				<Input
 					value={search}
 					onChangeText={setSearch}
 					placeholder="Search by name"
-					className="rounded-lg border border-gray-300 bg-white px-3 py-3 mb-3"
+					leftIcon={<Search size={18} color="#94A3B8" strokeWidth={2.2} />}
 				/>
 
-				<View className="flex-row gap-2 mb-4">
+				<View className="mt-3 flex-row" style={{ gap: 8 }}>
 					{[
 						{ label: "All", value: undefined },
 						{ label: "Active", value: "ACTIVE" as EmployeeStatus },
 						{ label: "Inactive", value: "INACTIVE" as EmployeeStatus },
-					].map((item) => (
-						<Pressable
-							key={item.label}
-							onPress={() => setStatus(item.value)}
-							className={`rounded-full px-3 py-2 ${status === item.value ? "bg-black" : "bg-white border border-gray-300"}`}
-						>
-							<Text className={status === item.value ? "text-white" : "text-gray-700"}>{item.label}</Text>
-						</Pressable>
-					))}
+					].map((item) => {
+						const selected = status === item.value;
+						return (
+							<Pressable
+								key={item.label}
+								onPress={() => setStatus(item.value)}
+								className="rounded-full"
+								style={{
+									paddingHorizontal: 12,
+									paddingVertical: 8,
+									backgroundColor: selected ? BRAND : "#FFFFFF",
+									borderWidth: selected ? 0 : 1,
+									borderColor: "#E2E8F0",
+									...CARD_SHADOW,
+								}}
+							>
+								<Text style={{ fontSize: 11, fontWeight: "700", color: selected ? "#FFFFFF" : "#64748B" }}>{item.label}</Text>
+							</Pressable>
+						);
+					})}
 				</View>
 
-				<View className="flex-row gap-2 mb-4">
+				<View className="mt-3 flex-row items-center" style={{ gap: 8 }}>
 					{[
 						{ label: "Name", value: "name" as const },
 						{ label: "Rate", value: "hourlyRate" as const },
 						{ label: "Hours", value: "monthlyHours" as const },
-					].map((option) => (
-						<Pressable
-							key={option.value}
-							onPress={() => setSortBy(option.value)}
-							className={`rounded-lg px-3 py-2 ${sortBy === option.value ? "bg-black" : "bg-gray-200"}`}
-						>
-							<Text className={sortBy === option.value ? "text-white" : "text-gray-700"}>{option.label}</Text>
-						</Pressable>
-					))}
+					].map((option) => {
+						const selected = sortBy === option.value;
+						return (
+							<Pressable
+								key={option.value}
+								onPress={() => setSortBy(option.value)}
+								className="rounded-xl"
+								style={{
+									paddingHorizontal: 12,
+									paddingVertical: 8,
+									backgroundColor: selected ? "#FFFFFF" : "#EEF2F5",
+									borderWidth: selected ? 1 : 0,
+									borderColor: "#E2E8F0",
+									...CARD_SHADOW,
+								}}
+							>
+								<Text style={{ fontSize: 11, fontWeight: "700", color: selected ? "#0F172A" : "#64748B" }}>{option.label}</Text>
+							</Pressable>
+						);
+					})}
 					<Pressable
 						onPress={() => setSortOrder((o) => (o === "asc" ? "desc" : "asc"))}
-						className="rounded-lg bg-gray-200 px-3 py-2"
+						className="flex-row items-center rounded-xl"
+						style={{ paddingHorizontal: 10, paddingVertical: 8, backgroundColor: "#EEF2F5" }}
 					>
-						<Text>{sortOrder === "asc" ? "↑" : "↓"}</Text>
+						<ArrowDownUp size={14} color="#64748B" strokeWidth={2.4} />
+						<Text style={{ marginLeft: 6, fontSize: 11, fontWeight: "700", color: "#64748B" }}>{sortOrder === "asc" ? "ASC" : "DESC"}</Text>
 					</Pressable>
 				</View>
 
-				{employeesQuery.isLoading ? <Text className="text-gray-500">Loading employees...</Text> : null}
-				{employeesQuery.isError ? <Text className="text-red-600">Failed to load employees.</Text> : null}
+				<View style={{ marginTop: 16 }}>
+					{employeesQuery.isLoading ? <Text style={{ fontSize: 13, color: "#64748B" }}>Loading employees...</Text> : null}
+					{employeesQuery.isError ? <Text style={{ fontSize: 13, color: "#DC2626" }}>Failed to load employees.</Text> : null}
 
-				{(employeesQuery.data ?? []).map((employee) => (
-					<EmployeeListItem
-						key={employee.id}
-						employee={employee}
-						onPress={() => router.push(`/employees/${employee.id}` as any)}
-					/>
-				))}
+					{employees.map((employee) => (
+						<EmployeeListItem
+							key={employee.id}
+							employee={employee}
+							onPress={() => router.push(`/employees/${employee.id}` as any)}
+						/>
+					))}
 
-				{!employeesQuery.isLoading && !(employeesQuery.data ?? []).length ? (
-					<View className="rounded-xl bg-white border border-gray-200 p-6">
-						<Text className="text-gray-500">No employees found.</Text>
-					</View>
-				) : null}
+					{!employeesQuery.isLoading && !employees.length ? (
+						<View className="rounded-2xl bg-white p-6" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}> 
+							<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>No employees found.</Text>
+						</View>
+					) : null}
+				</View>
 			</ScrollView>
 		</View>
 	);
