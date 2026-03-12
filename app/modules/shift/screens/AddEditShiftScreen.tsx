@@ -91,7 +91,7 @@ export function AddEditShiftScreen() {
 				<View style={{ gap: 16 }}>
 					<View>
 						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Date</Text>
-						<TouchableOpacity onPress={() => setShowDatePicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+						<TouchableOpacity onPress={() => setShowDatePicker(true)} className="flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 							<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{selectedDateLabel}</Text>
 							<CalendarDays size={20} color={BRAND} strokeWidth={2} />
 						</TouchableOpacity>
@@ -99,7 +99,7 @@ export function AddEditShiftScreen() {
 
 					<View>
 						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Employee</Text>
-						<TouchableOpacity onPress={() => setShowEmployeePicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+						<TouchableOpacity onPress={() => setShowEmployeePicker(true)} className="flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 							<Text style={{ flex: 1, fontSize: 14, fontWeight: "500", color: selectedEmployeeId ? "#0F172A" : "#94A3B8" }}>{selectedEmployeeName}</Text>
 							<ChevronDown size={18} color="#94A3B8" strokeWidth={2} />
 						</TouchableOpacity>
@@ -108,14 +108,14 @@ export function AddEditShiftScreen() {
 					<View className="flex-row" style={{ gap: 12 }}>
 						<View className="flex-1">
 							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>Start Time</Text>
-							<TouchableOpacity onPress={() => setShowStartPicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+							<TouchableOpacity onPress={() => setShowStartPicker(true)} className="flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 								<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{startTime}</Text>
 								<Clock3 size={20} color={BRAND} strokeWidth={2} />
 							</TouchableOpacity>
 						</View>
 						<View className="flex-1">
 							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 }}>End Time</Text>
-							<TouchableOpacity onPress={() => setShowEndPicker(true)} className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+							<TouchableOpacity onPress={() => setShowEndPicker(true)} className="flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 								<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{endTime}</Text>
 								<Clock3 size={20} color={BRAND} strokeWidth={2} />
 							</TouchableOpacity>
@@ -147,8 +147,9 @@ export function AddEditShiftScreen() {
 					<TouchableOpacity
 						onPress={handleSave}
 						disabled={saveShiftMutation.isPending}
-						className="h-14 flex-row items-center justify-center rounded-2xl"
+						className="flex-row items-center justify-center rounded-2xl"
 						style={{
+							height: 56,
 							backgroundColor: BRAND,
 							opacity: saveShiftMutation.isPending ? 0.7 : 1,
 							shadowColor: BRAND,
@@ -163,8 +164,8 @@ export function AddEditShiftScreen() {
 					</TouchableOpacity>
 					<TouchableOpacity
 						onPress={() => router.back()}
-						className="h-14 items-center justify-center rounded-2xl border"
-						style={{ borderColor: "#E2E8F0", backgroundColor: "transparent" }}
+						className="items-center justify-center rounded-2xl border"
+						style={{ height: 56, borderColor: "#E2E8F0", backgroundColor: "transparent" }}
 					>
 						<Text style={{ fontSize: 16, lineHeight: 20, fontWeight: "600", color: "#64748B" }}>Cancel</Text>
 					</TouchableOpacity>
