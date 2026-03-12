@@ -83,7 +83,7 @@ export function AddEditShiftScreen() {
 
 				<View className="mb-6 mt-4 flex-row items-center justify-between">
 					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26 }}>{params.shiftId ? "Edit Shift" : "Add New Shift"}</Text>
-					<TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: "#F1F5F9" }} onPress={() => router.back()}>
+					<TouchableOpacity className="items-center justify-center rounded-full" style={{ width: 40, height: 40, backgroundColor: "#F1F5F9" }} onPress={() => router.back()}>
 						<X size={20} color="#64748B" strokeWidth={2} />
 					</TouchableOpacity>
 				</View>
