@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
-import { ChevronLeft, ChevronRight, CalendarCheck2, Users } from "lucide-react-native";
+import { ChevronLeft, ChevronRight, Users } from "lucide-react-native";
 import { useQueryClient } from "@tanstack/react-query";
-import { SHIFTS_MONTH, useMonthShifts } from "@/api/shifts/hooks";
+import { SHIFTS_MONTH, useDaySchedule, useMonthShifts } from "@/api/shifts/hooks";
 import shiftsRequests from "@/api/shifts/requests";
 import Text from "@/components/Text";
+import { EmployeeCard } from "@/modules/home/components/EmployeeCard";
 import { usePreferencesState } from "@/shared/state/preferences-state";
 import { buildWeekDays, dayIndexForWeekStart } from "@/utils/datetime";
 
@@ -27,6 +28,24 @@ const toIsoDate = (d: Date) => {
 	return `${y}-${m}-${day}`;
 };
 
+const extractHHmm = (value: string) => {
+	if (!value) return "00:00";
+	if (/^\d{2}:\d{2}/.test(value)) return value.slice(0, 5);
+	const isoMatch = value.match(/T(\d{2}:\d{2})/);
+	if (isoMatch?.[1]) return isoMatch[1];
+	const looseMatch = value.match(/(\d{2}):(\d{2})/);
+	if (looseMatch?.[1] && looseMatch?.[2]) return `${looseMatch[1]}:${looseMatch[2]}`;
+	return "00:00";
+};
+
+const toDurationLabel = (startTime: string, endTime: string) => {
+	const [startH, startM] = extractHHmm(startTime).split(":").map(Number);
+	const [endH, endM] = extractHHmm(endTime).split(":").map(Number);
+	let minutes = endH * 60 + endM - (startH * 60 + startM);
+	if (minutes < 0) minutes += 24 * 60;
+	return `${Math.floor(minutes / 60)}h ${String(minutes % 60).padStart(2, "0")}m`;
+};
+
 export function CalendarScreen() {
 	const { firstDayOfWeek } = usePreferencesState();
 	const [monthDate, setMonthDate] = useState(new Date());
@@ -39,6 +58,7 @@ export function CalendarScreen() {
 	const monthEnd = useMemo(() => new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0), [monthDate]);
 
 	const monthShiftsQuery = useMonthShifts(toIsoDate(monthStart), toIsoDate(monthEnd));
+	const dayScheduleQuery = useDaySchedule(selectedDayIso);
 
 	const summary = useMemo(
 		() => shiftsRequests.buildCalendarSummary(monthShiftsQuery.data ?? [], monthStart, monthEnd),
@@ -79,15 +99,25 @@ export function CalendarScreen() {
 		});
 	}, [totalCells, gridStart]);
 
-	const selectedSummary = summaryMap.get(selectedDayIso);
-	const selectedDateObj = new Date(`${selectedDayIso}T00:00:00`);
-	const selectedLabel = selectedDateObj.toLocaleDateString("en-US", {
-		weekday: "long",
-		month: "long",
-		day: "numeric",
-	});
+	const selectedDayShifts = dayScheduleQuery.data?.shifts ?? [];
+	const scheduleItems = useMemo(
+		() =>
+			selectedDayShifts.flatMap((s) =>
+				s.assignments.map((a) => ({
+					id: a.id,
+					employeeId: a.employeeId,
+					name: `${a.employee.firstName} ${a.employee.lastName}`,
+					startTime: extractHHmm(s.startTime),
+					endTime: extractHHmm(s.endTime),
+					shiftId: s.id,
+					date: s.date,
+					employeeIds: s.assignments.map((assignment) => assignment.employeeId),
+				})),
+			),
+		[selectedDayShifts],
+	);
 
-	const GRID_GAP = 12;
+	const GRID_GAP = 4;
 	const CALENDAR_WIDTH = windowWidth - 32;
 	const CELL_SIZE = Math.floor((CALENDAR_WIDTH - GRID_GAP * 6) / 7);
 	const cellRows = useMemo(() => {
@@ -206,29 +236,29 @@ export function CalendarScreen() {
 				))}
 			</View>
 
-			<View style={{ marginTop: 30 }}>
-				<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26, marginBottom: 16 }}>Daily Overview</Text>
-				<TouchableOpacity
-					onPress={() => router.push(`/schedule/day/${selectedDayIso}` as any)}
-					activeOpacity={0.9}
-					className="rounded-2xl bg-white"
-					style={[CARD_SHADOW, { borderWidth: 1, borderColor: "#F8FAFC", padding: 16 }]}
-				>
-					<View className="flex-row items-center justify-between">
-						<View className="flex-row items-center" style={{ gap: 14, flex: 1 }}>
-							<View className="items-center justify-center rounded-xl" style={{ width: 48, height: 48, backgroundColor: "rgba(91,123,108,0.1)" }}>
-								<CalendarCheck2 size={21} color={BRAND} strokeWidth={2.1} />
-							</View>
-							<View style={{ flex: 1 }}>
-								<Text style={{ fontSize: 16, fontWeight: "700", color: "#0F172A" }}>{selectedLabel}</Text>
-								<Text style={{ fontSize: 10, fontWeight: "500", color: "#64748B", marginTop: 2 }}>
-									{selectedSummary?.employeeCount ?? 0} employees scheduled
-								</Text>
-							</View>
+			<View style={{ marginTop: 24 }}>
+				<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26, marginBottom: 12 }}>Daily Overview</Text>
+				<View style={{ gap: 12 }}>
+					{scheduleItems.length ? (
+						scheduleItems.map((item) => (
+							<EmployeeCard
+								key={item.id}
+								name={item.name}
+								timeLabel={`${item.startTime}-${item.endTime}`}
+								duration={toDurationLabel(item.startTime, item.endTime)}
+								onPress={() =>
+									router.push(
+										`/shift/edit?shiftId=${item.shiftId}&date=${item.date.slice(0, 10)}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
+									)
+								}
+							/>
+						))
+					) : (
+						<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: "#F1F5F9" }]}>
+							<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>No shifts scheduled for selected date.</Text>
 						</View>
-						<View className="rounded-full" style={{ width: 10, height: 10, backgroundColor: BRAND }} />
-					</View>
-				</TouchableOpacity>
+					)}
+				</View>
 			</View>
 		</ScrollView>
 	);
