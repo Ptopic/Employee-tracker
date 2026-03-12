@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { Modal, Pressable, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { SafeAreaView, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { CalendarDays, CheckCircle2, Clock3, Search, X } from "lucide-react-native";
 import { useSaveShift, useShiftEmployees } from "@/api/shifts/hooks";
@@ -55,6 +55,7 @@ export function AddEditShiftScreen() {
 	const [startTime, setStartTime] = useState(normalizeTime(params.startTime));
 	const [endTime, setEndTime] = useState(normalizeTime(params.endTime || "17:00"));
 	const [search, setSearch] = useState("");
+	const [notes, setNotes] = useState("");
 	const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(
 		params.employeeIds ? params.employeeIds.split(",").filter(Boolean) : [],
 	);
@@ -114,97 +115,113 @@ export function AddEditShiftScreen() {
 	};
 
 	return (
-		<View className="flex-1" style={{ backgroundColor: BG }}>
-			<ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 36 }}>
-				<View className="mb-6 flex-row items-center justify-between">
-					<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30 }}>{params.shiftId ? "Edit Shift" : "Add New Shift"}</Text>
+		<SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
+			<ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 36 }}>
+				<View className="items-center pt-2">
+					<View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#E2E8F0" }} />
+				</View>
+
+				<View className="mb-6 mt-4 flex-row items-center justify-between">
+					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26 }}>{params.shiftId ? "Edit Shift" : "Add New Shift"}</Text>
 					<TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: "#F1F5F9" }} onPress={() => router.back()}>
 						<X size={20} color="#64748B" strokeWidth={2} />
 					</TouchableOpacity>
 				</View>
 
-				<View className="rounded-3xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-					<View style={{ gap: 16 }}>
-						<View>
-							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase" }}>Date</Text>
+				<View style={{ gap: 14 }}>
+					<View>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>Date</Text>
+						<TouchableOpacity
+							onPress={() => setShowDatePicker(true)}
+							className="h-14 flex-row items-center rounded-2xl bg-white px-4"
+							style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}
+						>
+							<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{selectedDateLabel}</Text>
+							<CalendarDays size={20} color={BRAND} strokeWidth={2} />
+						</TouchableOpacity>
+					</View>
+
+					<View>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>Employee</Text>
+						<View className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+							<Search size={18} color="#94A3B8" strokeWidth={2} />
+							<TextInput
+								className="ml-2 flex-1"
+								style={{ fontSize: 14, fontWeight: "500", color: "#0F172A" }}
+								placeholder="Search employee"
+								placeholderTextColor="#94A3B8"
+								value={search}
+								onChangeText={setSearch}
+							/>
+						</View>
+					</View>
+
+					<View className="flex-row" style={{ gap: 12 }}>
+						<View className="flex-1">
+							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>Start Time</Text>
 							<TouchableOpacity
-								onPress={() => setShowDatePicker(true)}
+								onPress={() => setShowStartPicker(true)}
 								className="h-14 flex-row items-center rounded-2xl bg-white px-4"
-								style={{ borderWidth: 1, borderColor: SURFACE_BORDER }}
+								style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}
 							>
-								<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{selectedDateLabel}</Text>
-								<CalendarDays size={20} color={BRAND} strokeWidth={2} />
+								<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{startTime}</Text>
+								<Clock3 size={20} color={BRAND} strokeWidth={2} />
 							</TouchableOpacity>
 						</View>
-
-						<View>
-							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase" }}>Employee</Text>
-							<View className="h-14 flex-row items-center rounded-2xl bg-white px-4" style={{ borderWidth: 1, borderColor: SURFACE_BORDER }}>
-								<Search size={18} color="#94A3B8" strokeWidth={2} />
-								<TextInput
-									className="ml-2 flex-1"
-									style={{ fontSize: 14, fontWeight: "500", color: "#0F172A" }}
-									placeholder="Search employee"
-									placeholderTextColor="#94A3B8"
-									value={search}
-									onChangeText={setSearch}
-								/>
-							</View>
+						<View className="flex-1">
+							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>End Time</Text>
+							<TouchableOpacity
+								onPress={() => setShowEndPicker(true)}
+								className="h-14 flex-row items-center rounded-2xl bg-white px-4"
+								style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}
+							>
+								<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{endTime}</Text>
+								<Clock3 size={20} color={BRAND} strokeWidth={2} />
+							</TouchableOpacity>
 						</View>
+					</View>
 
-						<View className="flex-row" style={{ gap: 12 }}>
-							<View className="flex-1">
-								<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase" }}>Start Time</Text>
-								<TouchableOpacity
-									onPress={() => setShowStartPicker(true)}
-									className="h-14 flex-row items-center rounded-2xl bg-white px-4"
-									style={{ borderWidth: 1, borderColor: SURFACE_BORDER }}
-								>
-									<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{startTime}</Text>
-									<Clock3 size={20} color={BRAND} strokeWidth={2} />
-								</TouchableOpacity>
-							</View>
-							<View className="flex-1">
-								<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase" }}>End Time</Text>
-								<TouchableOpacity
-									onPress={() => setShowEndPicker(true)}
-									className="h-14 flex-row items-center rounded-2xl bg-white px-4"
-									style={{ borderWidth: 1, borderColor: SURFACE_BORDER }}
-								>
-									<Text style={{ flex: 1, fontSize: 14, fontWeight: "600", color: "#0F172A" }}>{endTime}</Text>
-									<Clock3 size={20} color={BRAND} strokeWidth={2} />
-								</TouchableOpacity>
-							</View>
-						</View>
+					<View>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>Notes / Description</Text>
+						<TextInput
+							multiline
+							numberOfLines={3}
+							value={notes}
+							onChangeText={setNotes}
+							placeholder="Add specific tasks or instructions..."
+							placeholderTextColor="#94A3B8"
+							className="rounded-2xl bg-white px-4 py-3"
+							style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, fontSize: 14, color: "#0F172A", textAlignVertical: "top", minHeight: 96 }]}
+						/>
+					</View>
 
-						<View>
-							<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 8, textTransform: "uppercase" }}>Employees</Text>
-							<View className="rounded-2xl bg-white p-2" style={{ borderWidth: 1, borderColor: SURFACE_BORDER, maxHeight: 240 }}>
-								<ScrollView>
-									{employees.map((employee) => {
-										const checked = selectedEmployeeIds.includes(employee.id);
-										return (
-											<TouchableOpacity
-												key={employee.id}
-												onPress={() => toggleEmployee(employee.id)}
-												className="flex-row items-center rounded-xl px-2 py-2"
-												style={{ backgroundColor: checked ? "rgba(91, 123, 108, 0.1)" : "transparent" }}
+					<View>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.4 }}>Employees</Text>
+						<View className="rounded-2xl bg-white p-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, maxHeight: 240 }]}>
+							<ScrollView>
+								{employees.map((employee) => {
+									const checked = selectedEmployeeIds.includes(employee.id);
+									return (
+										<TouchableOpacity
+											key={employee.id}
+											onPress={() => toggleEmployee(employee.id)}
+											className="flex-row items-center rounded-xl px-2 py-2"
+											style={{ backgroundColor: checked ? "rgba(91, 123, 108, 0.1)" : "transparent" }}
+										>
+											<View
+												className="mr-3 h-5 w-5 items-center justify-center rounded-md"
+												style={{ borderWidth: 1.5, borderColor: checked ? BRAND : "#94A3B8", backgroundColor: checked ? BRAND : "transparent" }}
 											>
-												<View
-													className="mr-3 h-5 w-5 items-center justify-center rounded-md"
-													style={{ borderWidth: 1.5, borderColor: checked ? BRAND : "#94A3B8", backgroundColor: checked ? BRAND : "transparent" }}
-												>
-													{checked ? <CheckCircle2 size={12} color="#FFFFFF" strokeWidth={2.5} /> : null}
-												</View>
-												<Text style={{ fontSize: 14, fontWeight: "600", color: "#0F172A" }}>
-													{employee.firstName} {employee.lastName}
-												</Text>
-											</TouchableOpacity>
-										);
-									})}
-									{!employees.length ? <Text style={{ fontSize: 13, color: "#94A3B8", padding: 8 }}>No employees found.</Text> : null}
-								</ScrollView>
-							</View>
+												{checked ? <CheckCircle2 size={12} color="#FFFFFF" strokeWidth={2.5} /> : null}
+											</View>
+											<Text style={{ fontSize: 14, fontWeight: "600", color: "#0F172A" }}>
+												{employee.firstName} {employee.lastName}
+											</Text>
+										</TouchableOpacity>
+									);
+								})}
+								{!employees.length ? <Text style={{ fontSize: 13, color: "#94A3B8", padding: 8 }}>No employees found.</Text> : null}
+							</ScrollView>
 						</View>
 					</View>
 				</View>
@@ -264,6 +281,6 @@ export function AddEditShiftScreen() {
 				}}
 				onCancel={() => setShowEndPicker(false)}
 			/>
-		</View>
+		</SafeAreaView>
 	);
 }
