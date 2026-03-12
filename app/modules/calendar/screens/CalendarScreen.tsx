@@ -120,6 +120,7 @@ export function CalendarScreen() {
 	const GRID_GAP = 4;
 	const CALENDAR_WIDTH = windowWidth - 32;
 	const CELL_SIZE = Math.floor((CALENDAR_WIDTH - GRID_GAP * 6) / 7);
+	const CELL_HEIGHT = CELL_SIZE + 10;
 	const cellRows = useMemo(() => {
 		const rows: Date[][] = [];
 		for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
@@ -206,7 +207,7 @@ export function CalendarScreen() {
 										CARD_SHADOW,
 										{
 											width: CELL_SIZE,
-											height: CELL_SIZE,
+											height: CELL_HEIGHT,
 											borderWidth: 1,
 											borderColor: isSelected ? "rgba(91,123,108,0.2)" : SURFACE_BORDER,
 											paddingHorizontal: 9,
@@ -216,8 +217,6 @@ export function CalendarScreen() {
 										},
 									]}
 								>
-									<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginBottom: 6 }} />
-
 									<View className="items-center">
 										<Text style={{ fontSize: 12, fontWeight: isSelected ? "700" : "600", color: isSelected ? BRAND : "#0F172A" }}>
 											{date.getDate()}
@@ -229,6 +228,7 @@ export function CalendarScreen() {
 											<Text style={{ fontSize: 10, fontWeight: "700", color: "#64748B" }}>{count}</Text>
 											<Users size={12} color="#64748B" strokeWidth={2.2} />
 										</View>
+										<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginTop: 4 }} />
 									</View>
 								</TouchableOpacity>
 							);
