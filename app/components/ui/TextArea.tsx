@@ -9,7 +9,7 @@ const CARD_SHADOW = {
 	elevation: 2,
 } as const;
 
-export function FormTextArea({
+export function TextArea({
 	value,
 	onChangeText,
 	onBlur,

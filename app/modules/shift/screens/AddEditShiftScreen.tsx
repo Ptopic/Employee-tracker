@@ -9,7 +9,7 @@ import { useToast } from "react-native-toast-notifications";
 import { useSaveShift, useShiftEmployees } from "@/api/shifts/hooks";
 import shiftsRequests from "@/api/shifts/requests";
 import Text from "@/components/Text";
-import { FormActionButton, FormFieldError, FormFieldLabel, FormPickerField, FormTextArea } from "@/components/form";
+import { Button, FieldError, FieldLabel, Input, TextArea } from "@/components/ui";
 
 const BRAND = "#5B7B6C";
 const BG = "#F8F9F8";
@@ -111,8 +111,8 @@ export function AddEditShiftScreen() {
 
 							<View style={{ gap: 16 }}>
 								<View>
-									<FormFieldLabel label="Date" />
-									<FormPickerField
+									<FieldLabel label="Date" />
+									<Input
 										value={selectedDateLabel}
 										onPress={() => {
 											setFieldTouched("date", true);
@@ -121,12 +121,12 @@ export function AddEditShiftScreen() {
 										rightIcon={<CalendarDays size={20} color={BRAND} strokeWidth={2} />}
 										valueColor="#0F172A"
 									/>
-									<FormFieldError error={touched.date ? (errors.date as string | undefined) : undefined} />
+									<FieldError error={touched.date ? (errors.date as string | undefined) : undefined} />
 								</View>
 
 								<View>
-									<FormFieldLabel label="Employee" />
-									<FormPickerField
+									<FieldLabel label="Employee" />
+									<Input
 										value={selectedEmployeeName}
 										placeholder="Select employee"
 										onPress={() => {
@@ -136,13 +136,13 @@ export function AddEditShiftScreen() {
 										rightIcon={<ChevronDown size={18} color="#94A3B8" strokeWidth={2} />}
 										valueColor="#0F172A"
 									/>
-									<FormFieldError error={touched.employeeId ? (errors.employeeId as string | undefined) : undefined} />
+									<FieldError error={touched.employeeId ? (errors.employeeId as string | undefined) : undefined} />
 								</View>
 
 								<View className="flex-row" style={{ gap: 12 }}>
 									<View className="flex-1">
-										<FormFieldLabel label="Start Time" />
-										<FormPickerField
+										<FieldLabel label="Start Time" />
+										<Input
 											value={values.startTime}
 											onPress={() => {
 												setFieldTouched("startTime", true);
@@ -151,11 +151,11 @@ export function AddEditShiftScreen() {
 											rightIcon={<Clock3 size={20} color={BRAND} strokeWidth={2} />}
 											valueColor="#0F172A"
 										/>
-										<FormFieldError error={touched.startTime ? (errors.startTime as string | undefined) : undefined} />
+										<FieldError error={touched.startTime ? (errors.startTime as string | undefined) : undefined} />
 									</View>
 									<View className="flex-1">
-										<FormFieldLabel label="End Time" />
-										<FormPickerField
+										<FieldLabel label="End Time" />
+										<Input
 											value={values.endTime}
 											onPress={() => {
 												setFieldTouched("endTime", true);
@@ -164,31 +164,31 @@ export function AddEditShiftScreen() {
 											rightIcon={<Clock3 size={20} color={BRAND} strokeWidth={2} />}
 											valueColor="#0F172A"
 										/>
-										<FormFieldError error={touched.endTime ? (errors.endTime as string | undefined) : undefined} />
+										<FieldError error={touched.endTime ? (errors.endTime as string | undefined) : undefined} />
 									</View>
 								</View>
 
 								<View>
-									<FormFieldLabel label="Notes / Description" />
-									<FormTextArea
+									<FieldLabel label="Notes / Description" />
+									<TextArea
 										value={values.notes}
 										onChangeText={handleChange("notes")}
 										onBlur={() => setFieldTouched("notes", true)}
 										placeholder="Add specific tasks or instructions..."
 									/>
-									<FormFieldError error={touched.notes ? (errors.notes as string | undefined) : undefined} />
+									<FieldError error={touched.notes ? (errors.notes as string | undefined) : undefined} />
 								</View>
 							</View>
 
 							<View style={{ marginTop: 16, gap: 12 }}>
-								<FormActionButton
+								<Button
 									variant="primary"
 									text={isSubmitting || saveShiftMutation.isPending ? "Saving..." : "Save Shift"}
 									onPress={() => handleSubmit()}
 									disabled={isSubmitting || saveShiftMutation.isPending}
 									leftIcon={<CheckCircle2 size={20} color="#FFFFFF" strokeWidth={2.2} />}
 								/>
-								<FormActionButton variant="secondary" text="Cancel" onPress={() => router.back()} />
+								<Button variant="secondary" text="Cancel" onPress={() => router.back()} />
 							</View>
 						</ScrollView>
 

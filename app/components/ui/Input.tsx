@@ -11,7 +11,7 @@ const CARD_SHADOW = {
 	elevation: 2,
 } as const;
 
-export function FormPickerField({
+export function Input({
 	value,
 	placeholder,
 	onPress,

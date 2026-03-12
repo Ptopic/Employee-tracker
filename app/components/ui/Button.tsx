@@ -4,7 +4,7 @@ import Text from "@/components/Text";
 
 const BRAND = "#5B7B6C";
 
-export function FormActionButton({
+export function Button({
 	variant,
 	text,
 	onPress,

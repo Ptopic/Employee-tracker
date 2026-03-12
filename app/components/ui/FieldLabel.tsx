@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import Text from "@/components/Text";
 
-export function FormFieldLabel({ label }: { label: string }) {
+export function FieldLabel({ label }: { label: string }) {
 	return (
 		<View style={{ marginBottom: 6 }}>
 			<Text
