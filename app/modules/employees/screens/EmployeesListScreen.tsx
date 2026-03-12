@@ -56,12 +56,14 @@ export function EmployeesListScreen() {
 					</Pressable>
 				</View>
 
-				<Input
-					value={search}
-					onChangeText={setSearch}
-					placeholder="Search by name"
-					leftIcon={<Search size={18} color="#94A3B8" strokeWidth={2.2} />}
-				/>
+				<View style={{ marginTop: 6 }}>
+					<Input
+						value={search}
+						onChangeText={setSearch}
+						placeholder="Search by name"
+						leftIcon={<Search size={18} color="#94A3B8" strokeWidth={2.2} />}
+					/>
+				</View>
 
 				<View className="mt-6 flex-row" style={{ gap: 8 }}>
 					{[
