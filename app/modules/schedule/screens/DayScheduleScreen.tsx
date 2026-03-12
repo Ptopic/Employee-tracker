@@ -1,6 +1,6 @@
 import { useLocalSearchParams, router } from "expo-router";
 import { Alert, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
-import { CalendarDays, Plus, Trash2 } from "lucide-react-native";
+import { Plus, Trash2 } from "lucide-react-native";
 import { useDeleteShift, useDaySchedule } from "@/api/shifts/hooks";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import Text from "@/components/Text";
@@ -38,11 +38,6 @@ function toDurationLabel(startTime: string, endTime: string) {
 	return `${Math.floor(minutes / 60)}h ${String(minutes % 60).padStart(2, "0")}m`;
 }
 
-function formatDateLabel(dateString: string) {
-	const date = new Date(`${dateString}T00:00:00`);
-	return date.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-}
-
 export function DayScheduleScreen() {
 	const { date } = useLocalSearchParams<{ date: string }>();
 	const day = date || new Date().toISOString().slice(0, 10);
@@ -76,11 +71,7 @@ export function DayScheduleScreen() {
 				refreshControl={<RefreshControl refreshing={dayScheduleQuery.isRefetching} onRefresh={() => dayScheduleQuery.refetch()} tintColor={BRAND} />}
 			>
 				<View className="mb-5">
-					<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30, marginBottom: 10 }}>Day Schedule</Text>
-					<View className="flex-row items-center self-start rounded-xl bg-white px-3 py-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-						<CalendarDays size={18} color="#0F172A" strokeWidth={2} />
-						<Text style={{ marginLeft: 8, fontSize: 14, fontWeight: "700" }}>{formatDateLabel(day)}</Text>
-					</View>
+					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26, marginBottom: 4 }}>Today's Schedule</Text>
 				</View>
 
 				<View style={{ gap: 12 }}>
