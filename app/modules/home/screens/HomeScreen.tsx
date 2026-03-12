@@ -279,6 +279,7 @@ export function HomeScreen() {
 												)}
 											>
 												<EmployeeCard
+													rounded={false}
 													name={item.name}
 													timeLabel={`${item.startTime}-${item.endTime}`}
 													duration={toDurationLabel(item.startTime, item.endTime)}

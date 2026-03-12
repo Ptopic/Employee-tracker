@@ -16,17 +16,19 @@ export function EmployeeCard({
 	timeLabel,
 	duration,
 	onPress,
+	rounded = true,
 }: {
 	name: string;
 	timeLabel: string;
 	duration: string;
 	onPress: () => void;
+	rounded?: boolean;
 }) {
 	return (
 		<TouchableOpacity
 			activeOpacity={1}
 			onPress={onPress}
-			className="flex-row items-center justify-between rounded-2xl bg-white"
+			className={`flex-row items-center justify-between bg-white ${rounded ? "rounded-2xl" : ""}`}
 			style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}
 		>
 			<View className="flex-row items-center">
