@@ -203,7 +203,7 @@ export function CalendarScreen() {
 			</View>
 
 			<View {...monthPanResponder.panHandlers}>
-				<View className="mb-4 flex-row">
+				<View className="mb-2 flex-row">
 					{weekDays.map((day) => (
 						<View key={day} className="flex-1 items-center">
 							<Text
