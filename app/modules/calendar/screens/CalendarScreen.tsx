@@ -57,6 +57,16 @@ export function CalendarScreen() {
 	const monthStart = useMemo(() => new Date(monthDate.getFullYear(), monthDate.getMonth(), 1), [monthDate]);
 	const monthEnd = useMemo(() => new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0), [monthDate]);
 
+	useEffect(() => {
+		const selected = new Date(`${selectedDayIso}T00:00:00`);
+		const sameMonth =
+			selected.getFullYear() === monthDate.getFullYear() &&
+			selected.getMonth() === monthDate.getMonth();
+		if (!sameMonth) {
+			setSelectedDayIso(toIsoDate(new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)));
+		}
+	}, [monthDate, selectedDayIso]);
+
 	const monthShiftsQuery = useMonthShifts(toIsoDate(monthStart), toIsoDate(monthEnd));
 	const dayScheduleQuery = useDaySchedule(selectedDayIso);
 
