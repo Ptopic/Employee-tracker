@@ -254,6 +254,7 @@ export function CalendarScreen() {
 												paddingTop: 9,
 												paddingBottom: 8,
 												opacity: isCurrentMonth ? 1 : 0.45,
+												marginBottom: isSelected ? 4 : 0,
 											},
 										]}
 									>
