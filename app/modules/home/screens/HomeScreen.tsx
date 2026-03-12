@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import { Alert, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import DatePicker from "react-native-date-picker";
-import { Bell, CalendarDays, Clock3, FileText, Plus, UserPlus, Users } from "lucide-react-native";
+import { Bell, CalendarDays, Clock3, FileText, Plus, Trash2, UserPlus, Users } from "lucide-react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
-import { useDaySchedule } from "@/api/shifts/hooks";
+import { useDaySchedule, useDeleteShift } from "@/api/shifts/hooks";
+import Swipeable from "react-native-gesture-handler/Swipeable";
 import Text from "@/components/Text";
 import { EmployeeCard } from "@/modules/home/components/EmployeeCard";
 
@@ -113,6 +114,7 @@ export function HomeScreen() {
 	const todayIso = toIsoDate(new Date());
 	const showNowButton = selectedDateIso !== todayIso;
 	const dayScheduleQuery = useDaySchedule(selectedDateIso);
+	const deleteShiftMutation = useDeleteShift();
 	const shifts = dayScheduleQuery.data?.shifts ?? [];
 
 	const onRefresh = async () => {
@@ -122,6 +124,23 @@ export function HomeScreen() {
 		} finally {
 			setIsRefreshing(false);
 		}
+	};
+
+	const confirmDeleteShift = (shiftId: string) => {
+		Alert.alert("Delete shift", "This action cannot be undone.", [
+			{ text: "Cancel", style: "cancel" },
+			{
+				text: "Delete",
+				style: "destructive",
+				onPress: async () => {
+					try {
+						await deleteShiftMutation.mutateAsync(shiftId);
+					} catch {
+						// no-op; existing query state will reflect failure on next interaction
+					}
+				},
+			},
+		]);
 	};
 
 	const scheduledHours = useMemo(() => {
@@ -239,17 +258,36 @@ export function HomeScreen() {
 									))
 								) : scheduleItems.length ? (
 									scheduleItems.map((item) => (
-										<EmployeeCard
+										<Swipeable
 											key={item.id}
-											name={item.name}
-											timeLabel={`${item.startTime}-${item.endTime}`}
-											duration={toDurationLabel(item.startTime, item.endTime)}
-											onPress={() =>
-												router.push(
-													`/shift/edit?shiftId=${item.shiftId}&date=${item.date.slice(0, 10)}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
-												)
-											}
-										/>
+											renderRightActions={() => (
+												<TouchableOpacity
+													onPress={() => confirmDeleteShift(item.shiftId)}
+													className="items-center justify-center rounded-2xl"
+													style={{
+														width: 88,
+														marginLeft: 8,
+														backgroundColor: "#FEE2E2",
+														borderWidth: 1,
+														borderColor: "#FCA5A5",
+													}}
+												>
+													<Trash2 size={18} color="#B91C1C" strokeWidth={2.25} />
+													<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#B91C1C" }}>Delete</Text>
+												</TouchableOpacity>
+											)}
+										>
+											<EmployeeCard
+												name={item.name}
+												timeLabel={`${item.startTime}-${item.endTime}`}
+												duration={toDurationLabel(item.startTime, item.endTime)}
+												onPress={() =>
+													router.push(
+														`/shift/edit?shiftId=${item.shiftId}&date=${item.date.slice(0, 10)}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
+													)
+												}
+											/>
+										</Swipeable>
 									))
 								) : (
 									<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
