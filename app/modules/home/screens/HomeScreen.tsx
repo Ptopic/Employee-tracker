@@ -52,13 +52,6 @@ function extractHHmm(value: string) {
 	return "00:00";
 }
 
-function formatTimeTo12h(time: string) {
-	const [hours, minutes] = extractHHmm(time).split(":").map(Number);
-	const period = hours >= 12 ? "PM" : "AM";
-	const normalized = hours % 12 || 12;
-	return `${String(normalized).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${period}`;
-}
-
 function toDurationLabel(startTime: string, endTime: string) {
 	const [startH, startM] = extractHHmm(startTime).split(":").map(Number);
 	const [endH, endM] = extractHHmm(endTime).split(":").map(Number);
@@ -246,7 +239,7 @@ export function HomeScreen() {
 										<EmployeeCard
 											key={item.id}
 											name={item.name}
-											timeLabel={`In ${formatTimeTo12h(item.startTime)}, Out ${formatTimeTo12h(item.endTime)}`}
+											timeLabel={`${item.startTime}-${item.endTime}`}
 											duration={toDurationLabel(item.startTime, item.endTime)}
 											onPress={() => router.push(`/employees/${item.employeeId}` as any)}
 										/>
