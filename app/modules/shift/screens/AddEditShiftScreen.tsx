@@ -116,19 +116,19 @@ export function AddEditShiftScreen() {
 
 	return (
 		<SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
-			<ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 36 }}>
-				<View className="items-center pt-2">
+			<ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 28 }}>
+				<View className="items-center pt-1">
 					<View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#E2E8F0" }} />
 				</View>
 
-				<View className="mb-6 mt-4 flex-row items-center justify-between">
+				<View className="mb-5 mt-3 flex-row items-center justify-between">
 					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26 }}>{params.shiftId ? "Edit Shift" : "Add New Shift"}</Text>
 					<TouchableOpacity className="h-10 w-10 items-center justify-center rounded-full" style={{ backgroundColor: "#F1F5F9" }} onPress={() => router.back()}>
 						<X size={20} color="#64748B" strokeWidth={2} />
 					</TouchableOpacity>
 				</View>
 
-				<View style={{ gap: 14 }}>
+				<View style={{ gap: 12 }}>
 					<View>
 						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 }}>Date</Text>
 						<TouchableOpacity
@@ -197,32 +197,37 @@ export function AddEditShiftScreen() {
 
 					<View>
 						<Text style={{ fontSize: 11, fontWeight: "600", color: "#94A3B8", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.4 }}>Employees</Text>
-						<View className="rounded-2xl bg-white p-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, maxHeight: 240 }]}>
-							<ScrollView>
-								{employees.map((employee) => {
-									const checked = selectedEmployeeIds.includes(employee.id);
-									return (
-										<TouchableOpacity
-											key={employee.id}
-											onPress={() => toggleEmployee(employee.id)}
-											className="flex-row items-center rounded-xl px-2 py-2"
-											style={{ backgroundColor: checked ? "rgba(91, 123, 108, 0.1)" : "transparent" }}
-										>
-											<View
-												className="mr-3 h-5 w-5 items-center justify-center rounded-md"
-												style={{ borderWidth: 1.5, borderColor: checked ? BRAND : "#94A3B8", backgroundColor: checked ? BRAND : "transparent" }}
+						{employees.length ? (
+							<View className="rounded-2xl bg-white p-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, maxHeight: 220 }]}>
+								<ScrollView>
+									{employees.map((employee) => {
+										const checked = selectedEmployeeIds.includes(employee.id);
+										return (
+											<TouchableOpacity
+												key={employee.id}
+												onPress={() => toggleEmployee(employee.id)}
+												className="flex-row items-center rounded-xl px-2 py-2"
+												style={{ backgroundColor: checked ? "rgba(91, 123, 108, 0.1)" : "transparent" }}
 											>
-												{checked ? <CheckCircle2 size={12} color="#FFFFFF" strokeWidth={2.5} /> : null}
-											</View>
-											<Text style={{ fontSize: 14, fontWeight: "600", color: "#0F172A" }}>
-												{employee.firstName} {employee.lastName}
-											</Text>
-										</TouchableOpacity>
-									);
-								})}
-								{!employees.length ? <Text style={{ fontSize: 13, color: "#94A3B8", padding: 8 }}>No employees found.</Text> : null}
-							</ScrollView>
-						</View>
+												<View
+													className="mr-3 h-5 w-5 items-center justify-center rounded-md"
+													style={{ borderWidth: 1.5, borderColor: checked ? BRAND : "#94A3B8", backgroundColor: checked ? BRAND : "transparent" }}
+												>
+													{checked ? <CheckCircle2 size={12} color="#FFFFFF" strokeWidth={2.5} /> : null}
+												</View>
+												<Text style={{ fontSize: 14, fontWeight: "600", color: "#0F172A" }}>
+													{employee.firstName} {employee.lastName}
+												</Text>
+											</TouchableOpacity>
+										);
+									})}
+								</ScrollView>
+							</View>
+						) : (
+							<View className="h-14 items-center justify-center rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+								<Text style={{ fontSize: 13, color: "#94A3B8" }}>No employees found.</Text>
+							</View>
+						)}
 					</View>
 				</View>
 
@@ -232,18 +237,18 @@ export function AddEditShiftScreen() {
 					</View>
 				) : null}
 
-				<View className="mt-6" style={{ gap: 12 }}>
+				<View className="mt-6" style={{ gap: 10 }}>
 					<TouchableOpacity
 						onPress={handleSave}
 						disabled={saveShiftMutation.isPending}
 						className="h-14 flex-row items-center justify-center rounded-2xl"
-						style={{ backgroundColor: BRAND, opacity: saveShiftMutation.isPending ? 0.7 : 1 }}
+						style={{ backgroundColor: BRAND, opacity: saveShiftMutation.isPending ? 0.7 : 1, shadowColor: BRAND, shadowOpacity: 0.25, shadowOffset: { width: 0, height: 8 }, shadowRadius: 16, elevation: 6 }}
 					>
 						<CheckCircle2 size={20} color="#FFFFFF" strokeWidth={2.2} />
 						<Text style={{ marginLeft: 8, fontSize: 16, fontWeight: "700", color: "#FFFFFF" }}>{saveShiftMutation.isPending ? "Saving..." : "Save Shift"}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity onPress={() => router.back()} className="h-14 items-center justify-center rounded-2xl border" style={{ borderColor: "#E2E8F0", backgroundColor: "transparent" }}>
-						<Text style={{ fontSize: 16, fontWeight: "600", color: "#64748B" }}>Cancel</Text>
+						<Text style={{ fontSize: 16, fontWeight: "600", color: "#475569" }}>Cancel</Text>
 					</TouchableOpacity>
 				</View>
 			</ScrollView>
