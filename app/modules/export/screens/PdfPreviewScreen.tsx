@@ -1,7 +1,6 @@
 import { useLocalSearchParams, router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Modal, Platform, SafeAreaView, ScrollView, Share, TouchableOpacity, View } from "react-native";
-import DatePicker from "react-native-date-picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { endOfWeek, format, startOfWeek } from "date-fns";
 import { CalendarDays, Download, FileText, X } from "lucide-react-native";
@@ -135,11 +134,13 @@ export function PdfPreviewScreen() {
 								value={iosTempDate}
 								mode="date"
 								display="inline"
+								themeVariant="light"
+								style={{ height: 360, alignSelf: "stretch" }}
 								onChange={(_, date) => {
 									if (date) setIosTempDate(date);
 								}}
 							/>
-							<View style={{ gap: 10, marginTop: 14 }}>
+							<View style={{ gap: 10, marginTop: 10 }}>
 								<Button
 									variant="primary"
 									text="Apply Week"
@@ -153,19 +154,17 @@ export function PdfPreviewScreen() {
 						</View>
 					</View>
 				</Modal>
-			) : (
-				<DatePicker
-					modal
+			) : showWeekPicker ? (
+				<DateTimePicker
+					value={selectedDate}
 					mode="date"
-					open={showWeekPicker}
-					date={selectedDate}
-					onConfirm={(date) => {
-						setSelectedDate(date);
+					display="calendar"
+					onChange={(_, date) => {
+						if (date) setSelectedDate(date);
 						setShowWeekPicker(false);
 					}}
-					onCancel={() => setShowWeekPicker(false)}
 				/>
-			)}
+			) : null}
 		</SafeAreaView>
 	);
 }
