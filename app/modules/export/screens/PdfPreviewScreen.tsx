@@ -1,7 +1,8 @@
 import { useLocalSearchParams, router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Modal, Platform, SafeAreaView, ScrollView, Share, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, Platform, SafeAreaView, ScrollView, Share, TouchableOpacity, UIManager, View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import DatePicker from "react-native-date-picker";
 import { endOfWeek, format, startOfWeek } from "date-fns";
 import { CalendarDays, Download, FileText, X } from "lucide-react-native";
 import { useToast } from "react-native-toast-notifications";
@@ -43,6 +44,13 @@ export function PdfPreviewScreen() {
 		[selectedDate],
 	);
 	const selectedWeekStart = useMemo(() => toIsoDate(selectedWeekStartDate), [selectedWeekStartDate]);
+	const hasNativeDateTimePicker = useMemo(() => {
+		try {
+			return Boolean(UIManager.getViewManagerConfig?.("RNDateTimePicker"));
+		} catch {
+			return false;
+		}
+	}, []);
 
 	useEffect(() => {
 		if (selectedWeekStart) preview.mutate(selectedWeekStart);
@@ -130,16 +138,25 @@ export function PdfPreviewScreen() {
 								<View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#CBD5E1" }} />
 							</View>
 							<Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 10 }}>Select any date</Text>
-							<DateTimePicker
-								value={iosTempDate}
-								mode="date"
-								display="inline"
-								themeVariant="light"
-								style={{ height: 360, alignSelf: "stretch" }}
-								onChange={(_, date) => {
-									if (date) setIosTempDate(date);
-								}}
-							/>
+							{hasNativeDateTimePicker ? (
+								<DateTimePicker
+									value={iosTempDate}
+									mode="date"
+									display="inline"
+									themeVariant="light"
+									style={{ height: 360, alignSelf: "stretch" }}
+									onChange={(_, date) => {
+										if (date) setIosTempDate(date);
+									}}
+								/>
+							) : (
+								<DatePicker
+									modal={false}
+									mode="date"
+									date={iosTempDate}
+									onDateChange={setIosTempDate}
+								/>
+							)}
 							<View style={{ gap: 10, marginTop: 10 }}>
 								<Button
 									variant="primary"
