@@ -131,8 +131,19 @@ export function AddEditShiftScreen() {
 							onChangeText={setNotes}
 							placeholder="Add specific tasks or instructions..."
 							placeholderTextColor="#94A3B8"
-							className="rounded-2xl bg-white px-4 py-3"
-							style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, fontSize: 14, color: "#0F172A", textAlignVertical: "top", minHeight: 96 }]}
+							className="rounded-2xl bg-white"
+							style={[
+								CARD_SHADOW,
+								{
+									borderWidth: 1,
+									borderColor: SURFACE_BORDER,
+									fontSize: 14,
+									color: "#0F172A",
+									textAlignVertical: "top",
+									minHeight: 96,
+									padding: 16,
+								},
+							]}
 						/>
 					</View>
 				</View>
