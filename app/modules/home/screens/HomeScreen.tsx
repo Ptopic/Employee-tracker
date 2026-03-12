@@ -260,8 +260,10 @@ export function HomeScreen() {
 									scheduleItems.map((item) => (
 										<View key={item.id} style={{ borderRadius: 16, overflow: "hidden" }}>
 											<Swipeable
-												friction={2}
-												rightThreshold={42}
+												friction={1.15}
+												rightThreshold={36}
+												dragOffsetFromRightEdge={12}
+												overshootFriction={8}
 												overshootRight={false}
 												renderRightActions={() => (
 													<TouchableOpacity
