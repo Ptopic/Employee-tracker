@@ -63,7 +63,7 @@ export function EmployeesListScreen() {
 					leftIcon={<Search size={18} color="#94A3B8" strokeWidth={2.2} />}
 				/>
 
-				<View className="mt-3 flex-row" style={{ gap: 8 }}>
+				<View className="mt-4 flex-row" style={{ gap: 8 }}>
 					{[
 						{ label: "All", value: undefined },
 						{ label: "Active", value: "ACTIVE" as EmployeeStatus },
@@ -90,7 +90,7 @@ export function EmployeesListScreen() {
 					})}
 				</View>
 
-				<View className="mt-3 flex-row items-center" style={{ gap: 8 }}>
+				<View className="mt-2 flex-row items-center" style={{ gap: 8 }}>
 					{[
 						{ label: "Name", value: "name" as const },
 						{ label: "Rate", value: "hourlyRate" as const },
@@ -125,7 +125,7 @@ export function EmployeesListScreen() {
 					</Pressable>
 				</View>
 
-				<View style={{ marginTop: 16 }}>
+				<View style={{ marginTop: 14 }}>
 					{employeesQuery.isLoading ? <Text style={{ fontSize: 13, color: "#64748B" }}>Loading employees...</Text> : null}
 					{employeesQuery.isError ? <Text style={{ fontSize: 13, color: "#DC2626" }}>Failed to load employees.</Text> : null}
 
