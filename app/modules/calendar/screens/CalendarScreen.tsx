@@ -203,6 +203,7 @@ export function CalendarScreen() {
 		<ScrollView
 			className="flex-1"
 			bounces={false}
+			overScrollMode="never"
 			style={{ backgroundColor: BG }}
 			contentContainerStyle={{ paddingHorizontal: 10, paddingTop: 14, paddingBottom: 28 }}
 			refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={BRAND} />}

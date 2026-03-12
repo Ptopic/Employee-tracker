@@ -183,7 +183,7 @@ export function SettingsScreen() {
 
 	return (
 		<SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
-			<ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 42, paddingTop: 10 }}>
+			<ScrollView bounces={false} overScrollMode="never" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 42, paddingTop: 10 }}>
 				<View className="mb-5 flex-row items-center justify-between">
 					<Text style={{ fontSize: 28, fontWeight: "700", lineHeight: 34 }}>Settings</Text>
 				</View>
