@@ -65,66 +65,70 @@ export function EmployeesListScreen() {
 					/>
 				</View>
 
-				<View className="mt-6 flex-row" style={{ gap: 8 }}>
-					{[
-						{ label: "All", value: undefined },
-						{ label: "Active", value: "ACTIVE" as EmployeeStatus },
-						{ label: "Inactive", value: "INACTIVE" as EmployeeStatus },
-					].map((item) => {
-						const selected = status === item.value;
-						return (
-							<Pressable
-								key={item.label}
-								onPress={() => setStatus(item.value)}
-								className="rounded-full"
-								style={{
-									paddingHorizontal: 12,
-									paddingVertical: 8,
-									backgroundColor: selected ? BRAND : "#FFFFFF",
-									borderWidth: selected ? 0 : 1,
-									borderColor: "#E2E8F0",
-									...CARD_SHADOW,
-								}}
-							>
-								<Text style={{ fontSize: 11, fontWeight: "700", color: selected ? "#FFFFFF" : "#64748B" }}>{item.label}</Text>
-							</Pressable>
-						);
-					})}
+				<View style={{ marginTop: 12 }}>
+					<View className="flex-row" style={{ gap: 8 }}>
+						{[
+							{ label: "All", value: undefined },
+							{ label: "Active", value: "ACTIVE" as EmployeeStatus },
+							{ label: "Inactive", value: "INACTIVE" as EmployeeStatus },
+						].map((item) => {
+							const selected = status === item.value;
+							return (
+								<Pressable
+									key={item.label}
+									onPress={() => setStatus(item.value)}
+									className="rounded-full"
+									style={{
+										paddingHorizontal: 12,
+										paddingVertical: 8,
+										backgroundColor: selected ? BRAND : "#FFFFFF",
+										borderWidth: selected ? 0 : 1,
+										borderColor: "#E2E8F0",
+										...CARD_SHADOW,
+									}}
+								>
+									<Text style={{ fontSize: 11, fontWeight: "700", color: selected ? "#FFFFFF" : "#64748B" }}>{item.label}</Text>
+								</Pressable>
+							);
+						})}
+					</View>
 				</View>
 
-				<View className="mt-4 flex-row items-center" style={{ gap: 8 }}>
-					{[
-						{ label: "Name", value: "name" as const },
-						{ label: "Rate", value: "hourlyRate" as const },
-						{ label: "Hours", value: "monthlyHours" as const },
-					].map((option) => {
-						const selected = sortBy === option.value;
-						return (
-							<Pressable
-								key={option.value}
-								onPress={() => setSortBy(option.value)}
-								className="rounded-xl"
-								style={{
-									paddingHorizontal: 12,
-									paddingVertical: 8,
-									backgroundColor: selected ? "#FFFFFF" : "#EEF2F5",
-									borderWidth: selected ? 1 : 0,
-									borderColor: "#E2E8F0",
-									...CARD_SHADOW,
-								}}
-							>
-								<Text style={{ fontSize: 11, fontWeight: "700", color: selected ? "#0F172A" : "#64748B" }}>{option.label}</Text>
-							</Pressable>
-						);
-					})}
-					<Pressable
-						onPress={() => setSortOrder((o) => (o === "asc" ? "desc" : "asc"))}
-						className="flex-row items-center rounded-xl"
-						style={{ paddingHorizontal: 10, paddingVertical: 8, backgroundColor: "#EEF2F5" }}
-					>
-						<ArrowDownUp size={14} color="#64748B" strokeWidth={2.4} />
-						<Text style={{ marginLeft: 6, fontSize: 11, fontWeight: "700", color: "#64748B" }}>{sortOrder === "asc" ? "ASC" : "DESC"}</Text>
-					</Pressable>
+				<View style={{ marginTop: 12 }}>
+					<View className="flex-row items-center" style={{ gap: 8 }}>
+						{[
+							{ label: "Name", value: "name" as const },
+							{ label: "Rate", value: "hourlyRate" as const },
+							{ label: "Hours", value: "monthlyHours" as const },
+						].map((option) => {
+							const selected = sortBy === option.value;
+							return (
+								<Pressable
+									key={option.value}
+									onPress={() => setSortBy(option.value)}
+									className="rounded-xl"
+									style={{
+										paddingHorizontal: 12,
+										paddingVertical: 8,
+										backgroundColor: selected ? "#FFFFFF" : "#EEF2F5",
+										borderWidth: selected ? 1 : 0,
+										borderColor: "#E2E8F0",
+										...CARD_SHADOW,
+									}}
+								>
+									<Text style={{ fontSize: 11, fontWeight: "700", color: selected ? "#0F172A" : "#64748B" }}>{option.label}</Text>
+								</Pressable>
+							);
+						})}
+						<Pressable
+							onPress={() => setSortOrder((o) => (o === "asc" ? "desc" : "asc"))}
+							className="flex-row items-center rounded-xl"
+							style={{ paddingHorizontal: 10, paddingVertical: 8, backgroundColor: "#EEF2F5" }}
+						>
+							<ArrowDownUp size={14} color="#64748B" strokeWidth={2.4} />
+							<Text style={{ marginLeft: 6, fontSize: 11, fontWeight: "700", color: "#64748B" }}>{sortOrder === "asc" ? "ASC" : "DESC"}</Text>
+						</Pressable>
+					</View>
 				</View>
 
 				<View style={{ marginTop: 18 }}>
@@ -140,7 +144,7 @@ export function EmployeesListScreen() {
 					))}
 
 					{!employeesQuery.isLoading && !employees.length ? (
-						<View className="rounded-2xl bg-white p-6" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}> 
+						<View className="rounded-2xl bg-white p-6" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 							<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>No employees found.</Text>
 						</View>
 					) : null}
