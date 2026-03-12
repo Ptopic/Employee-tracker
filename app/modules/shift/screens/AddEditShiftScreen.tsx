@@ -152,21 +152,21 @@ export function AddEditShiftScreen() {
 							backgroundColor: BRAND,
 							opacity: saveShiftMutation.isPending ? 0.7 : 1,
 							shadowColor: BRAND,
-							shadowOpacity: 0.2,
-							shadowOffset: { width: 0, height: 10 },
-							shadowRadius: 18,
-							elevation: 6,
+							shadowOpacity: 0.25,
+							shadowOffset: { width: 0, height: 8 },
+							shadowRadius: 12,
+							elevation: 5,
 						}}
 					>
-						<CheckCircle2 size={22} color="#FFFFFF" strokeWidth={2.4} />
-						<Text style={{ marginLeft: 8, fontSize: 16, lineHeight: 22, fontWeight: "700", color: "#FFFFFF" }}>{saveShiftMutation.isPending ? "Saving..." : "Save Shift"}</Text>
+						<CheckCircle2 size={20} color="#FFFFFF" strokeWidth={2.2} />
+						<Text style={{ marginLeft: 8, fontSize: 16, lineHeight: 20, fontWeight: "700", color: "#FFFFFF" }}>{saveShiftMutation.isPending ? "Saving..." : "Save Shift"}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
 						onPress={() => router.back()}
 						className="h-14 items-center justify-center rounded-2xl border"
 						style={{ borderColor: "#E2E8F0", backgroundColor: "transparent" }}
 					>
-						<Text style={{ fontSize: 16, lineHeight: 22, fontWeight: "600", color: "#64748B" }}>Cancel</Text>
+						<Text style={{ fontSize: 16, lineHeight: 20, fontWeight: "600", color: "#64748B" }}>Cancel</Text>
 					</TouchableOpacity>
 				</View>
 			</ScrollView>
