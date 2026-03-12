@@ -229,7 +229,7 @@ export function AddEditShiftScreen() {
 									</Text>
 								</View>
 							) : (
-								<ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 18 }}>
+								<ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 36 }}>
 									{employees.map((employee) => {
 										const isSelected = values.employeeId === employee.id;
 										return (
