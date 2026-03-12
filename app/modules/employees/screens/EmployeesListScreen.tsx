@@ -44,7 +44,7 @@ export function EmployeesListScreen() {
 				<View className="mb-6 flex-row items-center justify-between">
 					<View>
 						<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30, color: "#0F172A" }}>Employees</Text>
-						<Text style={{ fontSize: 12, lineHeight: 16, color: "#94A3B8", marginTop: 2 }}>Manage your roster</Text>
+						<Text style={{ fontSize: 12, lineHeight: 16, color: "#94A3B8", marginTop: 2 }}>Manage your employees</Text>
 					</View>
 					<Pressable
 						onPress={() => router.push("/employees/add" as any)}
