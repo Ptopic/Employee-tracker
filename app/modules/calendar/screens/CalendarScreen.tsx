@@ -142,7 +142,7 @@ export function CalendarScreen() {
 			contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 28 }}
 			refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={BRAND} />}
 		>
-			<View className="mb-8 flex-row items-center justify-between" style={{ paddingHorizontal: 8 }}>
+			<View className="mb-10 flex-row items-center justify-between" style={{ paddingHorizontal: 8 }}>
 				<TouchableOpacity
 					onPress={() => setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))}
 					className="items-center justify-center rounded-full bg-white"
@@ -150,7 +150,7 @@ export function CalendarScreen() {
 				>
 					<ChevronLeft size={22} color="#64748B" strokeWidth={2.3} />
 				</TouchableOpacity>
-				<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30 }}>
+				<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26 }}>
 					{monthDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
 				</Text>
 				<TouchableOpacity
@@ -209,13 +209,15 @@ export function CalendarScreen() {
 											height: CELL_SIZE,
 											borderWidth: 1,
 											borderColor: isSelected ? "rgba(91,123,108,0.2)" : SURFACE_BORDER,
-											paddingHorizontal: 8,
-											paddingTop: 7,
-											paddingBottom: 6,
+											paddingHorizontal: 9,
+											paddingTop: 9,
+											paddingBottom: 8,
 											opacity: isCurrentMonth ? 1 : 0.45,
 										},
 									]}
 								>
+									<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginBottom: 6 }} />
+
 									<View className="items-center">
 										<Text style={{ fontSize: 12, fontWeight: isSelected ? "700" : "600", color: isSelected ? BRAND : "#0F172A" }}>
 											{date.getDate()}
@@ -227,7 +229,6 @@ export function CalendarScreen() {
 											<Text style={{ fontSize: 10, fontWeight: "700", color: "#64748B" }}>{count}</Text>
 											<Users size={12} color="#64748B" strokeWidth={2.2} />
 										</View>
-										<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginTop: 4 }} />
 									</View>
 								</TouchableOpacity>
 							);
