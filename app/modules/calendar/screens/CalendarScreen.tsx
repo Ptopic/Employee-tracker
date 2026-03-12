@@ -120,7 +120,7 @@ export function CalendarScreen() {
 	const GRID_GAP = 4;
 	const CALENDAR_WIDTH = windowWidth - 20;
 	const CELL_SIZE = Math.floor((CALENDAR_WIDTH - GRID_GAP * 6) / 7);
-	const CELL_HEIGHT = CELL_SIZE + 10;
+	const CELL_HEIGHT = CELL_SIZE + 16;
 	const cellRows = useMemo(() => {
 		const rows: Date[][] = [];
 		for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
