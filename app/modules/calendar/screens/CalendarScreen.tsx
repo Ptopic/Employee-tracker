@@ -268,7 +268,7 @@ export function CalendarScreen() {
 												<Text style={{ fontSize: 10, fontWeight: "700", color: "#64748B" }}>{count}</Text>
 												<Users size={12} color="#64748B" strokeWidth={2.2} />
 											</View>
-											<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginTop: 4 }} />
+											<View className="rounded-full" style={{ width: "100%", height: 4, backgroundColor: statusColor, marginTop: 2 }} />
 										</View>
 									</TouchableOpacity>
 								);
