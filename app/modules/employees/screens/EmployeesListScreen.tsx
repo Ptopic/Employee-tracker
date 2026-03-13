@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, TouchableOpacity, View } from "react-native";
+import { Alert, Pressable, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { ArrowDownUp, Plus, Search, X } from "lucide-react-native";
-import { useEmployeesList } from "@/api/employees/hooks";
+import { useDeleteEmployee, useEmployeesList } from "@/api/employees/hooks";
 import type { EmployeeStatus } from "@/api/employees/types";
 import Text from "@/components/Text";
 import { Input } from "@/components/ui";
@@ -38,6 +38,7 @@ export function EmployeesListScreen() {
 	);
 
 	const employeesQuery = useEmployeesList(filters);
+	const deleteMutation = useDeleteEmployee();
 	const employees = employeesQuery.data ?? [];
 
 	return (
@@ -141,12 +142,27 @@ export function EmployeesListScreen() {
 				<View style={{ marginTop: 18 }}>
 					{employeesQuery.isLoading ? <Text style={{ fontSize: 13, color: "#64748B" }}>Loading employees...</Text> : null}
 					{employeesQuery.isError ? <Text style={{ fontSize: 13, color: "#DC2626" }}>Failed to load employees.</Text> : null}
+					{deleteMutation.isError ? <Text style={{ fontSize: 13, color: "#DC2626", marginTop: 4 }}>Failed to delete employee.</Text> : null}
 
 					{employees.map((employee) => (
 						<EmployeeListItem
 							key={employee.id}
 							employee={employee}
 							onPress={() => router.push(`/employees/${employee.id}` as any)}
+							onDelete={() => {
+								Alert.alert(
+									"Delete employee",
+									`Delete ${employee.firstName} ${employee.lastName ?? ""}`.trim() + " and all related shifts?",
+									[
+										{ text: "Cancel", style: "cancel" },
+										{
+											text: "Delete",
+											style: "destructive",
+											onPress: () => deleteMutation.mutate(employee.id),
+										},
+									],
+								);
+							}}
 						/>
 					))}
 

@@ -47,6 +47,11 @@ const deactivateEmployee = (employeeId: string) =>
 		method: "PATCH",
 	});
 
+const deleteEmployee = (employeeId: string) =>
+	authenticatedRequest(`${config.apiUrl}/employees/${employeeId}`, {
+		method: "DELETE",
+	});
+
 export default {
 	getEmployees,
 	getEmployee,
@@ -54,4 +59,5 @@ export default {
 	createEmployee,
 	updateEmployee,
 	deactivateEmployee,
+	deleteEmployee,
 };

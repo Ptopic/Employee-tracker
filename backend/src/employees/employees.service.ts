@@ -129,6 +129,34 @@ export class EmployeesService {
 		});
 	}
 
+	async remove(managerId: string, employeeId: string) {
+		await this.getOwnedEmployee(managerId, employeeId);
+
+		return this.prisma.$transaction(async (tx) => {
+			await tx.shiftAssignment.deleteMany({
+				where: {
+					employeeId,
+					employee: { managerId },
+				},
+			});
+
+			await tx.shift.deleteMany({
+				where: {
+					managerId,
+					assignments: {
+						none: {},
+					},
+				},
+			});
+
+			await tx.employee.delete({
+				where: { id: employeeId },
+			});
+
+			return { id: employeeId, deleted: true };
+		});
+	}
+
 	private async getOwnedEmployee(managerId: string, employeeId: string) {
 		const employee = await this.prisma.employee.findFirst({
 			where: { id: employeeId, managerId },

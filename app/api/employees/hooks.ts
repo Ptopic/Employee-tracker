@@ -60,3 +60,15 @@ export const useDeactivateEmployee = () => {
 		},
 	});
 };
+
+export const useDeleteEmployee = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (employeeId: string) => employeesRequests.deleteEmployee(employeeId),
+		onSuccess: async (_, employeeId) => {
+			await queryClient.invalidateQueries({ queryKey: [EMPLOYEES_LIST] });
+			await queryClient.invalidateQueries({ queryKey: [EMPLOYEE_DETAIL, employeeId] });
+			await queryClient.invalidateQueries({ queryKey: [EMPLOYEE_STATS, employeeId] });
+		},
+	});
+};
