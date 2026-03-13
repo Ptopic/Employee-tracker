@@ -46,6 +46,8 @@ export const useUpdateEmployee = () => {
 			await queryClient.invalidateQueries({ queryKey: [EMPLOYEES_LIST] });
 			await queryClient.invalidateQueries({ queryKey: [EMPLOYEE_DETAIL, employeeId] });
 			await queryClient.invalidateQueries({ queryKey: [EMPLOYEE_STATS, employeeId] });
+			await queryClient.invalidateQueries({ queryKey: [SHIFTS_MONTH] });
+			await queryClient.invalidateQueries({ queryKey: [SHIFTS_DAY] });
 		},
 	});
 };
