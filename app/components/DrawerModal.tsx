@@ -8,6 +8,7 @@ import { forwardRef, useCallback, useMemo } from "react";
 interface IProps {
 	children: React.ReactNode;
 	snapPoints?: string[];
+	onChange?: (index: number) => void;
 }
 
 type Ref = BottomSheet;
@@ -35,12 +36,14 @@ const DrawerModal = forwardRef<Ref, IProps>((props, ref) => {
 			index={-1}
 			snapPoints={snapPoints}
 			backdropComponent={renderBackdrop}
-			enablePanDownToClose={false}
-			enableHandlePanningGesture={false}
-			enableContentPanningGesture={false}
+			onChange={props.onChange}
+			enablePanDownToClose={true}
+			enableHandlePanningGesture={true}
+			enableContentPanningGesture={true}
 			handleComponent={() => null}
+			backgroundStyle={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: "#fff" }}
 		>
-			<BottomSheetView className="p-[10] bg-white">
+			<BottomSheetView className="p-[10] bg-white" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
 				{props.children}
 			</BottomSheetView>
 		</BottomSheet>

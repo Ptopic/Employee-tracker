@@ -19,7 +19,7 @@ export type EmployeeDetail = {
 	id: string;
 	firstName: string;
 	lastName: string;
-	age: number;
+	age?: number | null;
 	hourlyRate: number;
 	status: EmployeeStatus;
 };
@@ -27,7 +27,7 @@ export type EmployeeDetail = {
 export type EmployeePayload = {
 	firstName: string;
 	lastName: string;
-	age: number;
+	age?: number;
 	hourlyRate: number;
 	status: EmployeeStatus;
 };

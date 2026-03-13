@@ -1,20 +1,23 @@
 import { config } from "@/shared/config";
 import authenticatedRequest from "@/api/authenticatedRequest";
 
-const getWeeklyHours = async () => {
-	return authenticatedRequest(`${config.apiUrl}/stats/weekly-hours`, {
+const getWeeklyHours = async (date?: string) => {
+	const query = date ? `?date=${encodeURIComponent(date)}` : "";
+	return authenticatedRequest(`${config.apiUrl}/stats/weekly-hours${query}`, {
 		method: "GET",
 	});
 };
 
-const getTodayEmployees = async () => {
-	return authenticatedRequest(`${config.apiUrl}/stats/today-employees`, {
+const getTodayEmployees = async (date?: string) => {
+	const query = date ? `?date=${encodeURIComponent(date)}` : "";
+	return authenticatedRequest(`${config.apiUrl}/stats/today-employees${query}`, {
 		method: "GET",
 	});
 };
 
-const getTodayShifts = async () => {
-	return authenticatedRequest(`${config.apiUrl}/shifts/today`, {
+const getTodayShifts = async (date?: string) => {
+	const query = date ? `?date=${encodeURIComponent(date)}` : "";
+	return authenticatedRequest(`${config.apiUrl}/shifts/today${query}`, {
 		method: "GET",
 	});
 };
