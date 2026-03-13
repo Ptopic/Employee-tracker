@@ -3,7 +3,6 @@ import { useLocalSearchParams, router } from "expo-router";
 import { SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { X } from "lucide-react-native";
 import {
-	useDeactivateEmployee,
 	useEmployeeDetail,
 	useEmployeeStats,
 	useUpdateEmployee,
@@ -22,7 +21,6 @@ export function EmployeeDetailScreen() {
 	const detailQuery = useEmployeeDetail(employeeId);
 	const statsQuery = useEmployeeStats(employeeId);
 	const updateMutation = useUpdateEmployee();
-	const deactivateMutation = useDeactivateEmployee();
 
 	const [initialValues, setInitialValues] = useState<EmployeeFormValues | null>(null);
 
@@ -73,18 +71,12 @@ export function EmployeeDetailScreen() {
 				<View style={{ marginTop: 14 }}>
 					<Button
 						variant="secondary"
-						text={deactivateMutation.isPending ? "Deactivating..." : "Deactivate Employee"}
-						onPress={() =>
-							deactivateMutation.mutate(employeeId as string, {
-								onSuccess: () => router.back(),
-							})
-						}
-						disabled={deactivateMutation.isPending}
+						text="Cancel"
+						onPress={() => router.back()}
 					/>
 				</View>
 
 				{updateMutation.isError ? <Text style={{ fontSize: 13, color: "#DC2626", marginTop: 10 }}>Failed to save changes.</Text> : null}
-				{deactivateMutation.isError ? <Text style={{ fontSize: 13, color: "#DC2626", marginTop: 10 }}>Failed to deactivate employee.</Text> : null}
 			</ScrollView>
 		</SafeAreaView>
 	);
