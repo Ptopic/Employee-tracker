@@ -46,11 +46,11 @@ export function EmployeeListItem({
 								style={{
 									paddingHorizontal: 8,
 									paddingVertical: 3,
-									backgroundColor: isActive ? "rgba(91,123,108,0.12)" : "#E2E8F0",
+									backgroundColor: isActive ? "rgba(91,123,108,0.12)" : "rgba(239,68,68,0.12)",
 									marginLeft: 8,
 								}}
 							>
-								<Text style={{ fontSize: 10, lineHeight: 12, fontWeight: "700", color: isActive ? BRAND : "#64748B" }}>
+								<Text style={{ fontSize: 10, lineHeight: 12, fontWeight: "700", color: isActive ? BRAND : "#B91C1C" }}>
 									{isActive ? "Active" : "Inactive"}
 								</Text>
 							</View>
