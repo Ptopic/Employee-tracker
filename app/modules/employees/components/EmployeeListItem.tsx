@@ -51,7 +51,7 @@ export function EmployeeListItem({
 			>
 				<Pressable
 					onPress={onPress}
-					className="rounded-2xl bg-white"
+					className="bg-white"
 					style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}
 				>
 					<View className="flex-row items-center justify-between">
