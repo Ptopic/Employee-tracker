@@ -1,6 +1,6 @@
 import { useLocalSearchParams, router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Modal, NativeModules, Platform, SafeAreaView, ScrollView, Share, TouchableOpacity, UIManager, View } from "react-native";
+import { Alert, Modal, NativeModules, Platform, SafeAreaView, ScrollView, TouchableOpacity, UIManager, View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import DatePicker from "react-native-date-picker";
 import { endOfWeek, format, startOfWeek } from "date-fns";
@@ -9,6 +9,7 @@ import { useToast } from "react-native-toast-notifications";
 import { useExportWeeklyPdf, useWeeklyPreview } from "@/api/export/hooks";
 import Text from "@/components/Text";
 import { Button, FieldLabel } from "@/components/ui";
+import { sharePdfFile } from "@/utils/sharePdfFile";
 
 const BG = "#F8F9F8";
 const BRAND = "#5B7B6C";
@@ -70,10 +71,7 @@ export function PdfPreviewScreen() {
 				Alert.alert("Export failed", "Could not generate PDF. Please try again.");
 				return;
 			}
-			await Share.share({
-				title: file.fileName,
-				message: `Weekly PDF export (${selectedWeekStart})\n\nData URI:\ndata:${file.mimeType};base64,${file.base64}`,
-			});
+			await sharePdfFile(file);
 		} catch {
 			toast.show("Failed to export PDF. Please try again.", { type: "error" });
 		}
