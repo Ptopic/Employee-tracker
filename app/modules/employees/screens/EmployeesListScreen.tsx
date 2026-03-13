@@ -6,6 +6,7 @@ import { useEmployeesList } from "@/api/employees/hooks";
 import type { EmployeeStatus } from "@/api/employees/types";
 import Text from "@/components/Text";
 import { Input } from "@/components/ui";
+import { useDebounce } from "@/hooks/useDebounce";
 import { EmployeeListItem } from "../components/EmployeeListItem";
 
 const BRAND = "#5B7B6C";
@@ -24,15 +25,16 @@ export function EmployeesListScreen() {
 	const [status, setStatus] = useState<EmployeeStatus | undefined>(undefined);
 	const [sortBy, setSortBy] = useState<"name" | "hourlyRate" | "monthlyHours" | "status">("name");
 	const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+	const debouncedSearch = useDebounce(search, 300);
 
 	const filters = useMemo(
 		() => ({
-			search: search.trim() || undefined,
+			search: debouncedSearch.trim() || undefined,
 			status,
 			sortBy,
 			sortOrder,
 		}),
-		[search, status, sortBy, sortOrder],
+		[debouncedSearch, status, sortBy, sortOrder],
 	);
 
 	const employeesQuery = useEmployeesList(filters);
