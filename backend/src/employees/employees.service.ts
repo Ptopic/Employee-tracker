@@ -53,7 +53,7 @@ export class EmployeesService {
 		const monthlyHoursMap = await this.getMonthlyHoursMap(managerId);
 		return employees.map((employee) => ({
 			employeeId: employee.id,
-			name: `${employee.firstName} ${employee.lastName}`,
+			name: `${employee.firstName} ${employee.lastName ?? ""}`.trim(),
 			monthlyHours: monthlyHoursMap.get(employee.id) ?? 0,
 		}));
 	}
@@ -93,7 +93,7 @@ export class EmployeesService {
 			data: {
 				managerId,
 				firstName: payload.firstName.trim(),
-				lastName: payload.lastName.trim(),
+				lastName: (payload.lastName ?? "").trim(),
 				age: payload.age,
 				hourlyRate: new Prisma.Decimal(payload.hourlyRate),
 				status: payload.status ?? EmployeeStatus.ACTIVE,
@@ -223,8 +223,8 @@ export class EmployeesService {
 				case "status":
 					return a.status.localeCompare(b.status) * factor;
 				default:
-					return `${a.firstName} ${a.lastName}`.localeCompare(
-						`${b.firstName} ${b.lastName}`,
+					return `${a.firstName} ${a.lastName ?? ""}`.trim().localeCompare(
+						`${b.firstName} ${b.lastName ?? ""}`.trim(),
 					) * factor;
 			}
 		});

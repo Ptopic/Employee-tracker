@@ -21,6 +21,7 @@ export function EmployeeListItem({
 	onPress: () => void;
 }) {
 	const isActive = employee.status === "ACTIVE";
+	const fullName = `${employee.firstName} ${employee.lastName ?? ""}`.trim();
 
 	return (
 		<Pressable
@@ -39,7 +40,7 @@ export function EmployeeListItem({
 					<View style={{ flex: 1 }}>
 						<View className="flex-row items-center" style={{ marginBottom: 4 }}>
 							<Text style={{ fontSize: 14, fontWeight: "700", lineHeight: 18, color: "#0F172A", flexShrink: 1 }}>
-								{employee.firstName} {employee.lastName}
+								{fullName}
 							</Text>
 							<View
 								className="rounded-full"

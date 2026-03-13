@@ -17,7 +17,7 @@ type EmployeeFormValues = {
 
 const employeeSchema = Yup.object({
 	firstName: Yup.string().trim().required("First name is required"),
-	lastName: Yup.string().trim().required("Last name is required"),
+	lastName: Yup.string().trim(),
 	age: Yup.number().typeError("Age must be a number").integer("Age must be a whole number").min(16, "Age must be between 16 and 100").max(100, "Age must be between 16 and 100").required("Age is required"),
 	hourlyRate: Yup.number().typeError("Hourly rate must be a number").min(0, "Hourly rate must be 0 or greater").required("Hourly rate is required"),
 	status: Yup.mixed<EmployeeStatus>().oneOf(["ACTIVE", "INACTIVE"]),
@@ -77,7 +77,7 @@ export function EmployeeForm({
 									<FieldError error={touched.firstName ? (errors.firstName as string | undefined) : undefined} />
 								</View>
 								<View className="flex-1">
-									<FieldLabel label="Last Name" />
+									<FieldLabel label="Last Name (optional)" />
 									<Input value={values.lastName} onChangeText={handleChange("lastName")} onBlur={handleBlur("lastName")} placeholder="e.g. Doe" />
 									<FieldError error={touched.lastName ? (errors.lastName as string | undefined) : undefined} />
 								</View>
