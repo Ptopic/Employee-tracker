@@ -33,7 +33,7 @@ export function EmployeeStatsCard({ stats }: { stats: EmployeeStats }) {
 				<View className="flex-1 rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
 					<Text style={{ fontSize: 10, fontWeight: "700", color: "#94A3B8", textTransform: "uppercase", marginBottom: 4 }}>Cost</Text>
 					<Text style={{ fontSize: 18, fontWeight: "700", color: "#0F172A" }}>
-						${Math.round(stats.estimatedMonthlyCost)}
+						€{Math.round(stats.estimatedMonthlyCost)}
 					</Text>
 				</View>
 			</View>
