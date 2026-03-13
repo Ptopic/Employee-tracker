@@ -1,11 +1,11 @@
 import { Share } from "react-native";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import type { WeeklyExportFile } from "@/api/export/types";
 
 const sanitizeFileName = (name: string) => {
 	const trimmed = name.trim();
-	if (!trimmed) return "weekly-export.pdf";
-	return trimmed.toLowerCase().endsWith(".pdf") ? trimmed : `${trimmed}.pdf`;
+	const cleaned = (trimmed || "weekly-export").replace(/[^a-zA-Z0-9._-]/g, "-");
+	return cleaned.toLowerCase().endsWith(".pdf") ? cleaned : `${cleaned}.pdf`;
 };
 
 export async function sharePdfFile(file: WeeklyExportFile) {
