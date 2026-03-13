@@ -188,7 +188,7 @@ function buildLandscapeSchedulePdf(data: {
     const safe = escapePdfText(text);
     const widthApprox = text.length * size * 0.48;
     const tx = opts.align === "center" ? x - widthApprox / 2 : x;
-    drawCommands.push(`BT /${font} ${size} Tf 1 0 0 1 ${tx.toFixed(2)} ${y.toFixed(2)} Tm (${safe}) Tj ET`);
+    drawCommands.push(`BT 0 0 0 rg /${font} ${size} Tf 1 0 0 1 ${tx.toFixed(2)} ${y.toFixed(2)} Tm (${safe}) Tj ET`);
   };
 
   const drawRect = (
@@ -221,9 +221,9 @@ function buildLandscapeSchedulePdf(data: {
   const tableBottomY = tableTopY - headerHeight - visibleEmployees.length * rowHeight;
 
   drawRect(marginX, tableTopY - headerHeight, tableWidth, headerHeight, {
-    fill: "0.93 0.90 0.96",
-    stroke: "0.72 0.72 0.72",
-    lineWidth: 0.7,
+    fill: "0.90 0.87 0.94",
+    stroke: "0.55 0.55 0.55",
+    lineWidth: 0.8,
   });
 
   drawRect(marginX, tableBottomY, tableWidth, visibleEmployees.length * rowHeight, {
