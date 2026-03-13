@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import { Pressable, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
-import { ArrowDownUp, Plus, Search } from "lucide-react-native";
+import { ArrowDownUp, Plus, Search, X } from "lucide-react-native";
 import { useEmployeesList } from "@/api/employees/hooks";
 import type { EmployeeStatus } from "@/api/employees/types";
 import Text from "@/components/Text";
@@ -64,6 +64,11 @@ export function EmployeesListScreen() {
 						onChangeText={setSearch}
 						placeholder="Search by name"
 						leftIcon={<Search size={18} color="#94A3B8" strokeWidth={2.2} />}
+						rightIcon={search ? (
+							<TouchableOpacity onPress={() => setSearch("")} hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+								<X size={16} color="#94A3B8" strokeWidth={2.4} />
+							</TouchableOpacity>
+						) : undefined}
 					/>
 				</View>
 
