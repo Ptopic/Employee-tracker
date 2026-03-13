@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	Param,
 	Patch,
@@ -65,5 +66,11 @@ export class EmployeesController {
 	@JwtAuth()
 	deactivate(@Req() req: Request, @Param("employeeId") employeeId: string) {
 		return this.employeesService.deactivate(req.user.userId, employeeId);
+	}
+
+	@Delete(":employeeId")
+	@JwtAuth()
+	remove(@Req() req: Request, @Param("employeeId") employeeId: string) {
+		return this.employeesService.remove(req.user.userId, employeeId);
 	}
 }

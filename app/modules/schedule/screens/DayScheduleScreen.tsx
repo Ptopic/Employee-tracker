@@ -67,6 +67,8 @@ export function DayScheduleScreen() {
 	return (
 		<SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
 			<ScrollView
+				bounces={false}
+				overScrollMode="never"
 				contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 120, paddingTop: 10 }}
 				refreshControl={<RefreshControl refreshing={dayScheduleQuery.isRefetching} onRefresh={() => dayScheduleQuery.refetch()} tintColor={BRAND} />}
 			>

@@ -186,7 +186,7 @@ function RootLayoutNav() {
 					<AppStateProvider>
 						<PreferencesProvider>
 							<PreferencesBootstrap />
-							<StatusBar barStyle="dark-content" backgroundColor="white" />
+							<StatusBar barStyle="dark-content" backgroundColor="#F8F9F8" />
 							<GestureHandlerRootView className="flex-1">
 								<Stack
 									screenOptions={{

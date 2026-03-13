@@ -55,7 +55,7 @@ model Employee {
   managerId  String         @map("manager_id")
   firstName  String         @map("first_name")
   lastName   String         @map("last_name")
-  age        Int
+  age        Int?
   hourlyRate Decimal        @map("hourly_rate") @db.Decimal(10, 2)
   status     EmployeeStatus @default(ACTIVE)
 
