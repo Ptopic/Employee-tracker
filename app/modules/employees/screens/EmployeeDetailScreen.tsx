@@ -60,7 +60,7 @@ export function EmployeeDetailScreen() {
 						onSubmit={(payload) =>
 							updateMutation.mutate(
 								{ employeeId: employeeId as string, payload },
-								{ onSuccess: () => detailQuery.refetch() },
+								{ onSuccess: () => router.replace("/employees" as any) },
 							)
 						}
 						submitLabel="Save Changes"
