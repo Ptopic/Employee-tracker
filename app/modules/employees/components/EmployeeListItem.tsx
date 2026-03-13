@@ -46,7 +46,7 @@ export function EmployeeListItem({
 								style={{
 									paddingHorizontal: 8,
 									paddingVertical: 3,
-									backgroundColor: isActive ? "rgba(91,123,108,0.12)" : "rgba(239,68,68,0.12)",
+									backgroundColor: isActive ? "rgba(91,123,108,0.2)" : "rgba(239,68,68,0.12)",
 									marginLeft: 8,
 								}}
 							>
