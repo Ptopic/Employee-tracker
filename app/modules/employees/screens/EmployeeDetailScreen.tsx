@@ -27,7 +27,7 @@ export function EmployeeDetailScreen() {
 		setInitialValues({
 			firstName: detailQuery.data.firstName,
 			lastName: detailQuery.data.lastName,
-			age: String(detailQuery.data.age),
+			age: detailQuery.data.age == null ? "" : String(detailQuery.data.age),
 			hourlyRate: String(detailQuery.data.hourlyRate),
 			status: detailQuery.data.status,
 		});

@@ -20,10 +20,11 @@ export class CreateEmployeeDto {
 	@IsString()
 	lastName?: string;
 
+	@IsOptional()
 	@IsInt()
 	@Min(16)
 	@Max(100)
-	age: number;
+	age?: number;
 
 	@IsNumber({ maxDecimalPlaces: 2 })
 	@Min(0)

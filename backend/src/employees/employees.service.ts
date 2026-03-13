@@ -94,7 +94,7 @@ export class EmployeesService {
 				managerId,
 				firstName: payload.firstName.trim(),
 				lastName: (payload.lastName ?? "").trim(),
-				age: payload.age,
+				age: payload.age ?? null,
 				hourlyRate: new Prisma.Decimal(payload.hourlyRate),
 				status: payload.status ?? EmployeeStatus.ACTIVE,
 			},

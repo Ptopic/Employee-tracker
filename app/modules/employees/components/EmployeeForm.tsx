@@ -18,7 +18,13 @@ type EmployeeFormValues = {
 const employeeSchema = Yup.object({
 	firstName: Yup.string().trim().required("First name is required"),
 	lastName: Yup.string().trim(),
-	age: Yup.number().typeError("Age must be a number").integer("Age must be a whole number").min(16, "Age must be between 16 and 100").max(100, "Age must be between 16 and 100").required("Age is required"),
+	age: Yup.number()
+		.transform((value, originalValue) => (String(originalValue).trim() === "" ? undefined : value))
+		.typeError("Age must be a number")
+		.integer("Age must be a whole number")
+		.min(16, "Age must be between 16 and 100")
+		.max(100, "Age must be between 16 and 100")
+		.optional(),
 	hourlyRate: Yup.number().typeError("Hourly rate must be a number").min(0, "Hourly rate must be 0 or greater").required("Hourly rate is required"),
 	status: Yup.mixed<EmployeeStatus>().oneOf(["ACTIVE", "INACTIVE"]),
 });
@@ -57,7 +63,7 @@ export function EmployeeForm({
 				onSubmit({
 					firstName: values.firstName.trim(),
 					lastName: values.lastName.trim(),
-					age: Number(values.age),
+					age: values.age.trim() ? Number(values.age) : undefined,
 					hourlyRate: Number(values.hourlyRate),
 					status: values.status,
 				});
@@ -85,7 +91,7 @@ export function EmployeeForm({
 
 							<View className="flex-row" style={{ gap: 12 }}>
 								<View className="flex-1">
-									<FieldLabel label="Age" />
+									<FieldLabel label="Age (optional)" />
 									<Input type="number" value={values.age} onChangeText={handleChange("age")} onBlur={handleBlur("age")} placeholder="25" />
 									<FieldError error={touched.age ? (errors.age as string | undefined) : undefined} />
 								</View>
