@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { Switch, View } from "react-native";
 import { CheckCircle2 } from "lucide-react-native";
 import { Formik } from "formik";
@@ -17,8 +16,14 @@ type EmployeeFormValues = {
 
 const employeeSchema = Yup.object({
 	firstName: Yup.string().trim().required("First name is required"),
-	lastName: Yup.string().trim().required("Last name is required"),
-	age: Yup.number().typeError("Age must be a number").integer("Age must be a whole number").min(16, "Age must be between 16 and 100").max(100, "Age must be between 16 and 100").required("Age is required"),
+	lastName: Yup.string().trim(),
+	age: Yup.number()
+		.transform((value, originalValue) => (String(originalValue).trim() === "" ? undefined : value))
+		.typeError("Age must be a number")
+		.integer("Age must be a whole number")
+		.min(16, "Age must be between 16 and 100")
+		.max(100, "Age must be between 16 and 100")
+		.optional(),
 	hourlyRate: Yup.number().typeError("Hourly rate must be a number").min(0, "Hourly rate must be 0 or greater").required("Hourly rate is required"),
 	status: Yup.mixed<EmployeeStatus>().oneOf(["ACTIVE", "INACTIVE"]),
 });
@@ -45,8 +50,6 @@ export function EmployeeForm({
 	submitLabel: string;
 	loading?: boolean;
 }) {
-	const initialStats = useMemo(() => ({ weekly: 0, monthly: 0, cost: 0 }), []);
-
 	return (
 		<Formik
 			initialValues={initialValues}
@@ -57,7 +60,7 @@ export function EmployeeForm({
 				onSubmit({
 					firstName: values.firstName.trim(),
 					lastName: values.lastName.trim(),
-					age: Number(values.age),
+					age: values.age.trim() ? Number(values.age) : undefined,
 					hourlyRate: Number(values.hourlyRate),
 					status: values.status,
 				});
@@ -77,7 +80,7 @@ export function EmployeeForm({
 									<FieldError error={touched.firstName ? (errors.firstName as string | undefined) : undefined} />
 								</View>
 								<View className="flex-1">
-									<FieldLabel label="Last Name" />
+									<FieldLabel label="Last Name (optional)" />
 									<Input value={values.lastName} onChangeText={handleChange("lastName")} onBlur={handleBlur("lastName")} placeholder="e.g. Doe" />
 									<FieldError error={touched.lastName ? (errors.lastName as string | undefined) : undefined} />
 								</View>
@@ -85,7 +88,7 @@ export function EmployeeForm({
 
 							<View className="flex-row" style={{ gap: 12 }}>
 								<View className="flex-1">
-									<FieldLabel label="Age" />
+									<FieldLabel label="Age (optional)" />
 									<Input type="number" value={values.age} onChangeText={handleChange("age")} onBlur={handleBlur("age")} placeholder="25" />
 									<FieldError error={touched.age ? (errors.age as string | undefined) : undefined} />
 								</View>
@@ -96,7 +99,7 @@ export function EmployeeForm({
 								</View>
 							</View>
 
-							<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
+							<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}> 
 								<View className="flex-row items-center justify-between">
 									<View>
 										<Text style={{ fontSize: 14, fontWeight: "600", color: "#334155" }}>Status</Text>
@@ -109,19 +112,9 @@ export function EmployeeForm({
 
 						<View style={{ gap: 12 }}>
 							<FieldLabel label="Initial Stats" />
-							<View className="flex-row" style={{ gap: 12 }}>
-								<View className="flex-1 rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-									<Text style={{ fontSize: 10, fontWeight: "700", color: "#94A3B8", textTransform: "uppercase", marginBottom: 4 }}>Weekly</Text>
-									<Text style={{ fontSize: 18, fontWeight: "700" }}>{initialStats.weekly} <Text style={{ fontSize: 10, color: "#94A3B8" }}>hrs</Text></Text>
-								</View>
-								<View className="flex-1 rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-									<Text style={{ fontSize: 10, fontWeight: "700", color: "#94A3B8", textTransform: "uppercase", marginBottom: 4 }}>Monthly</Text>
-									<Text style={{ fontSize: 18, fontWeight: "700" }}>{initialStats.monthly} <Text style={{ fontSize: 10, color: "#94A3B8" }}>hrs</Text></Text>
-								</View>
-								<View className="flex-1 rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-									<Text style={{ fontSize: 10, fontWeight: "700", color: "#94A3B8", textTransform: "uppercase", marginBottom: 4 }}>Cost</Text>
-									<Text style={{ fontSize: 18, fontWeight: "700" }}>${Number.isFinite(estimatedMonthlyCost) ? Math.round(estimatedMonthlyCost) : 0}</Text>
-								</View>
+							<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}> 
+								<Text style={{ fontSize: 10, fontWeight: "700", color: "#94A3B8", textTransform: "uppercase", marginBottom: 4 }}>Cost</Text>
+								<Text style={{ fontSize: 18, fontWeight: "700", color: "#0F172A" }}>${Number.isFinite(estimatedMonthlyCost) ? Math.round(estimatedMonthlyCost) : 0}</Text>
 							</View>
 						</View>
 

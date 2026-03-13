@@ -38,6 +38,7 @@ export const useSaveShift = () => {
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: [SHIFTS_MONTH] });
 			await queryClient.invalidateQueries({ queryKey: [SHIFTS_DAY] });
+			await queryClient.invalidateQueries({ queryKey: ["employees-list"] });
 		},
 	});
 };
@@ -49,6 +50,7 @@ export const useDeleteShift = () => {
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: [SHIFTS_MONTH] });
 			await queryClient.invalidateQueries({ queryKey: [SHIFTS_DAY] });
+			await queryClient.invalidateQueries({ queryKey: ["employees-list"] });
 		},
 	});
 };
