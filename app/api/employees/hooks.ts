@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { SHIFTS_DAY, SHIFTS_MONTH } from "@/api/shifts/hooks";
 import employeesRequests from "./requests";
 import type { EmployeePayload, EmployeesListFilters } from "./types";
 
@@ -69,6 +70,8 @@ export const useDeleteEmployee = () => {
 			await queryClient.invalidateQueries({ queryKey: [EMPLOYEES_LIST] });
 			await queryClient.invalidateQueries({ queryKey: [EMPLOYEE_DETAIL, employeeId] });
 			await queryClient.invalidateQueries({ queryKey: [EMPLOYEE_STATS, employeeId] });
+			await queryClient.invalidateQueries({ queryKey: [SHIFTS_MONTH] });
+			await queryClient.invalidateQueries({ queryKey: [SHIFTS_DAY] });
 		},
 	});
 };
