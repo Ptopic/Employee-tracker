@@ -119,7 +119,7 @@ export function AddEditShiftScreen() {
 
 				return (
 					<SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
-						<ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 28, paddingTop: 4 }}>
+						<ScrollView bounces={false} overScrollMode="never" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 28, paddingTop: 4 }}>
 							<View className="items-center pt-1 pb-1">
 								<View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#CBD5E1" }} />
 							</View>

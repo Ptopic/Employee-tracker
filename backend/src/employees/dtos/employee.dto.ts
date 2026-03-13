@@ -16,14 +16,15 @@ export class CreateEmployeeDto {
 	@MinLength(1)
 	firstName: string;
 
+	@IsOptional()
 	@IsString()
-	@MinLength(1)
-	lastName: string;
+	lastName?: string;
 
+	@IsOptional()
 	@IsInt()
 	@Min(16)
 	@Max(100)
-	age: number;
+	age?: number;
 
 	@IsNumber({ maxDecimalPlaces: 2 })
 	@Min(0)
@@ -42,7 +43,6 @@ export class UpdateEmployeeDto {
 
 	@IsOptional()
 	@IsString()
-	@MinLength(1)
 	lastName?: string;
 
 	@IsOptional()
