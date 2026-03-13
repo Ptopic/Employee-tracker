@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { Pressable, ScrollView, View } from "react-native";
+import { SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import { X } from "lucide-react-native";
 import {
 	useDeactivateEmployee,
 	useEmployeeDetail,
@@ -8,8 +9,11 @@ import {
 	useUpdateEmployee,
 } from "@/api/employees/hooks";
 import Text from "@/components/Text";
+import { Button } from "@/components/ui";
 import { EmployeeForm, type EmployeeFormValues } from "../components/EmployeeForm";
 import { EmployeeStatsCard } from "../components/EmployeeStatsCard";
+
+const BG = "#F8F9F8";
 
 export function EmployeeDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
@@ -34,15 +38,21 @@ export function EmployeeDetailScreen() {
 	}, [detailQuery.data]);
 
 	return (
-		<View className="flex-1 bg-gray-100">
-			<ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-				<Pressable onPress={() => router.back()} className="mb-2">
-					<Text className="text-gray-600">← Back</Text>
-				</Pressable>
-				<Text className="text-2xl font-bold mb-4">Employee Detail</Text>
+		<SafeAreaView className="flex-1" style={{ backgroundColor: BG }}>
+			<ScrollView bounces={false} overScrollMode="never" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 36, paddingTop: 4 }}>
+				<View className="items-center pt-1 pb-1">
+					<View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#CBD5E1" }} />
+				</View>
 
-				{(detailQuery.isLoading || !initialValues) ? <Text className="text-gray-500">Loading...</Text> : null}
-				{detailQuery.isError ? <Text className="text-red-600">Failed to load employee.</Text> : null}
+				<View className="mb-6 mt-4 flex-row items-center justify-between">
+					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26 }}>Employee Details</Text>
+					<TouchableOpacity className="items-center justify-center rounded-full" style={{ width: 40, height: 40, backgroundColor: "#F1F5F9" }} onPress={() => router.back()}>
+						<X size={20} color="#64748B" strokeWidth={2} />
+					</TouchableOpacity>
+				</View>
+
+				{(detailQuery.isLoading || !initialValues) ? <Text style={{ fontSize: 13, color: "#64748B", marginBottom: 12 }}>Loading...</Text> : null}
+				{detailQuery.isError ? <Text style={{ fontSize: 13, color: "#DC2626", marginBottom: 12 }}>Failed to load employee.</Text> : null}
 
 				{statsQuery.data ? <EmployeeStatsCard stats={statsQuery.data} /> : null}
 
@@ -60,20 +70,22 @@ export function EmployeeDetailScreen() {
 					/>
 				) : null}
 
-				<Pressable
-					className="rounded-lg bg-red-100 py-3 items-center mt-4"
-					onPress={() =>
-						deactivateMutation.mutate(employeeId as string, {
-							onSuccess: () => router.back(),
-						})
-					}
-				>
-					<Text className="text-red-700 font-semibold">Deactivate Employee</Text>
-				</Pressable>
+				<View style={{ marginTop: 14 }}>
+					<Button
+						variant="secondary"
+						text={deactivateMutation.isPending ? "Deactivating..." : "Deactivate Employee"}
+						onPress={() =>
+							deactivateMutation.mutate(employeeId as string, {
+								onSuccess: () => router.back(),
+							})
+						}
+						disabled={deactivateMutation.isPending}
+					/>
+				</View>
 
-				{updateMutation.isError ? <Text className="text-red-600 mt-2">Failed to save changes.</Text> : null}
-				{deactivateMutation.isError ? <Text className="text-red-600 mt-2">Failed to deactivate employee.</Text> : null}
+				{updateMutation.isError ? <Text style={{ fontSize: 13, color: "#DC2626", marginTop: 10 }}>Failed to save changes.</Text> : null}
+				{deactivateMutation.isError ? <Text style={{ fontSize: 13, color: "#DC2626", marginTop: 10 }}>Failed to deactivate employee.</Text> : null}
 			</ScrollView>
-		</View>
+		</SafeAreaView>
 	);
 }
