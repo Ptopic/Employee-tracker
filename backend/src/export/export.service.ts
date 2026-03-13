@@ -207,11 +207,11 @@ function buildLandscapeSchedulePdf(data: {
     }
   };
 
-  pushText(marginX, pageHeight - 36, `${data.companyName} - Weekly Schedule`, {
+  pushText(marginX, pageHeight - 36, "Weekly Schedule", {
     size: 14,
     bold: true,
   });
-  pushText(marginX, pageHeight - 54, `Week: ${data.weekStart} to ${data.weekEnd}`, {
+  pushText(marginX, pageHeight - 54, `Week: ${formatDateLabel(data.weekStart)} - ${formatDateLabel(data.weekEnd)}`, {
     size: 10,
   });
   pushText(marginX, pageHeight - 70, `Generated: ${data.generatedAt.slice(0, 16).replace("T", " ")}`, {
@@ -270,17 +270,8 @@ function buildLandscapeSchedulePdf(data: {
   });
 
   const footerY = tableBottomY - 20;
-  pushText(marginX, footerY, `Total weekly hours: ${data.totalHours.toFixed(2)}h`, {
-    size: 9,
-    bold: true,
-  });
-  pushText(marginX + 250, footerY, `Total estimated payroll: EUR ${data.totalCost.toFixed(2)}`, {
-    size: 9,
-    bold: true,
-  });
-
   if (data.employees.length > visibleEmployees.length) {
-    pushText(marginX, footerY - 14, `Showing ${visibleEmployees.length}/${data.employees.length} employees on one page`, {
+    pushText(marginX, footerY, `Showing ${visibleEmployees.length}/${data.employees.length} employees on one page`, {
       size: 8,
     });
   }
@@ -323,9 +314,10 @@ function formatDateLabel(value?: string) {
   if (!value) return "";
   const date = new Date(`${value}T00:00:00.000Z`);
   if (Number.isNaN(date.getTime())) return value;
-  const month = date.toLocaleString("en-US", { month: "short", timeZone: "UTC" });
   const day = String(date.getUTCDate()).padStart(2, "0");
-  return `${month} ${day}`;
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const year = String(date.getUTCFullYear());
+  return `${day}.${month}.${year}`;
 }
 
 function truncate(value: string, max: number) {
