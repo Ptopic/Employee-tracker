@@ -82,7 +82,7 @@ export function EmployeeListItem({
 									</View>
 								</View>
 								<Text style={{ fontSize: 11, lineHeight: 15, color: "#64748B", fontWeight: "500" }}>
-									${employee.hourlyRate.toFixed(2)}/h · {employee.monthlyHours.toFixed(2)}h monthly
+									€{employee.hourlyRate.toFixed(2)}/h · {employee.monthlyHours.toFixed(2)}h monthly
 								</Text>
 							</View>
 						</View>

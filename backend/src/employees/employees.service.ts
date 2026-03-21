@@ -4,12 +4,14 @@ import {
 	type Employee,
 } from "@prisma/client";
 import {
+	BadRequestException,
 	Injectable,
 	NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
 	type CreateEmployeeDto,
+	type EmployeeStatsQueryDto,
 	type ListEmployeesQueryDto,
 	type UpdateEmployeeDto,
 } from "./dtos/employee.dto";
@@ -70,21 +72,32 @@ export class EmployeesService {
 		};
 	}
 
-	async getStats(managerId: string, employeeId: string) {
+	async getStats(managerId: string, employeeId: string, query: EmployeeStatsQueryDto = {}) {
 		const employee = await this.getOwnedEmployee(managerId, employeeId);
-		const [monthStart, monthEnd] = this.getCurrentMonthRange();
-		const [weekStart, weekEnd] = this.getCurrentWeekRange();
+		const [monthStart, monthEnd] = this.getMonthRange(query.month, query.year);
+		const [weekStart, weekEnd] = this.getWeekRange(query.weekStart);
 
-		const [weeklyHours, monthlyHours] = await Promise.all([
-			this.getHoursSum(employee.id, managerId, weekStart, weekEnd),
+		const [monthlyHours, weeklyBreakdown] = await Promise.all([
 			this.getHoursSum(employee.id, managerId, monthStart, monthEnd),
+			this.getWeeklyBreakdown(employee.id, managerId, weekStart, weekEnd),
 		]);
+
+		const weeklyHours = weeklyBreakdown.reduce((sum, day) => sum + day.hours, 0);
 
 		const hourlyRate = Number(employee.hourlyRate);
 		return {
 			weeklyHours,
 			monthlyHours,
 			estimatedMonthlyCost: Number((monthlyHours * hourlyRate).toFixed(2)),
+			selectedMonth: {
+				month: monthStart.getUTCMonth() + 1,
+				year: monthStart.getUTCFullYear(),
+			},
+			selectedWeek: {
+				weekStart: this.toIsoDate(weekStart),
+				weekEnd: this.toIsoDate(weekEnd),
+			},
+			weeklyBreakdown,
 		};
 	}
 
@@ -203,6 +216,83 @@ export class EmployeesService {
 		return Number(sum._sum.calculatedHours ?? 0);
 	}
 
+	private async getWeeklyBreakdown(
+		employeeId: string,
+		managerId: string,
+		weekStart: Date,
+		weekEnd: Date,
+	) {
+		const rows = await this.prisma.shiftAssignment.findMany({
+			where: {
+				employeeId,
+				employee: { managerId },
+				shift: { date: { gte: weekStart, lte: weekEnd } },
+			},
+			select: {
+				calculatedHours: true,
+				shift: {
+					select: {
+						date: true,
+						isDayOff: true,
+					},
+				},
+			},
+		});
+
+		const byDate = new Map<string, { hours: number; isDayOff: boolean }>();
+		for (let i = 0; i < 7; i += 1) {
+			const day = new Date(weekStart);
+			day.setUTCDate(weekStart.getUTCDate() + i);
+			byDate.set(this.toIsoDate(day), { hours: 0, isDayOff: false });
+		}
+
+		for (const row of rows) {
+			const key = this.toIsoDate(row.shift.date);
+			const existing = byDate.get(key);
+			if (!existing) continue;
+
+			existing.hours += Number(row.calculatedHours ?? 0);
+			existing.isDayOff = existing.isDayOff || row.shift.isDayOff;
+		}
+
+		return Array.from(byDate.entries()).map(([date, value]) => ({
+			date,
+			hours: Number(value.hours.toFixed(2)),
+			isDayOff: value.isDayOff,
+		}));
+	}
+
+	private getMonthRange(month?: number, year?: number): [Date, Date] {
+		if ((month && !year) || (!month && year)) {
+			throw new BadRequestException("Month and year must be provided together");
+		}
+
+		if (!month || !year) {
+			return this.getCurrentMonthRange();
+		}
+
+		const start = new Date(Date.UTC(year, month - 1, 1));
+		const end = new Date(Date.UTC(year, month, 0));
+		return [start, end];
+	}
+
+	private getWeekRange(weekStart?: string): [Date, Date] {
+		if (!weekStart) {
+			return this.getCurrentWeekRange();
+		}
+
+		const start = new Date(`${weekStart}T00:00:00.000Z`);
+		if (Number.isNaN(start.getTime())) {
+			throw new BadRequestException("Invalid weekStart date. Expected YYYY-MM-DD");
+		}
+
+		const day = start.getUTCDay() || 7;
+		start.setUTCDate(start.getUTCDate() - day + 1);
+		const end = new Date(start);
+		end.setUTCDate(start.getUTCDate() + 6);
+		return [start, end];
+	}
+
 	private getCurrentMonthRange(): [Date, Date] {
 		const now = new Date();
 		const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
@@ -217,6 +307,10 @@ export class EmployeesService {
 		const end = new Date(start);
 		end.setUTCDate(start.getUTCDate() + 6);
 		return [start, end];
+	}
+
+	private toIsoDate(date: Date) {
+		return date.toISOString().slice(0, 10);
 	}
 
 	private toEmployeeListItem(employee: Employee, monthlyHours: number) {

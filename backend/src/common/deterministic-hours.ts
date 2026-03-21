@@ -13,8 +13,9 @@ export const calculateDeterministicHours = (start: string, end: string) => {
 	const [eh, em] = end.split(":").map(Number);
 	const startMinutes = sh * 60 + sm;
 	const endMinutes = eh * 60 + em;
-	if (endMinutes <= startMinutes) {
-		throw new Error("End time must be greater than start time");
+	if (endMinutes === startMinutes) {
+		throw new Error("Start and end time cannot be the same");
 	}
-	return roundHours((endMinutes - startMinutes) / 60);
+	const resolvedEndMinutes = endMinutes <= startMinutes ? endMinutes + 24 * 60 : endMinutes;
+	return roundHours((resolvedEndMinutes - startMinutes) / 60);
 };

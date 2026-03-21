@@ -71,10 +71,11 @@ model Shift {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  managerId String   @map("manager_id")
-  date      DateTime @db.Date
-  startTime DateTime @map("start_time") @db.Time
-  endTime   DateTime @map("end_time") @db.Time
+  managerId String    @map("manager_id")
+  date      DateTime  @db.Date
+  startTime DateTime? @map("start_time") @db.Time
+  endTime   DateTime? @map("end_time") @db.Time
+  isDayOff  Boolean   @default(false) @map("is_day_off")
 
   manager     Manager           @relation(fields: [managerId], references: [id], onDelete: Cascade)
   assignments ShiftAssignment[]

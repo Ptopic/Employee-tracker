@@ -93,7 +93,7 @@ export function EmployeeForm({
 									<FieldError error={touched.age ? (errors.age as string | undefined) : undefined} />
 								</View>
 								<View className="flex-1">
-									<FieldLabel label="Hourly Rate ($)" />
+									<FieldLabel label="Hourly Rate (€)" />
 									<Input type="decimal" value={values.hourlyRate} onChangeText={handleChange("hourlyRate")} onBlur={handleBlur("hourlyRate")} placeholder="25.00" />
 									<FieldError error={touched.hourlyRate ? (errors.hourlyRate as string | undefined) : undefined} />
 								</View>
@@ -114,7 +114,7 @@ export function EmployeeForm({
 							<FieldLabel label="Initial Stats" />
 							<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}> 
 								<Text style={{ fontSize: 10, fontWeight: "700", color: "#94A3B8", textTransform: "uppercase", marginBottom: 4 }}>Cost</Text>
-								<Text style={{ fontSize: 18, fontWeight: "700", color: "#0F172A" }}>${Number.isFinite(estimatedMonthlyCost) ? Math.round(estimatedMonthlyCost) : 0}</Text>
+								<Text style={{ fontSize: 18, fontWeight: "700", color: "#0F172A" }}>€{Number.isFinite(estimatedMonthlyCost) ? Math.round(estimatedMonthlyCost) : 0}</Text>
 							</View>
 						</View>
 

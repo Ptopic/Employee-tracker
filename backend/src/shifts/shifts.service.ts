@@ -31,7 +31,7 @@ export class ShiftsService {
 					},
 				},
 			},
-			orderBy: [{ date: "asc" }, { startTime: "asc" }],
+			orderBy: [{ date: "asc" }, { isDayOff: "asc" }, { startTime: "asc" }],
 		});
 	}
 
@@ -55,27 +55,33 @@ export class ShiftsService {
 					},
 				},
 			},
-			orderBy: [{ startTime: "asc" }],
+			orderBy: [{ isDayOff: "asc" }, { startTime: "asc" }],
 		});
 	}
 
 	async create(managerId: string, payload: UpsertShiftDto) {
-		await this.assertValidTime(payload.startTime, payload.endTime);
+		const normalizedPayload = this.normalizePayload(payload);
+		await this.assertPayloadTimes(normalizedPayload);
 		const validation = await this.validateOverlap(managerId, payload);
 		if (!validation.valid) {
 			throw new ConflictException("Employee overlap detected");
 		}
 
+		const calculatedHours = normalizedPayload.isDayOff
+			? 0
+			: calculateDeterministicHours(normalizedPayload.startTime, normalizedPayload.endTime);
+
 		return this.prisma.shift.create({
 			data: {
 				managerId,
-				date: normalizeDateIso(payload.date),
-				startTime: this.toTime(payload.startTime),
-				endTime: this.toTime(payload.endTime),
+				date: normalizeDateIso(normalizedPayload.date),
+				isDayOff: normalizedPayload.isDayOff,
+				startTime: normalizedPayload.startTime ? this.toTime(normalizedPayload.startTime) : null,
+				endTime: normalizedPayload.endTime ? this.toTime(normalizedPayload.endTime) : null,
 				assignments: {
-					create: (payload.employeeIds || []).map((employeeId) => ({
+					create: (normalizedPayload.employeeIds || []).map((employeeId) => ({
 						employeeId,
-						calculatedHours: calculateDeterministicHours(payload.startTime, payload.endTime).toFixed(2),
+						calculatedHours: calculatedHours.toFixed(2),
 					})),
 				},
 			},
@@ -85,23 +91,29 @@ export class ShiftsService {
 
 	async update(managerId: string, shiftId: string, payload: UpsertShiftDto) {
 		await this.assertShiftOwnedByManager(managerId, shiftId);
-		await this.assertValidTime(payload.startTime, payload.endTime);
+		const normalizedPayload = this.normalizePayload(payload);
+		await this.assertPayloadTimes(normalizedPayload);
 		const validation = await this.validateOverlap(managerId, { ...payload, shiftId });
 		if (!validation.valid) {
 			throw new ConflictException("Employee overlap detected");
 		}
 
+		const calculatedHours = normalizedPayload.isDayOff
+			? 0
+			: calculateDeterministicHours(normalizedPayload.startTime, normalizedPayload.endTime);
+
 		return this.prisma.shift.update({
 			where: { id: shiftId },
 			data: {
-				date: normalizeDateIso(payload.date),
-				startTime: this.toTime(payload.startTime),
-				endTime: this.toTime(payload.endTime),
+				date: normalizeDateIso(normalizedPayload.date),
+				isDayOff: normalizedPayload.isDayOff,
+				startTime: normalizedPayload.startTime ? this.toTime(normalizedPayload.startTime) : null,
+				endTime: normalizedPayload.endTime ? this.toTime(normalizedPayload.endTime) : null,
 				assignments: {
 					deleteMany: {},
-					create: (payload.employeeIds || []).map((employeeId) => ({
+					create: (normalizedPayload.employeeIds || []).map((employeeId) => ({
 						employeeId,
-						calculatedHours: calculateDeterministicHours(payload.startTime, payload.endTime).toFixed(2),
+						calculatedHours: calculatedHours.toFixed(2),
 					})),
 				},
 			},
@@ -132,7 +144,8 @@ export class ShiftsService {
 	}
 
 	async validateOverlap(managerId: string, payload: ValidateShiftDto) {
-		const employeeIds = payload.employeeIds || [];
+		const normalizedPayload = this.normalizePayload(payload);
+		const employeeIds = normalizedPayload.employeeIds || [];
 		if (!employeeIds.length) {
 			return { valid: true, conflicts: [] };
 		}
@@ -140,7 +153,7 @@ export class ShiftsService {
 		const shifts = await this.prisma.shift.findMany({
 			where: {
 				managerId,
-				date: normalizeDateIso(payload.date),
+				date: normalizeDateIso(normalizedPayload.date),
 				id: payload.shiftId ? { not: payload.shiftId } : undefined,
 				assignments: {
 					some: {
@@ -155,7 +168,20 @@ export class ShiftsService {
 
 		const conflicts: Array<{ employeeId: string; shiftId: string }> = [];
 		for (const shift of shifts) {
-			if (this.timeRangesOverlap(payload.startTime, payload.endTime, shift.startTime, shift.endTime)) {
+			if (normalizedPayload.isDayOff || shift.isDayOff) {
+				for (const assignment of shift.assignments) {
+					if (employeeIds.includes(assignment.employeeId)) {
+						conflicts.push({ employeeId: assignment.employeeId, shiftId: shift.id });
+					}
+				}
+				continue;
+			}
+
+			if (
+				normalizedPayload.startTime &&
+				normalizedPayload.endTime &&
+				this.timeRangesOverlap(normalizedPayload.startTime, normalizedPayload.endTime, shift.startTime, shift.endTime)
+			) {
 				for (const assignment of shift.assignments) {
 					if (employeeIds.includes(assignment.employeeId)) {
 						conflicts.push({ employeeId: assignment.employeeId, shiftId: shift.id });
@@ -178,10 +204,29 @@ export class ShiftsService {
 		}
 	}
 
-	private async assertValidTime(start: string, end: string) {
-		if (start >= end) {
-			throw new BadRequestException("Start time must be before end time");
+	private async assertPayloadTimes(payload: UpsertShiftDto) {
+		if (payload.isDayOff) {
+			return;
 		}
+
+		const { startTime, endTime } = payload;
+		if (!startTime || !endTime) {
+			throw new BadRequestException("Start and end time are required unless shift is a day off");
+		}
+
+		if (startTime === endTime) {
+			throw new BadRequestException("Start and end time cannot be the same");
+		}
+	}
+
+	private normalizePayload(payload: UpsertShiftDto | ValidateShiftDto) {
+		const isDayOff = Boolean(payload.isDayOff);
+		return {
+			...payload,
+			isDayOff,
+			startTime: isDayOff ? undefined : payload.startTime,
+			endTime: isDayOff ? undefined : payload.endTime,
+		};
 	}
 
 	private toTime(value: string) {
@@ -191,12 +236,35 @@ export class ShiftsService {
 	private timeRangesOverlap(
 		startA: string,
 		endA: string,
-		startBDate: Date,
-		endBDate: Date,
+		startBDate: Date | null,
+		endBDate: Date | null,
 	) {
+		if (!startBDate || !endBDate) {
+			return false;
+		}
+
+		const startAMinutes = this.toMinutes(startA);
+		const endAMinutes = this.resolveEndMinutes(startA, endA);
 		const startB = startBDate.toISOString().slice(11, 16);
 		const endB = endBDate.toISOString().slice(11, 16);
-		return startA < endB && endA > startB;
+		const startBMinutes = this.toMinutes(startB);
+		const endBMinutes = this.resolveEndMinutes(startB, endB);
+
+		return startAMinutes < endBMinutes && endAMinutes > startBMinutes;
+	}
+
+	private toMinutes(value: string) {
+		const [hours, minutes] = value.split(":").map(Number);
+		return hours * 60 + minutes;
+	}
+
+	private resolveEndMinutes(start: string, end: string) {
+		const startMinutes = this.toMinutes(start);
+		const endMinutes = this.toMinutes(end);
+		if (endMinutes <= startMinutes) {
+			return endMinutes + 24 * 60;
+		}
+		return endMinutes;
 	}
 
 	// Deterministic hour calculation is centralized in src/common/deterministic-hours.ts

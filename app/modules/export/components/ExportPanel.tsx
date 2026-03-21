@@ -1,10 +1,11 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { Alert, Share, View } from "react-native";
+import { Alert, View } from "react-native";
 import { useExportWeeklyPdf } from "@/api/export/hooks";
 import Text from "@/components/Text";
 import { ExportActions } from "./ExportActions";
 import { WeekPickerField } from "./WeekPickerField";
+import { sharePdfFile } from "@/utils/sharePdfFile";
 
 const getDefaultWeekStart = () => {
 	const now = new Date();
@@ -33,10 +34,7 @@ export function ExportPanel() {
 			return;
 		}
 
-		await Share.share({
-			title: file.fileName,
-			message: `Weekly export ready (${weekStart})\n\nPDF data URI:\ndata:${file.mimeType};base64,${file.base64}`,
-		});
+		await sharePdfFile(file);
 	};
 
 	const handlePreview = () => {

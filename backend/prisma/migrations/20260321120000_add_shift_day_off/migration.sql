@@ -1,0 +1,6 @@
+ALTER TABLE "shifts"
+ADD COLUMN "is_day_off" BOOLEAN NOT NULL DEFAULT false;
+
+ALTER TABLE "shifts"
+ALTER COLUMN "start_time" DROP NOT NULL,
+ALTER COLUMN "end_time" DROP NOT NULL;
