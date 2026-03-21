@@ -1,4 +1,5 @@
 import {
+	IsDateString,
 	IsEnum,
 	IsIn,
 	IsInt,
@@ -9,6 +10,7 @@ import {
 	Min,
 	MinLength,
 } from "class-validator";
+import { Type } from "class-transformer";
 import { EmployeeStatus } from "@prisma/client";
 
 export class CreateEmployeeDto {
@@ -77,4 +79,24 @@ export class ListEmployeesQueryDto {
 	@IsOptional()
 	@IsIn(["asc", "desc"])
 	sortOrder?: "asc" | "desc" = "asc";
+}
+
+export class EmployeeStatsQueryDto {
+	@IsOptional()
+	@Type(() => Number)
+	@IsInt()
+	@Min(1)
+	@Max(12)
+	month?: number;
+
+	@IsOptional()
+	@Type(() => Number)
+	@IsInt()
+	@Min(2000)
+	@Max(9999)
+	year?: number;
+
+	@IsOptional()
+	@IsDateString()
+	weekStart?: string;
 }

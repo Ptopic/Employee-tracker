@@ -73,6 +73,7 @@ export class ExportService {
           shift: {
             select: {
               date: true,
+              isDayOff: true,
               startTime: true,
               endTime: true,
             },
@@ -109,11 +110,16 @@ export class ExportService {
       const existing = employees.get(assignment.employeeId);
       if (!existing) continue;
 
+      const day = DAY_KEYS[(assignment.shift.date.getUTCDay() + 6) % 7];
+      if (assignment.shift.isDayOff) {
+        existing.dailyShifts[day].push("Day Off");
+        continue;
+      }
+
       const hours = Number(assignment.calculatedHours);
       existing.weeklyHours += hours;
       existing.estimatedCost += hours * existing.hourlyRate;
 
-      const day = DAY_KEYS[(assignment.shift.date.getUTCDay() + 6) % 7];
       existing.dailyShifts[day].push(
         `${toHHmm(assignment.shift.startTime)}-${toHHmm(assignment.shift.endTime)}`,
       );
@@ -148,7 +154,8 @@ export class ExportService {
   }
 }
 
-function toHHmm(value: Date) {
+function toHHmm(value: Date | null) {
+  if (!value) return "";
   return value.toISOString().slice(11, 16);
 }
 

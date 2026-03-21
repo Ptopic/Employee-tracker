@@ -13,6 +13,7 @@ import { Request } from "express";
 import { JwtAuth } from "src/auth/decorators/jwt-auth.decorator";
 import {
 	CreateEmployeeDto,
+	EmployeeStatsQueryDto,
 	ListEmployeesQueryDto,
 	UpdateEmployeeDto,
 } from "./dtos/employee.dto";
@@ -42,8 +43,12 @@ export class EmployeesController {
 
 	@Get(":employeeId/stats")
 	@JwtAuth()
-	stats(@Req() req: Request, @Param("employeeId") employeeId: string) {
-		return this.employeesService.getStats(req.user.userId, employeeId);
+	stats(
+		@Req() req: Request,
+		@Param("employeeId") employeeId: string,
+		@Query() query: EmployeeStatsQueryDto,
+	) {
+		return this.employeesService.getStats(req.user.userId, employeeId, query);
 	}
 
 	@Post()

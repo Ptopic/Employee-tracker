@@ -24,7 +24,7 @@ export class ScheduleService {
 					},
 				},
 			},
-			orderBy: [{ startTime: "asc" }],
+			orderBy: [{ isDayOff: "asc" }, { startTime: "asc" }],
 		});
 
 		return {
