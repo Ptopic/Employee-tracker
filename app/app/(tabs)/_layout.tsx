@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { router, Tabs, type BottomTabBarProps } from "expo-router";
+import { router, Tabs } from "expo-router";
 import { CalendarDays, Home, Settings, Users } from "lucide-react-native";
 import { Pressable, TouchableOpacity, View } from "react-native";
 import Text from "@/components/Text";
@@ -38,7 +38,12 @@ function TabItem({ label, focused, icon, onPress }: { label: string; focused: bo
 	);
 }
 
-function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+type TabRoute = { key: string; name: string; params?: Record<string, unknown> };
+type TabState = { routes: TabRoute[]; index: number };
+type TabDescriptor = { options: { title?: string } };
+type TabBarProps = { state: TabState; descriptors: Record<string, TabDescriptor>; navigation: { navigate: (name: string) => void } };
+
+function CustomTabBar({ state, descriptors, navigation }: TabBarProps) {
 	const { selectedCalendarDate, selectedHomeDate } = useAppState();
 	const routeMap = new Map(state.routes.map((r) => [r.name, r]));
 	const orderedNames: Array<"index" | "calendar" | "employees" | "settings"> = ["index", "calendar", "employees", "settings"];
@@ -94,11 +99,11 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
 export default function TabLayout() {
 	return (
-		<Tabs tabBar={(props) => <CustomTabBar {...props} />} screenOptions={{ headerShown: false }}>
-			<Tabs.Screen name="index" options={{ title: "Home" }} />
-			<Tabs.Screen name="calendar" options={{ title: "Calendar" }} />
-			<Tabs.Screen name="employees" options={{ title: "Employees" }} />
-			<Tabs.Screen name="settings" options={{ title: "Settings" }} />
+		<Tabs tabBar={(props: any) => <CustomTabBar {...props} />} screenOptions={{ headerShown: false }}>
+			<Tabs.Screen name="index" options={{ title: "Pocetna" }} />
+			<Tabs.Screen name="calendar" options={{ title: "Kalendar" }} />
+			<Tabs.Screen name="employees" options={{ title: "Zaposlenici" }} />
+			<Tabs.Screen name="settings" options={{ title: "Postavke" }} />
 		</Tabs>
 	);
 }

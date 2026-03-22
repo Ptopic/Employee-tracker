@@ -13,8 +13,8 @@ const CARD_SHADOW = {
 
 export function EmployeePickerField({ value, onPress }: { value: string; onPress: () => void }) {
 	return (
-		<TouchableOpacity onPress={onPress} className="flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-			<Text style={{ flex: 1, fontSize: 14, fontWeight: "500", color: value === "Select employee" ? "#94A3B8" : "#0F172A" }}>{value}</Text>
+		<TouchableOpacity onPress={onPress} className="flex-row items-center rounded-2xl bg-white px-4" style={[CARD_SHADOW, { height: 56, borderWidth: 1, borderColor: SURFACE_BORDER }]}> 
+			<Text style={{ flex: 1, fontSize: 14, fontWeight: "500", color: value === "Odaberite zaposlenika" ? "#94A3B8" : "#0F172A" }}>{value}</Text>
 			<ChevronDown size={18} color="#94A3B8" strokeWidth={2} />
 		</TouchableOpacity>
 	);

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SHIFTS_DAY, SHIFTS_MONTH } from "@/api/shifts/hooks";
 import employeesRequests from "./requests";
-import type { EmployeePayload, EmployeesListFilters } from "./types";
+import type { EmployeePayload, EmployeeStatsQuery, EmployeesListFilters } from "./types";
 
 export const EMPLOYEES_LIST = "employees-list";
 export const EMPLOYEE_DETAIL = "employee-detail";
@@ -20,10 +20,10 @@ export const useEmployeeDetail = (employeeId?: string) =>
 		enabled: Boolean(employeeId),
 	});
 
-export const useEmployeeStats = (employeeId?: string) =>
+export const useEmployeeStats = (employeeId?: string, query?: EmployeeStatsQuery) =>
 	useQuery({
-		queryKey: [EMPLOYEE_STATS, employeeId],
-		queryFn: () => employeesRequests.getEmployeeStats(employeeId as string),
+		queryKey: [EMPLOYEE_STATS, employeeId, query],
+		queryFn: () => employeesRequests.getEmployeeStats(employeeId as string, query),
 		enabled: Boolean(employeeId),
 	});
 

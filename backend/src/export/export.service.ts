@@ -13,13 +13,13 @@ type EmployeeWeek = {
 
 const DAY_KEYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 const DAY_LABELS: Record<(typeof DAY_KEYS)[number], string> = {
-  Mon: "Monday",
-  Tue: "Tuesday",
-  Wed: "Wednesday",
-  Thu: "Thursday",
-  Fri: "Friday",
-  Sat: "Saturday",
-  Sun: "Sunday",
+  Mon: "Ponedjeljak",
+  Tue: "Utorak",
+  Wed: "Srijeda",
+  Thu: "Cetvrtak",
+  Fri: "Petak",
+  Sat: "Subota",
+  Sun: "Nedjelja",
 };
 
 @Injectable()
@@ -112,7 +112,7 @@ export class ExportService {
 
       const day = DAY_KEYS[(assignment.shift.date.getUTCDay() + 6) % 7];
       if (assignment.shift.isDayOff) {
-        existing.dailyShifts[day].push("Day Off");
+        existing.dailyShifts[day].push("Slobodan dan");
         continue;
       }
 
@@ -141,7 +141,7 @@ export class ExportService {
     ) as Record<string, string>;
 
     return {
-      companyName: manager?.companyName || "Company",
+      companyName: manager?.companyName || "Tvrtka",
       logoUrl: manager?.companyLogoUrl || "",
       weekStart,
       weekEnd: end.toISOString().slice(0, 10),
@@ -214,23 +214,23 @@ function buildLandscapeSchedulePdf(data: {
     }
   };
 
-  pushText(marginX, pageHeight - 36, "Weekly Schedule", {
+  pushText(marginX, pageHeight - 36, "Tjedni raspored", {
     size: 14,
     bold: true,
   });
-  pushText(marginX, pageHeight - 54, `Week: ${formatDateLabel(data.weekStart)} - ${formatDateLabel(data.weekEnd)}`, {
+  pushText(marginX, pageHeight - 54, `Tjedan: ${formatDateLabel(data.weekStart)} - ${formatDateLabel(data.weekEnd)}`, {
     size: 10,
   });
-  pushText(marginX, pageHeight - 70, `Generated: ${data.generatedAt.slice(0, 16).replace("T", " ")}`, {
+  pushText(marginX, pageHeight - 70, `Generirano: ${data.generatedAt.slice(0, 16).replace("T", " ")}`, {
     size: 8,
   });
 
   const tableBottomY = tableTopY - headerHeight - visibleEmployees.length * rowHeight;
 
   drawRect(marginX, tableTopY - headerHeight, tableWidth, headerHeight, {
-    fill: "0.90 0.87 0.94",
-    stroke: "0.55 0.55 0.55",
-    lineWidth: 0.8,
+    fill: "0.914 0.961 1",
+    stroke: "0.82 0.82 0.82",
+    lineWidth: 0.6,
   });
 
   drawRect(marginX, tableBottomY, tableWidth, visibleEmployees.length * rowHeight, {
@@ -248,7 +248,7 @@ function buildLandscapeSchedulePdf(data: {
     drawCommands.push(`0.86 0.86 0.86 RG 0.5 w ${marginX.toFixed(2)} ${y.toFixed(2)} m ${(marginX + tableWidth).toFixed(2)} ${y.toFixed(2)} l S`);
   }
 
-  pushText(marginX + 8, tableTopY - 22, "Employee Name", { size: 9, bold: true });
+  pushText(marginX + 8, tableTopY - 22, "Ime zaposlenika", { size: 9, bold: true });
 
   DAY_KEYS.forEach((day, index) => {
     const centerX = marginX + employeeColWidth + index * dayColWidth + dayColWidth / 2;
@@ -278,7 +278,7 @@ function buildLandscapeSchedulePdf(data: {
 
   const footerY = tableBottomY - 20;
   if (data.employees.length > visibleEmployees.length) {
-    pushText(marginX, footerY, `Showing ${visibleEmployees.length}/${data.employees.length} employees on one page`, {
+    pushText(marginX, footerY, `Prikazano ${visibleEmployees.length}/${data.employees.length} zaposlenika na jednoj stranici`, {
       size: 8,
     });
   }

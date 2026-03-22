@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import requests from "./requests";
-import type { CompanySettings, PreferencesSettings } from "./types";
+import type {
+	CompanySettings,
+	UpdatePreferencesPayload,
+} from "./types";
 
 export const SETTINGS_COMPANY = "settings-company";
 export const SETTINGS_PREFERENCES = "settings-preferences";
@@ -30,7 +33,7 @@ export const useSaveCompanySettings = () => {
 export const useSavePreferences = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: (payload: PreferencesSettings) => requests.updatePreferences(payload),
+		mutationFn: (payload: UpdatePreferencesPayload) => requests.updatePreferences(payload),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: [SETTINGS_PREFERENCES] });
 		},

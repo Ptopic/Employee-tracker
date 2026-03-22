@@ -39,17 +39,17 @@ function toIsoDate(date: Date) {
 }
 
 function formatDateLabel(date: Date) {
-	return date.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+	return date.toLocaleDateString("hr-HR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
-function extractHHmm(value: string) {
-	if (!value) return "00:00";
+function extractHHmm(value?: string | null) {
+	if (!value) return "";
 	if (/^\d{2}:\d{2}/.test(value)) return value.slice(0, 5);
 	const isoMatch = value.match(/T(\d{2}:\d{2})/);
 	if (isoMatch?.[1]) return isoMatch[1];
 	const looseMatch = value.match(/(\d{2}):(\d{2})/);
 	if (looseMatch?.[1] && looseMatch?.[2]) return `${looseMatch[1]}:${looseMatch[2]}`;
-	return "00:00";
+	return "";
 }
 
 function toDurationLabel(startTime: string, endTime: string) {
@@ -133,10 +133,10 @@ export function HomeScreen() {
 	};
 
 	const confirmDeleteShift = (shiftId: string) => {
-		Alert.alert("Delete shift", "This action cannot be undone.", [
-			{ text: "Cancel", style: "cancel" },
+		Alert.alert("Obrisi smjenu", "Ovu radnju nije moguce ponistiti.", [
+			{ text: "Odustani", style: "cancel" },
 			{
-				text: "Delete",
+				text: "Obrisi",
 				style: "destructive",
 				onPress: async () => {
 					try {
@@ -152,6 +152,9 @@ export function HomeScreen() {
 	const scheduledHours = useMemo(() => {
 		let minutes = 0;
 		for (const shift of shifts) {
+			if (shift.isDayOff || !shift.startTime || !shift.endTime) {
+				continue;
+			}
 			const [startH, startM] = extractHHmm(shift.startTime).split(":").map(Number);
 			const [endH, endM] = extractHHmm(shift.endTime).split(":").map(Number);
 			let diff = endH * 60 + endM - (startH * 60 + startM);
@@ -174,6 +177,7 @@ export function HomeScreen() {
 						name: `${a.employee.firstName} ${a.employee.lastName}`,
 						startTime: extractHHmm(s.startTime),
 						endTime: extractHHmm(s.endTime),
+						isDayOff: s.isDayOff,
 						shiftId: s.id,
 						date: s.date,
 						employeeIds: s.assignments.map((assignment) => assignment.employeeId),
@@ -194,7 +198,7 @@ export function HomeScreen() {
 					<View className="p-6 pb-4">
 						<View className="flex-row items-start justify-between" style={{ marginBottom: 32 }}>
 							<View style={{ paddingTop: 2 }}>
-								<Text style={{ color: "#94A3B8", fontSize: 14, fontWeight: "500", marginBottom: 2 }}>Good Morning,</Text>
+								<Text style={{ color: "#94A3B8", fontSize: 14, fontWeight: "500", marginBottom: 2 }}>Dobro jutro,</Text>
 								<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30 }}>{userInfoQuery.data?.fullName || "Akhmad Maariz"}</Text>
 							</View>
 							<TouchableOpacity className="rounded-full bg-white p-2" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
@@ -216,7 +220,7 @@ export function HomeScreen() {
 									className="rounded-lg px-3 py-2"
 									style={{ backgroundColor: BRAND }}
 								>
-									<Text style={{ fontSize: 12, fontWeight: "700", color: "#FFFFFF" }}>Now</Text>
+									<Text style={{ fontSize: 12, fontWeight: "700", color: "#FFFFFF" }}>Sada</Text>
 								</TouchableOpacity>
 							) : null}
 						</View>
@@ -231,27 +235,27 @@ export function HomeScreen() {
 								</>
 							) : (
 								<>
-									<Card title="Scheduled" subtitle="Selected Date" value={String(Number.isInteger(scheduledHours) ? scheduledHours : Number(scheduledHours.toFixed(1)))} unit="Hrs" icon={<Clock3 size={16} color={BRAND} strokeWidth={2.5} />} />
-									<Card title="Working Today" subtitle="Selected Date" value={String(workingPeopleCount)} unit="People" icon={<Users size={16} color={BRAND} strokeWidth={2.25} />} />
+									<Card title="Rasporedjeno" subtitle="Odabrani datum" value={String(Number.isInteger(scheduledHours) ? scheduledHours : Number(scheduledHours.toFixed(1)))} unit="Sati" icon={<Clock3 size={16} color={BRAND} strokeWidth={2.5} />} />
+									<Card title="Radi danas" subtitle="Odabrani datum" value={String(workingPeopleCount)} unit="Ljudi" icon={<Users size={16} color={BRAND} strokeWidth={2.25} />} />
 								</>
 							)}
 						</View>
 						<View className="flex-row" style={{ gap: 12 }}>
-							<Action label="Add Employee" onPress={() => router.push("/employees/add" as any)} icon={<UserPlus size={20} color="#FFFFFF" strokeWidth={2} />} />
-							<Action label="Add Shift" onPress={() => router.push(`/shift/edit?date=${selectedDateIso}` as any)} icon={<Plus size={20} color="#FFFFFF" strokeWidth={2.5} />} />
-							<Action label="Export PDF" onPress={() => router.push("/export/preview" as any)} icon={<FileText size={20} color="#FFFFFF" strokeWidth={2} />} />
+							<Action label="Dodaj zaposlenika" onPress={() => router.push("/employees/add")} icon={<UserPlus size={20} color="#FFFFFF" strokeWidth={2} />} />
+							<Action label="Dodaj smjenu" onPress={() => router.push({ pathname: "/shift/edit", params: { date: selectedDateIso } })} icon={<Plus size={20} color="#FFFFFF" strokeWidth={2.5} />} />
+				<Action label="Generiraj PDF" onPress={() => router.push("/export/preview")} icon={<FileText size={20} color="#FFFFFF" strokeWidth={2} />} />
 						</View>
 						<View className="mt-1">
 							<View className="mb-4 flex-row items-center justify-between">
-								<Text style={{ fontSize: 20, fontWeight: "700" }}>Today's Schedule</Text>
-								<TouchableOpacity onPress={() => router.push(`/schedule/day/${selectedDateIso}` as any)}>
-									<Text style={{ fontSize: 12, fontWeight: "600", color: BRAND }}>View Full</Text>
+								<Text style={{ fontSize: 20, fontWeight: "700" }}>Danasnji raspored</Text>
+								<TouchableOpacity onPress={() => router.push({ pathname: "/schedule/day/[date]", params: { date: selectedDateIso } })}>
+									<Text style={{ fontSize: 12, fontWeight: "600", color: BRAND }}>Pogledaj sve</Text>
 								</TouchableOpacity>
 							</View>
 							<View style={{ gap: 12 }}>
 								{isScheduleLoading ? (
-									Array.from({ length: 3 }).map((_, idx) => (
-										<View key={`schedule-skeleton-${idx}`} className="flex-row items-center justify-between rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}>
+									["a", "b", "c"].map((key) => (
+										<View key={`schedule-skeleton-${key}`} className="flex-row items-center justify-between rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}> 
 											<View className="flex-row items-center">
 												<View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#E2E8F0", marginRight: 12 }} />
 												<View>
@@ -282,19 +286,27 @@ export function HomeScreen() {
 														}}
 													>
 														<Trash2 size={18} color="#FFFFFF" strokeWidth={2.25} />
-														<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>Delete</Text>
+														<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>Obrisi</Text>
 													</TouchableOpacity>
 												)}
 											>
 												<EmployeeCard
 													rounded={false}
 													name={item.name}
-													timeLabel={`${item.startTime}-${item.endTime}`}
-													duration={toDurationLabel(item.startTime, item.endTime)}
+													timeLabel={item.isDayOff ? "Slobodan dan" : `${item.startTime}-${item.endTime}`}
+											duration={item.isDayOff ? "Slobodan dan" : toDurationLabel(item.startTime, item.endTime)}
 													onPress={() =>
-														router.push(
-															`/shift/edit?shiftId=${item.shiftId}&date=${item.date.slice(0, 10)}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
-														)
+														router.push({
+															pathname: "/shift/edit",
+															params: {
+																shiftId: item.shiftId,
+																date: item.date.slice(0, 10),
+																startTime: item.startTime,
+																endTime: item.endTime,
+																isDayOff: item.isDayOff ? "true" : "false",
+																employeeIds: item.employeeIds.join(","),
+															},
+														})
 													}
 												/>
 											</Swipeable>
@@ -302,7 +314,7 @@ export function HomeScreen() {
 									))
 								) : (
 									<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-										<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>No shifts scheduled for selected date.</Text>
+										<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>Nema rasporedjenih smjena za odabrani datum.</Text>
 									</View>
 								)}
 							</View>
@@ -314,6 +326,7 @@ export function HomeScreen() {
 			<DatePicker
 				modal
 				mode="date"
+				locale="hr-HR"
 				open={showDatePicker}
 				date={selectedDate}
 				onConfirm={(date) => {

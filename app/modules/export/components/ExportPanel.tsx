@@ -24,13 +24,13 @@ export function ExportPanel() {
 
 	const handleExport = async () => {
 		if (!valid) {
-			setErrorText("Week start must be YYYY-MM-DD.");
+			setErrorText("Pocetak tjedna mora biti u formatu GGGG-MM-DD.");
 			return;
 		}
 		setErrorText(null);
 		const file = await exportWeeklyPdf.mutateAsync(weekStart);
 		if (!file) {
-			setErrorText("Export failed. Please try again.");
+			setErrorText("Izvoz nije uspio. Pokusajte ponovno.");
 			return;
 		}
 
@@ -39,7 +39,7 @@ export function ExportPanel() {
 
 	const handlePreview = () => {
 		if (!valid) {
-			Alert.alert("Invalid date", "Week start must be in YYYY-MM-DD format.");
+			Alert.alert("Neispravan datum", "Pocetak tjedna mora biti u formatu GGGG-MM-DD.");
 			return;
 		}
 		router.push({ pathname: "/export/preview", params: { weekStart } });

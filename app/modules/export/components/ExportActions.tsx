@@ -12,14 +12,14 @@ export function ExportActions({ onPreview, onExport, disabled, loading }: Props)
 	return (
 		<View className="gap-3">
 			<Pressable
-				className="rounded-lg bg-white border border-black py-3 items-center"
+				className="rounded-lg bg-white border border-blue-400 py-3 items-center"
 				onPress={onPreview}
 				disabled={disabled || loading}
 			>
-				<Text className="text-black font-semibold">Preview</Text>
+				<Text className="text-blue-400 font-semibold">Pregled</Text>
 			</Pressable>
-			<Pressable className="rounded-lg bg-black py-3 items-center" onPress={onExport} disabled={disabled || loading}>
-				<Text className="text-white font-semibold">{loading ? "Exporting..." : "Export & Share PDF"}</Text>
+			<Pressable className="rounded-lg bg-blue-100 border border-blue-400 py-3 items-center" onPress={onExport} disabled={disabled || loading}>
+				<Text className="text-blue-400 font-semibold">{loading ? "Generiranje..." : "Generiraj i podijeli PDF"}</Text>
 			</Pressable>
 		</View>
 	);

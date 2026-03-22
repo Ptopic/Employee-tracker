@@ -5,6 +5,7 @@ import type { ShiftPayload } from "./types";
 export const SHIFTS_MONTH = "shifts-month";
 export const SHIFTS_DAY = "shifts-day";
 export const SHIFTS_EMPLOYEES = "shifts-employees";
+const EMPLOYEE_STATS = "employee-stats";
 
 export const useMonthShifts = (startDate: string, endDate: string) =>
 	useQuery({
@@ -39,6 +40,7 @@ export const useSaveShift = () => {
 			await queryClient.invalidateQueries({ queryKey: [SHIFTS_MONTH] });
 			await queryClient.invalidateQueries({ queryKey: [SHIFTS_DAY] });
 			await queryClient.invalidateQueries({ queryKey: ["employees-list"] });
+			await queryClient.invalidateQueries({ queryKey: [EMPLOYEE_STATS] });
 		},
 	});
 };
@@ -51,6 +53,7 @@ export const useDeleteShift = () => {
 			await queryClient.invalidateQueries({ queryKey: [SHIFTS_MONTH] });
 			await queryClient.invalidateQueries({ queryKey: [SHIFTS_DAY] });
 			await queryClient.invalidateQueries({ queryKey: ["employees-list"] });
+			await queryClient.invalidateQueries({ queryKey: [EMPLOYEE_STATS] });
 		},
 	});
 };

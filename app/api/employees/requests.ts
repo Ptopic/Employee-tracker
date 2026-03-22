@@ -3,6 +3,7 @@ import { config } from "@/shared/config";
 import type {
 	EmployeeDetail,
 	EmployeePayload,
+	EmployeeStatsQuery,
 	EmployeeStats,
 	EmployeesListFilters,
 	EmployeeListItem,
@@ -25,10 +26,17 @@ const getEmployee = (employeeId: string) =>
 		method: "GET",
 	}) as Promise<EmployeeDetail | null>;
 
-const getEmployeeStats = (employeeId: string) =>
-	authenticatedRequest(`${config.apiUrl}/employees/${employeeId}/stats`, {
+const getEmployeeStats = (employeeId: string, query?: EmployeeStatsQuery) => {
+	const params = new URLSearchParams();
+	if (query?.month != null) params.append("month", String(query.month));
+	if (query?.year != null) params.append("year", String(query.year));
+	if (query?.weekStart) params.append("weekStart", query.weekStart);
+	const qs = params.toString();
+
+	return authenticatedRequest(`${config.apiUrl}/employees/${employeeId}/stats${qs ? `?${qs}` : ""}`, {
 		method: "GET",
 	}) as Promise<EmployeeStats | null>;
+};
 
 const createEmployee = (payload: EmployeePayload) =>
 	authenticatedRequest(`${config.apiUrl}/employees`, {

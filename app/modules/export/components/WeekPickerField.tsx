@@ -9,7 +9,7 @@ type Props = {
 export function WeekPickerField({ value, onChange }: Props) {
 	return (
 		<View>
-			<Text className="text-gray-700 mb-2">Week start (YYYY-MM-DD)</Text>
+			<Text className="text-gray-700 mb-2">Pocetak tjedna (YYYY-MM-DD)</Text>
 			<TextInput
 				className="rounded-lg border border-gray-300 px-3 py-3"
 				placeholder="2026-03-02"

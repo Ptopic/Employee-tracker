@@ -6,12 +6,12 @@ import Title from "@/components/Title";
 export default function NotFoundScreen() {
 	return (
 		<>
-			<Stack.Screen options={{ title: "Oops!" }} />
+			<Stack.Screen options={{ title: "Ups!" }} />
 			<View className="flex-1 items-center justify-center p-[20]">
-				<Title>Page not found</Title>
+				<Title>Stranica nije pronadena</Title>
 
 				<Link href="/" className="mt-[15] p-[15]">
-					<Text className="text-black text-lg">Go to home screen!</Text>
+					<Text className="text-black text-lg">Idi na pocetni zaslon!</Text>
 				</Link>
 			</View>
 		</>

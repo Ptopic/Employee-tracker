@@ -45,7 +45,7 @@ export function EmployeeListItem({
 						}}
 					>
 						<Trash2 size={18} color="#FFFFFF" strokeWidth={2.25} />
-						<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>Delete</Text>
+						<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>Obrisi</Text>
 					</TouchableOpacity>
 				)}
 			>
@@ -77,12 +77,12 @@ export function EmployeeListItem({
 										}}
 									>
 										<Text style={{ fontSize: 10, lineHeight: 12, fontWeight: "700", color: isActive ? BRAND : "#B91C1C" }}>
-											{isActive ? "Active" : "Inactive"}
+											{isActive ? "Aktivan" : "Neaktivan"}
 										</Text>
 									</View>
 								</View>
 								<Text style={{ fontSize: 11, lineHeight: 15, color: "#64748B", fontWeight: "500" }}>
-									€{employee.hourlyRate.toFixed(2)}/h · {employee.monthlyHours.toFixed(2)}h monthly
+									€{employee.hourlyRate.toFixed(2)}/h · {employee.monthlyHours.toFixed(2)}h mjesecno
 								</Text>
 							</View>
 						</View>

@@ -30,17 +30,17 @@ const toIsoDate = (d: Date) => {
 	return `${y}-${m}-${day}`;
 };
 
-const extractHHmm = (value: string) => {
-	if (!value) return "00:00";
+const extractHHmm = (value?: string | null) => {
+	if (!value) return "";
 	if (/^\d{2}:\d{2}/.test(value)) return value.slice(0, 5);
 	const isoMatch = value.match(/T(\d{2}:\d{2})/);
 	if (isoMatch?.[1]) return isoMatch[1];
 	const looseMatch = value.match(/(\d{2}):(\d{2})/);
 	if (looseMatch?.[1] && looseMatch?.[2]) return `${looseMatch[1]}:${looseMatch[2]}`;
-	return "00:00";
+	return "";
 };
 
-const toDurationLabel = (startTime: string, endTime: string) => {
+	const toDurationLabel = (startTime: string, endTime: string) => {
 	const [startH, startM] = extractHHmm(startTime).split(":").map(Number);
 	const [endH, endM] = extractHHmm(endTime).split(":").map(Number);
 	let minutes = endH * 60 + endM - (startH * 60 + startM);
@@ -127,6 +127,7 @@ export function CalendarScreen() {
 					name: `${a.employee.firstName} ${a.employee.lastName}`,
 					startTime: extractHHmm(s.startTime),
 					endTime: extractHHmm(s.endTime),
+					isDayOff: s.isDayOff,
 					shiftId: s.id,
 					date: s.date,
 					employeeIds: s.assignments.map((assignment) => assignment.employeeId),
@@ -183,10 +184,10 @@ export function CalendarScreen() {
 	};
 
 	const confirmDeleteShift = (shiftId: string) => {
-		Alert.alert("Delete shift", "This action cannot be undone.", [
-			{ text: "Cancel", style: "cancel" },
+		Alert.alert("Obrisi smjenu", "Ovu radnju nije moguce ponistiti.", [
+			{ text: "Odustani", style: "cancel" },
 			{
-				text: "Delete",
+				text: "Obrisi",
 				style: "destructive",
 				onPress: async () => {
 					try {
@@ -217,7 +218,7 @@ export function CalendarScreen() {
 					<ChevronLeft size={22} color="#64748B" strokeWidth={2.3} />
 				</TouchableOpacity>
 				<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26 }}>
-					{monthDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+					{monthDate.toLocaleDateString("hr-HR", { month: "long", year: "numeric" })}
 				</Text>
 				<TouchableOpacity
 					onPress={() => setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1))}
@@ -248,8 +249,8 @@ export function CalendarScreen() {
 				</View>
 
 				<View style={{ gap: GRID_GAP }}>
-					{cellRows.map((row, rowIndex) => (
-						<View key={`row-${rowIndex}`} className="flex-row" style={{ gap: GRID_GAP }}>
+					{cellRows.map((row) => (
+						<View key={toIsoDate(row[0])} className="flex-row" style={{ gap: GRID_GAP }}>
 							{row.map((date) => {
 								const dayIso = toIsoDate(date);
 								const isCurrentMonth = date.getMonth() === monthDate.getMonth();
@@ -309,7 +310,7 @@ export function CalendarScreen() {
 			</View>
 
 			<View style={{ marginTop: 24, paddingHorizontal: 6, paddingBottom: 24 }}>
-				<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26, marginBottom: 12 }}>Daily Overview</Text>
+				<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26, marginBottom: 12 }}>Dnevni pregled</Text>
 				<View style={{ gap: 12 }}>
 					{scheduleItems.length ? (
 						scheduleItems.map((item) => (
@@ -328,19 +329,27 @@ export function CalendarScreen() {
 											style={{ width: 92, backgroundColor: "#EF4444" }}
 										>
 											<Trash2 size={18} color="#FFFFFF" strokeWidth={2.25} />
-											<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>Delete</Text>
+											<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>Obrisi</Text>
 										</TouchableOpacity>
 									)}
 								>
 									<EmployeeCard
 										rounded={false}
 										name={item.name}
-										timeLabel={`${item.startTime}-${item.endTime}`}
-										duration={toDurationLabel(item.startTime, item.endTime)}
+										timeLabel={item.isDayOff ? "Slobodan dan" : `${item.startTime}-${item.endTime}`}
+									duration={item.isDayOff ? "Slobodan dan" : toDurationLabel(item.startTime, item.endTime)}
 										onPress={() =>
-											router.push(
-												`/shift/edit?shiftId=${item.shiftId}&date=${item.date.slice(0, 10)}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
-											)
+											router.push({
+												pathname: "/shift/edit",
+												params: {
+													shiftId: item.shiftId,
+													date: item.date.slice(0, 10),
+													startTime: item.startTime,
+													endTime: item.endTime,
+													isDayOff: item.isDayOff ? "true" : "false",
+													employeeIds: item.employeeIds.join(","),
+												},
+											})
 										}
 									/>
 								</Swipeable>
@@ -348,7 +357,7 @@ export function CalendarScreen() {
 						))
 					) : (
 						<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: "#F1F5F9" }]}>
-							<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>No shifts scheduled for selected date.</Text>
+							<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>Nema rasporedjenih smjena za odabrani datum.</Text>
 						</View>
 					)}
 				</View>
