@@ -30,7 +30,7 @@ const CollectionCard = ({
 		<>
 			{image ? (
 				<Link
-					href={`/collection/${id}`}
+					href={`/collection/${id}` as any}
 					style={{
 						width: width ? width : 140,
 						height: height ? height : 170,
@@ -71,7 +71,7 @@ const CollectionCard = ({
 				</Link>
 			) : (
 				<Link
-					href={`/collection/${id}`}
+					href={`/collection/${id}` as any}
 					style={{
 						width: width ? width : 140,
 						height: height ? height : 170,

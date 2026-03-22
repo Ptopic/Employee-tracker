@@ -37,20 +37,20 @@ export function StatsCards({
 }: StatsCardsProps) {
 	return (
 		<View className="mb-6">
-			<Text className="text-[24px] font-semibold mb-3 text-slate-900">Attendance Summary</Text>
+			<Text className="text-[24px] font-semibold mb-3 text-slate-900">Sazetak prisutnosti</Text>
 			<View className="flex-row gap-3">
 				<Card
-					title="Present"
+					title="Prisutni"
 					value={isLoading ? "..." : `${todayEmployees}`}
 					icon="person"
 				/>
 				<Card
-					title="Shifts"
+					title="Smjene"
 					value={isLoading ? "..." : `${todayShifts}`}
 					icon="calendar"
 				/>
 				<Card
-					title="Week Hours"
+					title="Sati tjedna"
 					value={isLoading ? "..." : `${weeklyHours.toFixed(1)}h`}
 					icon="time"
 				/>

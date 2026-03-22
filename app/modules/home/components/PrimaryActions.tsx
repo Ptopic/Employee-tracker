@@ -9,7 +9,7 @@ type PrimaryActionsProps = {
 };
 
 const fallback = (label: string) =>
-	Alert.alert("Coming soon", `${label} action will be available soon.`);
+	Alert.alert("Uskoro dostupno", `Akcija \"${label}\" bit ce uskoro dostupna.`);
 
 function ActionButton({
 	label,
@@ -25,10 +25,10 @@ function ActionButton({
 	return (
 		<TouchableOpacity
 			onPress={onPress}
-			className={`rounded-xl px-4 py-3 items-center justify-center flex-row gap-2 ${secondary ? "bg-slate-100 border border-slate-200" : "bg-slate-900"}`}
+			className={`rounded-xl px-4 py-3 items-center justify-center flex-row gap-2 ${secondary ? "bg-slate-100 border border-slate-200" : "bg-blue-100 border border-blue-400"}`}
 		>
-			<Ionicons name={icon} size={16} color={secondary ? "#1e293b" : "#fff"} />
-			<Text className={`${secondary ? "text-slate-800" : "text-white"} font-semibold`}>
+			<Ionicons name={icon} size={16} color={secondary ? "#1e293b" : "#007AFF"} />
+			<Text className={`${secondary ? "text-slate-800" : "text-blue-400"} font-semibold`}>
 				{label}
 			</Text>
 		</TouchableOpacity>
@@ -45,24 +45,24 @@ export function PrimaryActions({
 			<View className="flex-row gap-3">
 				<View className="flex-1">
 					<ActionButton
-						label="Add Employee"
-						onPress={onAddEmployee || (() => fallback("Add Employee"))}
+						label="Dodaj zaposlenika"
+						onPress={onAddEmployee || (() => fallback("Dodaj zaposlenika"))}
 						secondary
 						icon="person-add-outline"
 					/>
 				</View>
 				<View className="flex-1">
 					<ActionButton
-						label="Add Shift"
-						onPress={onAddShift || (() => fallback("Add Shift"))}
+						label="Dodaj smjenu"
+						onPress={onAddShift || (() => fallback("Dodaj smjenu"))}
 						secondary
 						icon="add-circle-outline"
 					/>
 				</View>
 			</View>
 			<ActionButton
-				label="Export Weekly PDF"
-				onPress={onExportWeeklyPdf || (() => fallback("Export Weekly PDF"))}
+				label="Generiraj tjedni PDF"
+				onPress={onExportWeeklyPdf || (() => fallback("Generiraj tjedni PDF"))}
 				icon="document-text-outline"
 			/>
 		</View>

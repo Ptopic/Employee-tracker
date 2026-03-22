@@ -1,6 +1,10 @@
 import { config } from "@/shared/config";
 import authenticatedRequest from "../authenticatedRequest";
-import type { CompanySettings, PreferencesSettings } from "./types";
+import type {
+	CompanySettings,
+	PreferencesSettings,
+	UpdatePreferencesPayload,
+} from "./types";
 
 const getCompanySettings = () =>
 	authenticatedRequest(`${config.apiUrl}/settings/company`, {
@@ -18,7 +22,7 @@ const getPreferences = () =>
 		method: "GET",
 	}) as Promise<PreferencesSettings | null>;
 
-const updatePreferences = (payload: PreferencesSettings) =>
+const updatePreferences = (payload: UpdatePreferencesPayload) =>
 	authenticatedRequest(`${config.apiUrl}/settings/preferences`, {
 		method: "PATCH",
 		body: JSON.stringify(payload),

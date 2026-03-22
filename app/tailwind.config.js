@@ -45,7 +45,7 @@ module.exports = {
 				orange100: "#FFEEDC",
 				orange400: "#FF9500",
 
-				purple100: "#F5F0FF",
+				purple100: "#E9F5FF",
 				purple400: "#8053D2",
 
 				green100: "#E9FFE9",

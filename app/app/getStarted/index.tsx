@@ -40,12 +40,18 @@ const LoginScreen = () => {
 
 	const handleGoogleSignIn = async () => {
 		if (!authReady || !request) {
-			setErrorMessage("Google sign-in is not ready. Please try again.");
+			setErrorMessage("Google prijava nije spremna. Pokusajte ponovno.");
 			return;
 		}
 
 		setErrorMessage(null);
 		setIsLoading(true);
+
+		if (!request.url) {
+			setIsLoading(false);
+			setErrorMessage("Google prijava nije mogla inicijalizirati URL. Pokusajte ponovno.");
+			return;
+		}
 
 		const authUrl = new URL(request.url);
 		authUrl.searchParams.set("redirect_uri", googleExpoRedirectUri);
@@ -59,7 +65,7 @@ const LoginScreen = () => {
 			await promptAsync({ url: startUrl });
 		} catch (_error) {
 			setIsLoading(false);
-			setErrorMessage("Could not open Google sign-in. Please retry.");
+			setErrorMessage("Nije moguce otvoriti Google prijavu. Pokusajte ponovno.");
 		}
 	};
 
@@ -71,7 +77,7 @@ const LoginScreen = () => {
 
 				if (!accessToken) {
 					setIsLoading(false);
-					setErrorMessage("Google authentication did not return an access token.");
+					setErrorMessage("Google autentikacija nije vratila pristupni token.");
 					return;
 				}
 
@@ -85,12 +91,12 @@ const LoginScreen = () => {
 					const data = await apiResponse.json();
 
 					if (!apiResponse.ok) {
-						setErrorMessage(data?.message || "Authentication failed. Please retry.");
+						setErrorMessage(data?.message || "Autentikacija nije uspjela. Pokusajte ponovno.");
 						return;
 					}
 
 					if (!data?.accessToken || !data?.refreshToken) {
-						setErrorMessage("Authentication succeeded but session tokens were missing.");
+						setErrorMessage("Autentikacija je uspjela, ali nedostaju tokeni sesije.");
 						return;
 					}
 
@@ -99,7 +105,7 @@ const LoginScreen = () => {
 					setModalVisible(false);
 					router.replace("/");
 				} catch (_error) {
-					setErrorMessage("Network error while completing login. Please retry.");
+					setErrorMessage("Mrezna pogreska tijekom prijave. Pokusajte ponovno.");
 				} finally {
 					setIsLoading(false);
 				}
@@ -107,7 +113,7 @@ const LoginScreen = () => {
 
 			if (response?.type === "error") {
 				setIsLoading(false);
-				setErrorMessage(response.error?.message ?? "Google sign-in failed. Please retry.");
+				setErrorMessage(response.error?.message ?? "Google prijava nije uspjela. Pokusajte ponovno.");
 			}
 
 			if (response?.type === "dismiss" || response?.type === "cancel") {
@@ -125,7 +131,7 @@ const LoginScreen = () => {
 			</View>
 
 			<View className="items-center justify-center px-[15]">
-				<Button onPress={() => setModalVisible(true)} text="Get Started" />
+				<Button onPress={() => setModalVisible(true)} text="Zapocni" />
 			</View>
 
 			<ModalComponent
@@ -135,7 +141,7 @@ const LoginScreen = () => {
 				modalStyle={styles.modalContainer}
 			>
 				<View className="gap-[10]">
-					<Title>Sign in to continue</Title>
+					<Title>Prijavite se za nastavak</Title>
 
 					{Platform.OS === "ios" && <View className="h-[1] bg-gray200" />}
 
@@ -150,7 +156,7 @@ const LoginScreen = () => {
 							<View className="flex-row gap-2 items-center">
 								<GoogleIcon width={20} height={20} />
 								<Text className="text-black text-lg font-bold">
-									Continue with Google
+									Nastavi s Googleom
 								</Text>
 							</View>
 						)}
@@ -160,7 +166,7 @@ const LoginScreen = () => {
 						<View className="bg-red-100 border border-red-300 rounded-lg p-3">
 							<Text className="text-red-700 text-sm">{errorMessage}</Text>
 							<TouchableOpacity className="mt-2" onPress={handleGoogleSignIn}>
-								<Text className="text-red-700 font-bold">Retry</Text>
+								<Text className="text-red-700 font-bold">Pokusaj ponovno</Text>
 							</TouchableOpacity>
 						</View>
 					)}

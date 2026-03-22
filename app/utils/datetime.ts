@@ -35,7 +35,7 @@ export const formatTime = (value: string, format: TimeFormat) => {
 };
 
 export const buildWeekDays = (firstDayOfWeek: FirstDayOfWeek) => {
-	const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+	const days = ["Ned", "Pon", "Uto", "Sri", "Cet", "Pet", "Sub"];
 	return firstDayOfWeek === "Monday"
 		? [...days.slice(1), days[0]]
 		: days;

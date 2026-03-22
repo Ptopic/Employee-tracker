@@ -46,8 +46,8 @@ export function EmployeesListScreen() {
 			<ScrollView bounces={false} overScrollMode="never" contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 10, paddingBottom: 110 }}>
 				<View className="mb-6 flex-row items-center justify-between">
 					<View>
-						<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30, color: "#0F172A" }}>Employees</Text>
-						<Text style={{ fontSize: 12, lineHeight: 16, color: "#94A3B8", marginTop: 2 }}>Manage your employees</Text>
+						<Text style={{ fontSize: 24, fontWeight: "700", lineHeight: 30, color: "#0F172A" }}>Zaposlenici</Text>
+						<Text style={{ fontSize: 12, lineHeight: 16, color: "#94A3B8", marginTop: 2 }}>Upravljajte zaposlenicima</Text>
 					</View>
 					<Pressable
 						onPress={() => router.push("/employees/add" as any)}
@@ -55,7 +55,7 @@ export function EmployeesListScreen() {
 						style={{ backgroundColor: BRAND, paddingHorizontal: 14, paddingVertical: 10 }}
 					>
 						<Plus size={16} color="#FFFFFF" strokeWidth={2.6} />
-						<Text style={{ color: "#FFFFFF", fontSize: 12, fontWeight: "700", marginLeft: 6 }}>Add Employee</Text>
+						<Text style={{ color: "#FFFFFF", fontSize: 12, fontWeight: "700", marginLeft: 6 }}>Dodaj zaposlenika</Text>
 					</Pressable>
 				</View>
 
@@ -63,7 +63,7 @@ export function EmployeesListScreen() {
 					<Input
 						value={search}
 						onChangeText={setSearch}
-						placeholder="Search by name"
+						placeholder="Pretrazi po imenu"
 						leftIcon={<Search size={18} color="#94A3B8" strokeWidth={2.2} />}
 						rightIcon={search ? (
 							<TouchableOpacity onPress={() => setSearch("")} hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}>
@@ -76,9 +76,9 @@ export function EmployeesListScreen() {
 				<View style={{ marginTop: 12 }}>
 					<View className="flex-row" style={{ gap: 8 }}>
 						{[
-							{ label: "All", value: undefined },
-							{ label: "Active", value: "ACTIVE" as EmployeeStatus },
-							{ label: "Inactive", value: "INACTIVE" as EmployeeStatus },
+							{ label: "Svi", value: undefined },
+							{ label: "Aktivni", value: "ACTIVE" as EmployeeStatus },
+							{ label: "Neaktivni", value: "INACTIVE" as EmployeeStatus },
 						].map((item) => {
 							const selected = status === item.value;
 							return (
@@ -105,9 +105,9 @@ export function EmployeesListScreen() {
 				<View style={{ marginTop: 12 }}>
 					<View className="flex-row items-center" style={{ gap: 8 }}>
 						{[
-							{ label: "Name", value: "name" as const },
-							{ label: "Rate", value: "hourlyRate" as const },
-							{ label: "Hours", value: "monthlyHours" as const },
+							{ label: "Ime", value: "name" as const },
+							{ label: "Satnica", value: "hourlyRate" as const },
+							{ label: "Sati", value: "monthlyHours" as const },
 						].map((option) => {
 							const selected = sortBy === option.value;
 							return (
@@ -140,9 +140,9 @@ export function EmployeesListScreen() {
 				</View>
 
 				<View style={{ marginTop: 18 }}>
-					{employeesQuery.isLoading ? <Text style={{ fontSize: 13, color: "#64748B" }}>Loading employees...</Text> : null}
-					{employeesQuery.isError ? <Text style={{ fontSize: 13, color: "#DC2626" }}>Failed to load employees.</Text> : null}
-					{deleteMutation.isError ? <Text style={{ fontSize: 13, color: "#DC2626", marginTop: 4 }}>Failed to delete employee.</Text> : null}
+					{employeesQuery.isLoading ? <Text style={{ fontSize: 13, color: "#64748B" }}>Ucitavanje zaposlenika...</Text> : null}
+					{employeesQuery.isError ? <Text style={{ fontSize: 13, color: "#DC2626" }}>Nije moguce ucitati zaposlenike.</Text> : null}
+					{deleteMutation.isError ? <Text style={{ fontSize: 13, color: "#DC2626", marginTop: 4 }}>Brisanje zaposlenika nije uspjelo.</Text> : null}
 
 					{employees.map((employee) => (
 						<EmployeeListItem
@@ -151,12 +151,12 @@ export function EmployeesListScreen() {
 							onPress={() => router.push(`/employees/${employee.id}` as any)}
 							onDelete={() => {
 								Alert.alert(
-									"Delete employee",
-									`Delete ${employee.firstName} ${employee.lastName ?? ""}`.trim() + " and all related shifts?",
+									"Obrisi zaposlenika",
+									`Obrisi ${employee.firstName} ${employee.lastName ?? ""}`.trim() + " i sve povezane smjene?",
 									[
-										{ text: "Cancel", style: "cancel" },
+										{ text: "Odustani", style: "cancel" },
 										{
-											text: "Delete",
+											text: "Obrisi",
 											style: "destructive",
 											onPress: () => deleteMutation.mutate(employee.id),
 										},
@@ -168,7 +168,7 @@ export function EmployeesListScreen() {
 
 					{!employeesQuery.isLoading && !employees.length ? (
 						<View className="rounded-2xl bg-white p-6" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}>
-							<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>No employees found.</Text>
+							<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>Nema pronadjenih zaposlenika.</Text>
 						</View>
 					) : null}
 				</View>

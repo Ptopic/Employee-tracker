@@ -20,7 +20,7 @@ export function AddEmployeeScreen() {
 				</View>
 
 				<View className="mb-6 mt-4 flex-row items-center justify-between">
-					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26 }}>Add Employee</Text>
+					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26 }}>Dodaj zaposlenika</Text>
 					<TouchableOpacity className="items-center justify-center rounded-full" style={{ width: 40, height: 40, backgroundColor: "#F1F5F9" }} onPress={() => router.back()}>
 						<X size={20} color="#64748B" strokeWidth={2} />
 					</TouchableOpacity>
@@ -37,16 +37,16 @@ export function AddEmployeeScreen() {
 					onSubmit={(payload) =>
 						createMutation.mutate(payload, {
 							onSuccess: () => {
-								toast.show("Employee created successfully", { type: "success" });
+								toast.show("Zaposlenik je uspjesno kreiran", { type: "success" });
 								router.back();
 							},
 							onError: () => {
-								toast.show("Could not create employee. Please try again.", { type: "error" });
+								toast.show("Nije moguce kreirati zaposlenika. Pokusajte ponovno.", { type: "error" });
 							},
 						})
 					}
 					onCancel={() => router.back()}
-					submitLabel="Save Changes"
+					submitLabel="Spremi promjene"
 					loading={createMutation.isPending}
 				/>
 			</ScrollView>

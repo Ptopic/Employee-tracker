@@ -13,7 +13,7 @@ export function MonthYearHeader({
 	onPrevMonth,
 	onNextMonth,
 }: MonthYearHeaderProps) {
-	const monthYear = monthDate.toLocaleDateString("en-US", {
+	const monthYear = monthDate.toLocaleDateString("hr-HR", {
 		month: "short",
 		year: "numeric",
 	});

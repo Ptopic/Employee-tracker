@@ -25,7 +25,8 @@ export type ShiftAssignment = {
 export type TodayShift = {
 	id: string;
 	date: string;
-	startTime: string;
-	endTime: string;
+	startTime: string | null;
+	endTime: string | null;
+	isDayOff: boolean;
 	assignments: ShiftAssignment[];
 };

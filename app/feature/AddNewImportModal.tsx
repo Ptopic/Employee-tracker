@@ -56,12 +56,12 @@ const AddModal = ({
 			!url.includes("https://") ||
 			(!url.includes("tiktok") && !url.includes("instagram"))
 		) {
-			toast.show("Please paste a valid link", { type: "error" });
+			toast.show("Zalijepite valjani link", { type: "error" });
 			return;
 		}
 
 		setModalVisible(false);
-		toast.show("Import started", { type: "regular" });
+		toast.show("Uvoz je zapoceo", { type: "regular" });
 	};
 
 	return (
@@ -89,7 +89,7 @@ const AddModal = ({
 						>
 							<LinkIcon color="red" width={24} height={24} />
 							<Text className="body-medium-regular">
-								Paste link from clipboard
+								Zalijepi link iz meduspremnika
 							</Text>
 						</TouchableOpacity>
 					</Animated.View>

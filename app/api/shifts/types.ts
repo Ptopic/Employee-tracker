@@ -13,8 +13,9 @@ export type ShiftAssignment = {
 export type Shift = {
 	id: string;
 	date: string;
-	startTime: string;
-	endTime: string;
+	startTime: string | null;
+	endTime: string | null;
+	isDayOff: boolean;
 	assignments: ShiftAssignment[];
 };
 
@@ -45,8 +46,9 @@ export type ValidateEmployeesResponse = {
 
 export type ShiftPayload = {
 	date: string;
-	startTime: string;
-	endTime: string;
+	isDayOff?: boolean;
+	startTime?: string;
+	endTime?: string;
 	employeeIds: string[];
 };
 

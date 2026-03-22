@@ -18,10 +18,10 @@ const DeleteModalContent = ({ setIsModalVisible }: IProps) => {
 			<View className="p-2 bg-red50 rounded-full">
 				<AlertTriangleIcon color="#b00000" width={22} height={22} />
 			</View>
-			<Text className="heading-xxsmall">Are you sure?</Text>
+			<Text className="heading-xxsmall">Jeste li sigurni?</Text>
 			<View className="w-full px-6">
 				<Text className="text-gray500 text-center">
-					This action cannot be undone. All values will be lost.
+					Ovu radnju nije moguce ponistiti. Svi podaci ce biti izgubljeni.
 				</Text>
 			</View>
 			<TouchableOpacity
@@ -29,7 +29,7 @@ const DeleteModalContent = ({ setIsModalVisible }: IProps) => {
 				onPress={handleDeleteAccount}
 			>
 				<Text className="body-xsmall-regular text-white text-center">
-					Delete Account
+					Obrisi racun
 				</Text>
 			</TouchableOpacity>
 			<TouchableOpacity
@@ -37,7 +37,7 @@ const DeleteModalContent = ({ setIsModalVisible }: IProps) => {
 				onPress={() => setIsModalVisible(false)}
 			>
 				<Text className="body-xsmall-regular text-gray800 text-center">
-					Cancel
+					Odustani
 				</Text>
 			</TouchableOpacity>
 		</View>

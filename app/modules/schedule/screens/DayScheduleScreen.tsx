@@ -20,14 +20,14 @@ const CARD_SHADOW = {
 	elevation: 2,
 } as const;
 
-function extractHHmm(value: string) {
-	if (!value) return "00:00";
+function extractHHmm(value?: string | null) {
+	if (!value) return "";
 	if (/^\d{2}:\d{2}/.test(value)) return value.slice(0, 5);
 	const isoMatch = value.match(/T(\d{2}:\d{2})/);
 	if (isoMatch?.[1]) return isoMatch[1];
 	const looseMatch = value.match(/(\d{2}):(\d{2})/);
 	if (looseMatch?.[1] && looseMatch?.[2]) return `${looseMatch[1]}:${looseMatch[2]}`;
-	return "00:00";
+	return "";
 }
 
 function toDurationLabel(startTime: string, endTime: string) {
@@ -53,14 +53,15 @@ export function DayScheduleScreen() {
 			name: `${assignment.employee.firstName} ${assignment.employee.lastName}`,
 			startTime: extractHHmm(shift.startTime),
 			endTime: extractHHmm(shift.endTime),
+			isDayOff: shift.isDayOff,
 			employeeIds: shift.assignments.map((a) => a.employeeId),
 		})),
 	);
 
 	const confirmDelete = (shiftId: string) => {
-		Alert.alert("Delete shift", "This action cannot be undone.", [
-			{ text: "Cancel", style: "cancel" },
-			{ text: "Delete", style: "destructive", onPress: () => deleteShiftMutation.mutate(shiftId) },
+		Alert.alert("Obrisi smjenu", "Ovu radnju nije moguce ponistiti.", [
+			{ text: "Odustani", style: "cancel" },
+			{ text: "Obrisi", style: "destructive", onPress: () => deleteShiftMutation.mutate(shiftId) },
 		]);
 	};
 
@@ -73,13 +74,13 @@ export function DayScheduleScreen() {
 				refreshControl={<RefreshControl refreshing={dayScheduleQuery.isRefetching} onRefresh={() => dayScheduleQuery.refetch()} tintColor={BRAND} />}
 			>
 				<View className="mb-4">
-					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26, marginBottom: 4 }}>Today's Schedule</Text>
+					<Text style={{ fontSize: 20, fontWeight: "700", lineHeight: 26, marginBottom: 4 }}>Danasnji raspored</Text>
 				</View>
 
 				<View style={{ gap: 12 }}>
 					{dayScheduleQuery.isLoading
-						? Array.from({ length: 3 }).map((_, idx) => (
-								<View key={`schedule-skeleton-${idx}`} className="flex-row items-center justify-between rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}>
+						? ["a", "b", "c"].map((key) => (
+								<View key={`schedule-skeleton-${key}`} className="flex-row items-center justify-between rounded-2xl bg-white" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER, padding: 16 }]}>
 									<View className="flex-row items-center">
 										<View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#E2E8F0", marginRight: 12 }} />
 										<View>
@@ -106,28 +107,36 @@ export function DayScheduleScreen() {
 												style={{ width: 92, backgroundColor: "#EF4444" }}
 											>
 												<Trash2 size={18} color="#FFFFFF" strokeWidth={2.25} />
-												<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>Delete</Text>
+												<Text style={{ marginTop: 4, fontSize: 11, fontWeight: "700", color: "#FFFFFF" }}>Obrisi</Text>
 											</TouchableOpacity>
 										)}
 									>
-										<EmployeeCard
-											rounded={false}
-											name={item.name}
-											timeLabel={`${formatTime(item.startTime, timeFormat)}-${formatTime(item.endTime, timeFormat)}`}
-											duration={toDurationLabel(item.startTime, item.endTime)}
-											onPress={() =>
-												router.push(
-													`/shift/edit?shiftId=${item.shiftId}&date=${day}&startTime=${item.startTime}&endTime=${item.endTime}&employeeIds=${item.employeeIds.join(",")}` as any,
-												)
-											}
-										/>
+									<EmployeeCard
+										rounded={false}
+										name={item.name}
+										timeLabel={item.isDayOff ? "Slobodan dan" : `${formatTime(item.startTime, timeFormat)}-${formatTime(item.endTime, timeFormat)}`}
+								duration={item.isDayOff ? "Slobodan dan" : toDurationLabel(item.startTime, item.endTime)}
+										onPress={() =>
+											router.push({
+												pathname: "/shift/edit",
+												params: {
+													shiftId: item.shiftId,
+													date: day,
+													startTime: item.startTime,
+													endTime: item.endTime,
+													isDayOff: item.isDayOff ? "true" : "false",
+													employeeIds: item.employeeIds.join(","),
+												},
+											})
+										}
+									/>
 									</Swipeable>
 								</View>
 							))}
 
 					{!dayScheduleQuery.isLoading && !scheduleItems.length ? (
 						<View className="rounded-2xl bg-white p-4" style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}> 
-							<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>No shifts scheduled for this day.</Text>
+							<Text style={{ fontSize: 14, fontWeight: "600", color: "#64748B" }}>Nema rasporedjenih smjena za ovaj dan.</Text>
 						</View>
 					) : null}
 				</View>
@@ -136,8 +145,8 @@ export function DayScheduleScreen() {
 			<View style={{ position: "absolute", left: 24, right: 24, bottom: 30 }}>
 				<Button
 					variant="primary"
-					text="Add Shift"
-					onPress={() => router.push(`/shift/edit?date=${day}` as any)}
+					text="Dodaj smjenu"
+					onPress={() => router.push({ pathname: "/shift/edit", params: { date: day } })}
 					leftIcon={<Plus size={20} color="#FFFFFF" strokeWidth={2.4} />}
 				/>
 			</View>

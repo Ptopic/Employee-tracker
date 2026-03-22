@@ -9,4 +9,10 @@ export type CompanySettings = {
 export type PreferencesSettings = {
 	timeFormat: TimeFormat;
 	firstDayOfWeek: FirstDayOfWeek;
+	firstShiftStart: string;
+	firstShiftEnd: string;
+	secondShiftStart: string;
+	secondShiftEnd: string;
 };
+
+export type UpdatePreferencesPayload = Partial<PreferencesSettings>;

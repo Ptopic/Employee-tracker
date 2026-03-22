@@ -69,9 +69,9 @@ export function HistoryRow({
 					</Text>
 				</View>
 
-				<TimeColumn value={checkIn} label="Check In" highlighted={highlighted} />
-				<TimeColumn value={checkOut} label="Check Out" highlighted={highlighted} />
-				<TimeColumn value={totalHours} label="Total Hours" highlighted={highlighted} />
+				<TimeColumn value={checkIn} label="Dolazak" highlighted={highlighted} />
+				<TimeColumn value={checkOut} label="Odlazak" highlighted={highlighted} />
+				<TimeColumn value={totalHours} label="Ukupno sati" highlighted={highlighted} />
 			</View>
 
 			<View className="flex-row items-center mt-2 ml-[72px]">

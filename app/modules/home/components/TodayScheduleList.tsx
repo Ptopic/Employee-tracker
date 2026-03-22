@@ -11,12 +11,16 @@ type TodayScheduleListProps = {
 };
 
 const formatTimeRange = (
-	startTime: string,
-	endTime: string,
+	startTime: string | null,
+	endTime: string | null,
 	timeFormat: "12h" | "24h",
-) => `${formatTime(startTime, timeFormat)} - ${formatTime(endTime, timeFormat)}`;
+) => {
+	if (!startTime || !endTime) return "Slobodan dan";
+	return `${formatTime(startTime, timeFormat)} - ${formatTime(endTime, timeFormat)}`;
+};
 
-const durationBetweenTimes = (startTime: string, endTime: string) => {
+const durationBetweenTimes = (startTime: string | null, endTime: string | null) => {
+	if (!startTime || !endTime) return "Slobodan dan";
 	const [startH, startM] = startTime.split(":").map(Number);
 	const [endH, endM] = endTime.split(":").map(Number);
 	let minutes = endH * 60 + endM - (startH * 60 + startM);
@@ -34,7 +38,7 @@ const initialsForShift = (shift: TodayShift) => {
 
 const shiftTitle = (shift: TodayShift) => {
 	const first = shift.assignments[0]?.employee;
-	if (!first) return "Unassigned shift";
+	if (!first) return "Nedodijeljena smjena";
 	const base = `${first.firstName} ${first.lastName}`;
 	if (shift.assignments.length <= 1) return base;
 	return `${base} +${shift.assignments.length - 1}`;
@@ -49,7 +53,7 @@ export function TodayScheduleList({ shifts, isLoading }: TodayScheduleListProps)
 				<View className="flex-1 h-12 rounded-xl border border-slate-200 px-3 flex-row items-center bg-white">
 					<Ionicons name="search" size={18} color="#94a3b8" />
 					<TextInput
-						placeholder="Search"
+						placeholder="Pretrazi"
 						editable={false}
 						className="text-slate-400 ml-2 flex-1"
 					/>
@@ -59,15 +63,15 @@ export function TodayScheduleList({ shifts, isLoading }: TodayScheduleListProps)
 				</TouchableOpacity>
 			</View>
 
-			<Text className="text-[24px] font-semibold mb-3 text-slate-900">Attendance</Text>
+			<Text className="text-[24px] font-semibold mb-3 text-slate-900">Prisutnost</Text>
 
 			{isLoading ? (
 				<View className="rounded-2xl bg-white border border-slate-200 p-4">
-					<Text className="text-slate-500">Loading shifts...</Text>
+					<Text className="text-slate-500">Ucitavanje smjena...</Text>
 				</View>
 			) : shifts.length === 0 ? (
 				<View className="rounded-2xl bg-white border border-slate-200 p-4">
-					<Text className="text-slate-500">No shifts scheduled for today.</Text>
+					<Text className="text-slate-500">Nema rasporedjenih smjena za danas.</Text>
 				</View>
 			) : (
 				<View className="rounded-2xl border border-slate-200 overflow-hidden mb-1 bg-white">
@@ -84,7 +88,7 @@ export function TodayScheduleList({ shifts, isLoading }: TodayScheduleListProps)
 									{shiftTitle(shift)}
 								</Text>
 								<Text className="text-slate-500 mt-0.5 text-[16px]">
-									In {formatTime(shift.startTime, timeFormat)}, Out {formatTime(shift.endTime, timeFormat)}
+									{formatTimeRange(shift.startTime, shift.endTime, timeFormat)}
 								</Text>
 							</View>
 							<View className="items-end">
