@@ -67,9 +67,19 @@ java -version
 
 ## 2) Environment file for this app
 
-In `app/`:
+In `app/` you can either do it manually or use the interactive helper.
+
+### Option A: interactive helper (recommended)
 
 ```bash
+cd app
+npm run setup:publish-env
+```
+
+### Option B: manual
+
+```bash
+cd app
 cp .env.example .env
 ```
 
@@ -369,9 +379,9 @@ Then only change:
 
 ## 12) Quick checklist (TL;DR)
 
-1. `cp app/.env.example app/.env`
-2. Fill iOS + Android secrets/paths
-3. `cd app && npm run check:publish`
+1. `cd app && npm run setup:publish-env` (or copy `.env.example` manually)
+2. Fill/confirm iOS + Android secrets/paths
+3. `npm run check:publish`
 4. `npm run publish:ios`
 5. `npm run publish:android`
 
