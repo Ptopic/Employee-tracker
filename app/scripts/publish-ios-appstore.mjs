@@ -15,6 +15,14 @@ function getMissingEnvVars(envVars) {
   return envVars.filter((key) => !process.env[key]?.trim());
 }
 
+function isValidBase64(value) {
+  try {
+    return Buffer.from(value, "base64").toString("base64") === value.replace(/\n/g, "");
+  } catch {
+    return false;
+  }
+}
+
 if (isDryRun) {
   console.log("[dry-run] fastlane ios release_local");
   process.exit(0);
@@ -27,10 +35,10 @@ if (isCheck) {
   });
 
   if (typeof checkResult.status !== "number" || checkResult.status !== 0) {
-    console.log(
-      "Fastlane not found in current environment. Install/configure Fastlane before actual publish.",
+    console.error(
+      "Fastlane not found in current environment. Install/configure Fastlane before publishing.",
     );
-    process.exit(0);
+    process.exit(1);
   }
 
   const versionText =
@@ -40,6 +48,11 @@ if (isCheck) {
   const missing = getMissingEnvVars(requiredEnvVars);
   if (missing.length > 0) {
     console.error(`Missing required env vars: ${missing.join(", ")}`);
+    process.exit(1);
+  }
+
+  if (!isValidBase64(process.env.FASTLANE_API_KEY)) {
+    console.error("FASTLANE_API_KEY must be base64-encoded (.p8 key content). ");
     process.exit(1);
   }
 

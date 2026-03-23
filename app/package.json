@@ -14,7 +14,8 @@
     "publish:android:raw": "node scripts/publish-playstore-raw.mjs",
     "publish:ios": "node scripts/publish-mobile-with-version-bump.mjs ios",
     "publish:android": "node scripts/publish-mobile-with-version-bump.mjs android",
-    "publish:all": "node scripts/publish-mobile-with-version-bump.mjs all"
+    "publish:all": "node scripts/publish-mobile-with-version-bump.mjs all",
+    "check:publish": "node scripts/check-publish-readiness.mjs"
   },
   "jest": {
     "preset": "jest-expo"

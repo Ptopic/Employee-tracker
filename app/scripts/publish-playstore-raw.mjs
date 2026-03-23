@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -17,6 +18,10 @@ function getMissingEnvVars(envVars) {
   return envVars.filter((key) => !process.env[key]?.trim());
 }
 
+function resolveFromAppRoot(inputPath) {
+  return path.isAbsolute(inputPath) ? inputPath : path.join(appRoot, inputPath);
+}
+
 if (isDryRun) {
   console.log("[dry-run] fastlane android release_local");
   process.exit(0);
@@ -29,10 +34,10 @@ if (isCheck) {
   });
 
   if (typeof checkResult.status !== "number" || checkResult.status !== 0) {
-    console.log(
-      "Fastlane not found in current environment. Install/configure Fastlane before actual publish.",
+    console.error(
+      "Fastlane not found in current environment. Install/configure Fastlane before publishing.",
     );
-    process.exit(0);
+    process.exit(1);
   }
 
   const versionText =
@@ -42,6 +47,19 @@ if (isCheck) {
   const missing = getMissingEnvVars(requiredEnvVars);
   if (missing.length > 0) {
     console.error(`Missing required env vars: ${missing.join(", ")}`);
+    process.exit(1);
+  }
+
+  const playStoreKeyPath = resolveFromAppRoot(process.env.PLAY_STORE_JSON_KEY_PATH);
+  const keystorePath = resolveFromAppRoot(process.env.ANDROID_RELEASE_KEYSTORE_PATH);
+
+  if (!existsSync(playStoreKeyPath)) {
+    console.error(`PLAY_STORE_JSON_KEY_PATH file not found: ${playStoreKeyPath}`);
+    process.exit(1);
+  }
+
+  if (!existsSync(keystorePath)) {
+    console.error(`ANDROID_RELEASE_KEYSTORE_PATH file not found: ${keystorePath}`);
     process.exit(1);
   }
 

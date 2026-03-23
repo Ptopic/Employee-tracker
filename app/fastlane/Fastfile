@@ -38,13 +38,10 @@ platform :ios do
       is_key_content_base64: true
     )
 
-    upload_to_app_store(
+    upload_to_testflight(
       api_key: api_key,
       ipa: File.join(output_dir, output_name),
-      skip_metadata: true,
-      skip_screenshots: true,
-      submit_for_review: false,
-      automatic_release: false
+      skip_waiting_for_build_processing: ENV.fetch("IOS_SKIP_WAITING_FOR_BUILD_PROCESSING", "true") == "true"
     )
   end
 end
@@ -77,8 +74,8 @@ platform :android do
       json_key: ENV["PLAY_STORE_JSON_KEY_PATH"],
       package_name: ENV.fetch("PLAY_STORE_PACKAGE_NAME", "com.petartopic.saveit"),
       aab: aab_path,
-      track: ENV.fetch("PLAY_STORE_TRACK", "production"),
-      release_status: ENV.fetch("PLAY_STORE_RELEASE_STATUS", "completed"),
+      track: ENV.fetch("PLAY_STORE_TRACK", "internal"),
+      release_status: ENV.fetch("PLAY_STORE_RELEASE_STATUS", "draft"),
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true

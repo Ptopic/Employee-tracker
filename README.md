@@ -75,6 +75,21 @@ npm install
 npm run start
 ```
 
+### Mobile publishing (local, no EAS cloud builds)
+
+```bash
+cd app
+cp .env.example .env
+# fill in iOS + Android publishing secrets/paths
+npm run check:publish
+
+# publish TestFlight build
+npm run publish:ios
+
+# publish Google Play testing build (internal track by default)
+npm run publish:android
+```
+
 ### 2) Backend
 
 ```bash
