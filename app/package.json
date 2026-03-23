@@ -9,7 +9,12 @@
     "web": "expo start --web",
     "prebuild": "expo prebuild",
     "build:ios": "eas build --profile development --platform ios",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "publish:ios:raw": "node scripts/publish-ios-appstore.mjs",
+    "publish:android:raw": "node scripts/publish-playstore-raw.mjs",
+    "publish:ios": "node scripts/publish-mobile-with-version-bump.mjs ios",
+    "publish:android": "node scripts/publish-mobile-with-version-bump.mjs android",
+    "publish:all": "node scripts/publish-mobile-with-version-bump.mjs all"
   },
   "jest": {
     "preset": "jest-expo"

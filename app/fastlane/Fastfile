@@ -1,0 +1,87 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Build locally with Xcode and upload to App Store Connect"
+  lane :release_local do
+    ensure_env_vars(
+      env_vars: [
+        "FASTLANE_API_KEY_ID",
+        "FASTLANE_API_ISSUER_ID",
+        "FASTLANE_API_KEY"
+      ]
+    )
+
+    scheme = ENV.fetch("IOS_SCHEME", "saveit")
+    workspace = ENV.fetch("IOS_WORKSPACE", "ios/saveit.xcworkspace")
+    xcodeproj = ENV.fetch("IOS_XCODEPROJ", "ios/saveit.xcodeproj")
+    output_dir = ENV.fetch("IOS_OUTPUT_DIR", "build/ios")
+    output_name = ENV.fetch("IOS_OUTPUT_NAME", "saveit.ipa")
+
+    UI.user_error!("iOS workspace not found at #{workspace}") unless File.exist?(workspace)
+    UI.user_error!("iOS project not found at #{xcodeproj}") unless File.exist?(xcodeproj)
+
+    increment_build_number(xcodeproj: xcodeproj)
+
+    build_ios_app(
+      workspace: workspace,
+      scheme: scheme,
+      clean: true,
+      export_method: "app-store",
+      output_directory: output_dir,
+      output_name: output_name
+    )
+
+    api_key = app_store_connect_api_key(
+      key_id: ENV["FASTLANE_API_KEY_ID"],
+      issuer_id: ENV["FASTLANE_API_ISSUER_ID"],
+      key_content: ENV["FASTLANE_API_KEY"],
+      is_key_content_base64: true
+    )
+
+    upload_to_app_store(
+      api_key: api_key,
+      ipa: File.join(output_dir, output_name),
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false
+    )
+  end
+end
+
+platform :android do
+  desc "Build locally with Gradle and upload AAB to Google Play"
+  lane :release_local do
+    ensure_env_vars(env_vars: ["PLAY_STORE_JSON_KEY_PATH"])
+
+    gradle_project_dir = ENV.fetch("ANDROID_PROJECT_DIR", "android")
+    aab_path = ENV.fetch(
+      "ANDROID_AAB_PATH",
+      "android/app/build/outputs/bundle/release/app-release.aab"
+    )
+
+    UI.user_error!("Android project directory not found at #{gradle_project_dir}") unless Dir.exist?(gradle_project_dir)
+
+    increment_version_code(
+      gradle_file_path: File.join(gradle_project_dir, "app/build.gradle")
+    )
+
+    gradle(
+      task: "clean bundleRelease",
+      project_dir: gradle_project_dir
+    )
+
+    UI.user_error!("AAB file not found at #{aab_path}") unless File.exist?(aab_path)
+
+    upload_to_play_store(
+      json_key: ENV["PLAY_STORE_JSON_KEY_PATH"],
+      package_name: ENV.fetch("PLAY_STORE_PACKAGE_NAME", "com.petartopic.saveit"),
+      aab: aab_path,
+      track: ENV.fetch("PLAY_STORE_TRACK", "production"),
+      release_status: ENV.fetch("PLAY_STORE_RELEASE_STATUS", "completed"),
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end
