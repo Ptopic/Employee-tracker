@@ -8,3 +8,4 @@ google login test
 backend-test
 **dist**
 logo generator
+app/.env
