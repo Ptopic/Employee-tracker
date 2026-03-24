@@ -30,13 +30,14 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      PORT: 3002
+      PORT: ${BACKEND_PORT:-3002}
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-employee_tracker}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     ports:
-      - "${BACKEND_PORT:-3002}:3002"
+      - "${BACKEND_PORT:-3002}:${BACKEND_PORT:-3002}"
 
 volumes:
   postgres_data:

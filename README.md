@@ -85,7 +85,7 @@ Backend will be on `http://localhost:3002` by default.
 
 - Deploy using this repository root and `docker-compose.yml`
 - Set env vars from `compose.env.example` in Coolify UI
-- Keep `POSTGRES_PASSWORD`, `JWT_SECRET`, and `JWT_REFRESH_SECRET` strong
+- Keep `POSTGRES_PASSWORD`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, and `JWT_REFRESH_SECRET` strong
 - Persistent DB storage is handled by volume `postgres_data`
 
 ## Local development
