@@ -1,8 +1,7 @@
 import { useLocalSearchParams, router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Modal, NativeModules, Platform, SafeAreaView, ScrollView, TouchableOpacity, UIManager, View } from "react-native";
+import { Alert, Modal, Platform, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import DatePicker from "react-native-date-picker";
 import { endOfWeek, format, startOfWeek } from "date-fns";
 import { CalendarDays, Download, FileText, X } from "lucide-react-native";
 import { useToast } from "react-native-toast-notifications";
@@ -45,15 +44,6 @@ export function PdfPreviewScreen() {
         [selectedDate],
     );
     const selectedWeekStart = useMemo(() => toIsoDate(selectedWeekStartDate), [selectedWeekStartDate]);
-    const hasNativeDateTimePicker = useMemo(() => {
-        try {
-            const hasViewManager = Boolean(UIManager.getViewManagerConfig?.("RNDateTimePicker"));
-            const hasNativeModule = Boolean((NativeModules as any)?.RNDateTimePicker);
-            return hasViewManager || hasNativeModule;
-        } catch {
-            return false;
-        }
-    }, []);
 
     useEffect(() => {
         if (selectedWeekStart) preview.mutate(selectedWeekStart);
@@ -143,29 +133,19 @@ export function PdfPreviewScreen() {
                                 <View className="h-1.5 w-12 rounded-full" style={{ backgroundColor: "#CBD5E1" }} />
                             </View>
                             <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 10 }}>Odaberite bilo koji datum</Text>
-                            {hasNativeDateTimePicker ? (
-                                <View style={{ width: "100%", alignItems: "center" }}>
-                                    <DateTimePicker
-                                        value={iosTempDate}
-                                        mode="date"
-                                        display="inline"
-                                        themeVariant="light"
-                                        locale="hr-HR"
-                                        style={{ height: 380, width: "100%", maxWidth: 520 }}
-                                        onChange={(_, date) => {
-                            if (date) setIosTempDate(date);
-                        }}
-                    />
-                </View>
-                            ) : (
-                                <DatePicker
-                                    modal={false}
+                            <View style={{ width: "100%", alignItems: "center" }}>
+                                <DateTimePicker
+                                    value={iosTempDate}
                                     mode="date"
+                                    display="inline"
+                                    themeVariant="light"
                                     locale="hr-HR"
-                                    date={iosTempDate}
-                                    onDateChange={setIosTempDate}
+                                    style={{ height: 380, width: "100%", maxWidth: 520 }}
+                                    onChange={(_, date) => {
+                                        if (date) setIosTempDate(date);
+                                    }}
                                 />
-                            )}
+                            </View>
                             <View style={{ gap: 10, marginTop: 10 }}>
                                 <Button
                                     variant="primary"
@@ -180,20 +160,18 @@ export function PdfPreviewScreen() {
                         </View>
                     </View>
                 </Modal>
-            ) : (
-                <DatePicker
-                    modal
+            ) : showWeekPicker ? (
+                <DateTimePicker
+                    value={selectedDate}
                     mode="date"
+                    display="default"
                     locale="hr-HR"
-                    open={showWeekPicker}
-                    date={selectedDate}
-                    onConfirm={(date) => {
-                        setSelectedDate(date);
+                    onChange={(_, date) => {
                         setShowWeekPicker(false);
+                        if (date) setSelectedDate(date);
                     }}
-                    onCancel={() => setShowWeekPicker(false)}
                 />
-            )}
+            ) : null}
         </SafeAreaView>
     );
 }
