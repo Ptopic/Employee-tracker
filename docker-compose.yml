@@ -14,7 +14,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-employee_tracker}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-employee_tracker}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -36,8 +40,6 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-    ports:
-      - "${BACKEND_PORT:-3002}:${BACKEND_PORT:-3002}"
 
 volumes:
   postgres_data:
