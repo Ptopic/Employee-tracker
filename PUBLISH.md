@@ -44,6 +44,7 @@ npm -v
 
 # Java for Android builds
 java -version
+java -version
 ```
 
 ### 1.2 Xcode first-run tasks
@@ -227,6 +228,35 @@ This project defaults to safer testing values:
 
 So uploads go to internal testing/draft first.
 
+### 4.4 First Android upload is manual (IMPORTANT)
+
+For a brand new Play Console app/package, your first Android release must be uploaded manually so Google Play registers the app for internal testing.
+
+Build output file to upload:
+
+```text
+android/app/build/outputs/bundle/release/app-release.aab
+```
+
+Manual first-upload flow:
+
+1. Build the AAB locally (build-only, do this first):
+
+   ```bash
+   cd app/android
+   ANDROID_SDK_ROOT="$ANDROID_HOME" ./gradlew bundleRelease
+   ```
+
+   This generates `app/android/app/build/outputs/bundle/release/app-release.aab` without relying on Play upload.
+
+   If you see an SDK mismatch error (`ANDROID_HOME` vs `ANDROID_SDK_ROOT`), keep them aligned as above and re-run.
+2. In Play Console, open your app
+3. Go to **Testing → Internal testing** (or equivalent Release/Internal track UI)
+4. Create a release and upload `android/app/build/outputs/bundle/release/app-release.aab`
+5. Save as draft / continue rollout setup
+
+After this first manual upload, Fastlane uploads can continue through `npm run publish:android`.
+
 ---
 
 ## 5) App-specific IDs you must keep aligned
@@ -265,6 +295,13 @@ This checks:
 - required env vars exist
 - required files (Play JSON + keystore) exist
 - iOS API key looks valid base64
+- Google Play API can resolve your configured package for the provided service account
+
+If Android check fails with **Package not found**, that is now an explicit preflight failure (before build/upload). Fix by:
+
+1. Creating/importing the app package in Play Console
+2. Granting the service-account email from your JSON key in **Users and permissions**
+3. Ensuring `PLAY_STORE_PACKAGE_NAME` matches your actual Play app package
 
 ---
 
@@ -303,6 +340,21 @@ npm run publish:all
 
 - Play Console → your app → **Testing → Internal testing**
 - If release status is draft, review and roll out from console
+
+### Android: install Internal test build on a real device
+
+1. In Play Console, open your app → **Testing → Internal testing**
+2. Add tester emails (or a Google Group) under testers and save
+3. Copy the **opt-in link** from Internal testing and send it to testers
+4. On the Android device, sign in to Play Store with a tester account that was added
+5. Open the opt-in link on the device and accept joining the test
+6. Open Play Store, search your app, then tap **Install** or **Update**
+
+Notes:
+
+- Tester access can take a few minutes to propagate after adding users
+- If the build is not visible yet, confirm the release is rolled out to Internal testing and not left as draft only
+- The app on device must use the same package as Play (`com.petartopic.saveit` in this project)
 
 ---
 

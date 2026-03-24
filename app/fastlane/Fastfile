@@ -1,3 +1,5 @@
+require "pathname"
+
 default_platform(:ios)
 
 platform :ios do
@@ -11,9 +13,14 @@ platform :ios do
       ]
     )
 
+    app_root = File.expand_path("..", __dir__)
+    to_app_path = lambda do |input|
+      Pathname.new(input).absolute? ? input : File.join(app_root, input)
+    end
+
     scheme = ENV.fetch("IOS_SCHEME", "saveit")
-    workspace = ENV.fetch("IOS_WORKSPACE", "ios/saveit.xcworkspace")
-    xcodeproj = ENV.fetch("IOS_XCODEPROJ", "ios/saveit.xcodeproj")
+    workspace = to_app_path.call(ENV.fetch("IOS_WORKSPACE", "ios/saveit.xcworkspace"))
+    xcodeproj = to_app_path.call(ENV.fetch("IOS_XCODEPROJ", "ios/saveit.xcodeproj"))
     output_dir = ENV.fetch("IOS_OUTPUT_DIR", "build/ios")
     output_name = ENV.fetch("IOS_OUTPUT_NAME", "saveit.ipa")
 
@@ -49,36 +56,86 @@ end
 platform :android do
   desc "Build locally with Gradle and upload AAB to Google Play"
   lane :release_local do
-    ensure_env_vars(env_vars: ["PLAY_STORE_JSON_KEY_PATH"])
+    ensure_env_vars(
+      env_vars: [
+        "PLAY_STORE_JSON_KEY_PATH",
+        "ANDROID_RELEASE_KEYSTORE_PATH",
+        "ANDROID_RELEASE_KEYSTORE_PASSWORD",
+        "ANDROID_RELEASE_KEY_ALIAS",
+        "ANDROID_RELEASE_KEY_PASSWORD"
+      ]
+    )
 
-    gradle_project_dir = ENV.fetch("ANDROID_PROJECT_DIR", "android")
-    aab_path = ENV.fetch(
+    app_root = File.expand_path("..", __dir__)
+    to_app_path = lambda do |input|
+      Pathname.new(input).absolute? ? input : File.join(app_root, input)
+    end
+
+    gradle_project_dir = to_app_path.call(ENV.fetch("ANDROID_PROJECT_DIR", "android"))
+    aab_path = to_app_path.call(ENV.fetch(
       "ANDROID_AAB_PATH",
       "android/app/build/outputs/bundle/release/app-release.aab"
-    )
+    ))
+    play_store_json_key_path = to_app_path.call(ENV.fetch("PLAY_STORE_JSON_KEY_PATH"))
 
     UI.user_error!("Android project directory not found at #{gradle_project_dir}") unless Dir.exist?(gradle_project_dir)
 
-    increment_version_code(
-      gradle_file_path: File.join(gradle_project_dir, "app/build.gradle")
-    )
+    gradle_file_path = File.join(gradle_project_dir, "app/build.gradle")
+    UI.user_error!("Gradle file not found at #{gradle_file_path}") unless File.exist?(gradle_file_path)
 
-    gradle(
-      task: "clean bundleRelease",
-      project_dir: gradle_project_dir
+    gradle_content = File.read(gradle_file_path)
+    version_code_match = gradle_content.match(/versionCode\s+(\d+)/)
+    UI.user_error!("Could not find versionCode in #{gradle_file_path}") unless version_code_match
+
+    application_id_match = gradle_content.match(/applicationId\s+[\"']([^\"']+)[\"']/)
+    UI.user_error!("Could not find applicationId in #{gradle_file_path}") unless application_id_match
+    android_application_id = application_id_match[1]
+
+    play_store_package_name = ENV["PLAY_STORE_PACKAGE_NAME"] || android_application_id
+    if ENV["PLAY_STORE_PACKAGE_NAME"] && ENV["PLAY_STORE_PACKAGE_NAME"] != android_application_id
+      UI.user_error!(
+        "PLAY_STORE_PACKAGE_NAME (#{ENV['PLAY_STORE_PACKAGE_NAME']}) does not match Android applicationId (#{android_application_id}). " \
+        "Update your env or build.gradle so they match."
+      )
+    end
+
+    current_version_code = version_code_match[1].to_i
+    next_version_code = current_version_code + 1
+    updated_gradle_content = gradle_content.sub(
+      /versionCode\s+\d+/,
+      "versionCode #{next_version_code}"
     )
+    File.write(gradle_file_path, updated_gradle_content)
+    UI.message("Version code bumped: #{current_version_code} -> #{next_version_code}")
+
+    gradlew_path = File.join(gradle_project_dir, "gradlew")
+    UI.user_error!("Gradle wrapper not found at #{gradlew_path}") unless File.exist?(gradlew_path)
+
+    Dir.chdir(gradle_project_dir) do
+      sh("./gradlew bundleRelease")
+    end
 
     UI.user_error!("AAB file not found at #{aab_path}") unless File.exist?(aab_path)
 
-    upload_to_play_store(
-      json_key: ENV["PLAY_STORE_JSON_KEY_PATH"],
-      package_name: ENV.fetch("PLAY_STORE_PACKAGE_NAME", "com.petartopic.saveit"),
-      aab: aab_path,
-      track: ENV.fetch("PLAY_STORE_TRACK", "internal"),
-      release_status: ENV.fetch("PLAY_STORE_RELEASE_STATUS", "draft"),
-      skip_upload_metadata: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
+    begin
+      upload_to_play_store(
+        json_key: play_store_json_key_path,
+        package_name: play_store_package_name,
+        aab: aab_path,
+        track: ENV.fetch("PLAY_STORE_TRACK", "internal"),
+        release_status: ENV.fetch("PLAY_STORE_RELEASE_STATUS", "draft"),
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true
+      )
+    rescue => e
+      if e.message.include?("Package not found")
+        UI.user_error!(
+          "Google Play package '#{play_store_package_name}' was not found for this service account. " \
+          "Create/import that app in Play Console, grant the service account access, or set PLAY_STORE_PACKAGE_NAME to the correct existing package."
+        )
+      end
+      raise
+    end
   end
 end
