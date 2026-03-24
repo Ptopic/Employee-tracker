@@ -29,7 +29,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3002
-      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-employee_tracker}}
+      DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
