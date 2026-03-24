@@ -3,7 +3,7 @@
     "name": "saveit",
     "slug": "saveit",
     "owner": "ptopic",
-    "version": "1.0.11",
+    "version": "1.0.15",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "saveit",
@@ -27,6 +27,19 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.INTERNET",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.VIBRATE"
+      ],
+      "blockedPermissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
       "package": "com.petartopic.saveit"
     },
     "web": {
@@ -39,6 +52,7 @@
       [
         "expo-image-picker",
         {
+          "cameraPermission": false,
           "photosPermission": "Allow saveit to access photos for company logo upload."
         }
       ],
