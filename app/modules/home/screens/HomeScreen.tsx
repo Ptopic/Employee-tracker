@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import { Alert, Platform, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
-import DatePicker from "react-native-date-picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Bell, CalendarDays, Clock3, FileText, Plus, Trash2, UserPlus, Users } from "lucide-react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
@@ -323,18 +323,18 @@ export function HomeScreen() {
 				</View>
 			</ScrollView>
 
-			<DatePicker
-				modal
-				mode="date"
-				locale="hr-HR"
-				open={showDatePicker}
-				date={selectedDate}
-				onConfirm={(date) => {
-					setSelectedDate(date);
-					setShowDatePicker(false);
-				}}
-				onCancel={() => setShowDatePicker(false)}
-			/>
+			{showDatePicker ? (
+				<DateTimePicker
+					value={selectedDate}
+					mode="date"
+					display={Platform.OS === "ios" ? "spinner" : "default"}
+					locale="hr-HR"
+					onChange={(_, date) => {
+						setShowDatePicker(false);
+						if (date) setSelectedDate(date);
+					}}
+				/>
+			) : null}
 		</SafeAreaView>
 	);
 }

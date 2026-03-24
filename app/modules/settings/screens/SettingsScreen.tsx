@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
+import { Alert, Platform, Pressable, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
-import DatePicker from "react-native-date-picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { ChevronRight, CircleHelp, Lock, LogOut, MoonStar, Pencil, User, Bell, Languages } from "lucide-react-native";
 import { useToast } from "react-native-toast-notifications";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
@@ -506,22 +506,24 @@ export function SettingsScreen() {
 					</View>
 				) : null}
 			</ScrollView>
-			<DatePicker
-				modal
-				mode="time"
-				locale="hr-HR"
-				open={Boolean(pickerTarget)}
-				date={pickerValue}
-				onConfirm={(selected) => {
-					const label = toTimeLabel(selected);
-					if (pickerTarget === "firstShiftStart") setFirstShiftStart(label);
-					if (pickerTarget === "firstShiftEnd") setFirstShiftEnd(label);
-					if (pickerTarget === "secondShiftStart") setSecondShiftStart(label);
-					if (pickerTarget === "secondShiftEnd") setSecondShiftEnd(label);
-					setPickerTarget(null);
-				}}
-				onCancel={() => setPickerTarget(null)}
-			/>
+			{pickerTarget ? (
+				<DateTimePicker
+					value={pickerValue}
+					mode="time"
+					display={Platform.OS === "ios" ? "spinner" : "default"}
+					locale="hr-HR"
+					onChange={(_, selected) => {
+						if (selected) {
+							const label = toTimeLabel(selected);
+							if (pickerTarget === "firstShiftStart") setFirstShiftStart(label);
+							if (pickerTarget === "firstShiftEnd") setFirstShiftEnd(label);
+							if (pickerTarget === "secondShiftStart") setSecondShiftStart(label);
+							if (pickerTarget === "secondShiftEnd") setSecondShiftEnd(label);
+						}
+						setPickerTarget(null);
+					}}
+				/>
+			) : null}
 		</SafeAreaView>
 	);
 }

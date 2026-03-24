@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
-import { Modal, NativeModules, Platform, TouchableOpacity, UIManager, View } from "react-native";
+import { Modal, Platform, TouchableOpacity, View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import DatePicker from "react-native-date-picker";
 import { CalendarDays } from "lucide-react-native";
 import { endOfWeek, startOfWeek } from "date-fns";
 import Text from "@/components/Text";
@@ -49,15 +48,6 @@ export function EmployeeStatsCard({
 	const [pickerMode, setPickerMode] = useState<PickerMode>("week");
 	const [iosTempDate, setIosTempDate] = useState(new Date());
 
-	const hasNativeDateTimePicker = useMemo(() => {
-		try {
-			const hasViewManager = Boolean(UIManager.getViewManagerConfig?.("RNDateTimePicker"));
-			const hasNativeModule = Boolean((NativeModules as { RNDateTimePicker?: unknown }).RNDateTimePicker);
-			return hasViewManager || hasNativeModule;
-		} catch {
-			return false;
-		}
-	}, []);
 
 	const weekStart = useMemo(() => startOfWeek(selectedWeekDate, { weekStartsOn: 1 }), [selectedWeekDate]);
 	const weekEnd = useMemo(() => endOfWeek(selectedWeekDate, { weekStartsOn: 1 }), [selectedWeekDate]);
@@ -185,23 +175,19 @@ export function EmployeeStatsCard({
 							<Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 10 }}>
 								{pickerMode === "month" ? "Odaberite bilo koji datum u mjesecu" : "Odaberite bilo koji datum u tjednu"}
 							</Text>
-							{hasNativeDateTimePicker ? (
-								<View style={{ width: "100%", alignItems: "center" }}>
-									<DateTimePicker
-										value={iosTempDate}
-										mode="date"
-										display="inline"
-										themeVariant="light"
-										locale="hr-HR"
-										style={{ height: 380, width: "100%", maxWidth: 520 }}
-										onChange={(_, date) => {
-											if (date) setIosTempDate(date);
-										}}
-									/>
-								</View>
-							) : (
-							<DatePicker modal={false} mode="date" locale="hr-HR" date={iosTempDate} onDateChange={setIosTempDate} />
-							)}
+							<View style={{ width: "100%", alignItems: "center" }}>
+								<DateTimePicker
+									value={iosTempDate}
+									mode="date"
+									display="inline"
+									themeVariant="light"
+									locale="hr-HR"
+									style={{ height: 380, width: "100%", maxWidth: 520 }}
+									onChange={(_, date) => {
+										if (date) setIosTempDate(date);
+									}}
+								/>
+							</View>
 							<View style={{ gap: 10, marginTop: 10 }}>
 								<Button
 									variant="primary"
@@ -216,20 +202,19 @@ export function EmployeeStatsCard({
 						</View>
 					</View>
 				</Modal>
-			) : (
-				<DatePicker
-					modal
+			) : showPicker ? (
+				<DateTimePicker
+					value={pickerMode === "month" ? selectedMonthDate : selectedWeekDate}
 					mode="date"
+					display="default"
 					locale="hr-HR"
-					open={showPicker}
-					date={pickerMode === "month" ? selectedMonthDate : selectedWeekDate}
-					onConfirm={(selected) => {
-						applyDate(selected);
+					onChange={(_, selected) => {
 						setShowPicker(false);
+						if (!selected) return;
+						applyDate(selected);
 					}}
-					onCancel={() => setShowPicker(false)}
 				/>
-			)}
+			) : null}
 		</View>
 	);
 }
