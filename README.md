@@ -86,6 +86,7 @@ Backend will be on `http://localhost:3002` by default.
 - Deploy using this repository root and `docker-compose.yml`
 - Set env vars from `compose.env.example` in Coolify UI
 - In Coolify, attach domain to **backend** service on internal port `3002`
+- Prefer setting explicit `DATABASE_URL` to avoid DB credential mismatch with old persistent volumes
 - Keep `POSTGRES_PASSWORD`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, and `JWT_REFRESH_SECRET` strong
 - Persistent DB storage is handled by volume `postgres_data`
 
