@@ -65,6 +65,29 @@ This repository contains the baseline architecture for a **manager-only employee
 
 ---
 
+## Docker Compose deployment (Coolify-friendly)
+
+This repo includes a root `docker-compose.yml` that runs:
+
+- `db` (PostgreSQL 16)
+- `backend` (NestJS + Prisma)
+
+### Quick start
+
+```bash
+cp compose.env.example .env
+docker compose up -d --build
+```
+
+Backend will be on `http://localhost:3002` by default.
+
+### Notes for Coolify
+
+- Deploy using this repository root and `docker-compose.yml`
+- Set env vars from `compose.env.example` in Coolify UI
+- Keep `POSTGRES_PASSWORD`, `JWT_SECRET`, and `JWT_REFRESH_SECRET` strong
+- Persistent DB storage is handled by volume `postgres_data`
+
 ## Local development
 
 ### 1) Mobile app
