@@ -69,8 +69,9 @@ This repository contains the baseline architecture for a **manager-only employee
 
 This repo includes a root `docker-compose.yml` that runs:
 
-- `db` (PostgreSQL 16)
 - `backend` (NestJS + Prisma)
+
+Database is expected to run as a separate project/service.
 
 ### Quick start
 
@@ -86,9 +87,9 @@ Backend will be on `http://localhost:3002` by default.
 - Deploy using this repository root and `docker-compose.yml`
 - Set env vars from `compose.env.example` in Coolify UI
 - In Coolify, attach domain to **backend** service on internal port `3002`
-- Prefer setting explicit `DATABASE_URL` to avoid DB credential mismatch with old persistent volumes
-- Keep `POSTGRES_PASSWORD`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, and `JWT_REFRESH_SECRET` strong
-- Persistent DB storage is handled by volume `postgres_data`
+- Set explicit `DATABASE_URL` to your external DB
+- If DB is on same host but separate project, use `host.docker.internal` in `DATABASE_URL`
+- Keep `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, and `JWT_REFRESH_SECRET` strong
 
 ## Local development
 
