@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Modal, Platform, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import { Alert, Platform, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Bell, CalendarDays, Clock3, FileText, Plus, Trash2, UserPlus, Users } from "lucide-react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
@@ -328,29 +329,16 @@ export function HomeScreen() {
 			</ScrollView>
 
 			{Platform.OS === "ios" ? (
-				<Modal visible={showDatePicker} transparent animationType="fade" onRequestClose={() => setShowDatePicker(false)}>
-					<View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15,23,42,0.35)" }}>
-						<View style={{ backgroundColor: BG, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 }}>
-							<DateTimePicker
-								value={iosTempDate}
-								mode="date"
-								display="spinner"
-								locale="hr-HR"
-								onChange={(_, date) => {
-									if (date) setIosTempDate(date);
-								}}
-							/>
-							<View className="flex-row" style={{ gap: 10, marginTop: 12 }}>
-								<TouchableOpacity onPress={() => setShowDatePicker(false)} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#fff" }}>
-									<Text style={{ fontSize: 13, fontWeight: "700", color: "#475569" }}>Odustani</Text>
-								</TouchableOpacity>
-								<TouchableOpacity onPress={() => { setSelectedDate(iosTempDate); setShowDatePicker(false); }} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, backgroundColor: BRAND }}>
-									<Text style={{ fontSize: 13, fontWeight: "700", color: "#fff" }}>Primijeni</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-					</View>
-				</Modal>
+				<DateTimePickerModal
+					isVisible={showDatePicker}
+					mode="date"
+					date={iosTempDate}
+					onConfirm={(date) => {
+						setSelectedDate(date);
+						setShowDatePicker(false);
+					}}
+					onCancel={() => setShowDatePicker(false)}
+				/>
 			) : showDatePicker ? (
 				<DateTimePicker
 					value={selectedDate}

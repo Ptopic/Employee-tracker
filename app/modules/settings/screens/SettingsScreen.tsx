@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Modal, Platform, Pressable, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
+import { Alert, Platform, Pressable, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ChevronRight, CircleHelp, Lock, LogOut, MoonStar, Pencil, User, Bell, Languages } from "lucide-react-native";
 import { useToast } from "react-native-toast-notifications";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
@@ -512,36 +513,20 @@ export function SettingsScreen() {
 				) : null}
 			</ScrollView>
 			{Platform.OS === "ios" ? (
-				<Modal visible={Boolean(pickerTarget)} transparent animationType="fade" onRequestClose={() => setPickerTarget(null)}>
-					<View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15,23,42,0.35)" }}>
-						<View style={{ backgroundColor: BG, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 }}>
-							<DateTimePicker
-								value={iosTempTime}
-								mode="time"
-								display="spinner"
-								locale="hr-HR"
-								onChange={(_, selected) => {
-									if (selected) setIosTempTime(selected);
-								}}
-							/>
-							<View className="flex-row" style={{ gap: 10, marginTop: 12 }}>
-								<TouchableOpacity onPress={() => setPickerTarget(null)} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#fff" }}>
-									<Text style={{ fontSize: 13, fontWeight: "700", color: "#475569" }}>Odustani</Text>
-								</TouchableOpacity>
-								<TouchableOpacity onPress={() => {
-									const label = toTimeLabel(iosTempTime);
-									if (pickerTarget === "firstShiftStart") setFirstShiftStart(label);
-									if (pickerTarget === "firstShiftEnd") setFirstShiftEnd(label);
-									if (pickerTarget === "secondShiftStart") setSecondShiftStart(label);
-									if (pickerTarget === "secondShiftEnd") setSecondShiftEnd(label);
-									setPickerTarget(null);
-								}} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, backgroundColor: BRAND }}>
-									<Text style={{ fontSize: 13, fontWeight: "700", color: "#fff" }}>Primijeni</Text>
-								</TouchableOpacity>
-							</View>
-						</View>
-					</View>
-				</Modal>
+				<DateTimePickerModal
+					isVisible={Boolean(pickerTarget)}
+					mode="time"
+					date={iosTempTime}
+					onConfirm={(selected) => {
+						const label = toTimeLabel(selected);
+						if (pickerTarget === "firstShiftStart") setFirstShiftStart(label);
+						if (pickerTarget === "firstShiftEnd") setFirstShiftEnd(label);
+						if (pickerTarget === "secondShiftStart") setSecondShiftStart(label);
+						if (pickerTarget === "secondShiftEnd") setSecondShiftEnd(label);
+						setPickerTarget(null);
+					}}
+					onCancel={() => setPickerTarget(null)}
+				/>
 			) : pickerTarget ? (
 				<DateTimePicker
 					value={pickerValue}

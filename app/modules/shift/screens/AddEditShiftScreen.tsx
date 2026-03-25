@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { ActivityIndicator, Modal, Platform, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Platform, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CheckCircle2, X } from "lucide-react-native";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Formik } from "formik";
@@ -351,55 +352,41 @@ export function AddEditShiftScreen() {
 						</DrawerModal>
 
 						{Platform.OS === "ios" ? (
-							<Modal visible={showDatePicker || showStartPicker || showEndPicker} transparent animationType="fade" onRequestClose={() => {
-								setShowDatePicker(false);
-								setShowStartPicker(false);
-								setShowEndPicker(false);
-							}}>
-								<View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15,23,42,0.35)" }}>
-									<View style={{ backgroundColor: BG, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 }}>
-										<DateTimePicker
-											value={showDatePicker ? iosTempDate : iosTempTime}
-											mode={showDatePicker ? "date" : "time"}
-											display="spinner"
-											locale="hr-HR"
-											onChange={(_, selected) => {
-												if (!selected) return;
-												if (showDatePicker) setIosTempDate(selected);
-												else setIosTempTime(selected);
-											}}
-										/>
-										<View className="flex-row" style={{ gap: 10, marginTop: 12 }}>
-											<TouchableOpacity onPress={() => {
-												setShowDatePicker(false);
-												setShowStartPicker(false);
-												setShowEndPicker(false);
-											}} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#fff" }}>
-												<Text style={{ fontSize: 13, fontWeight: "700", color: "#475569" }}>Odustani</Text>
-											</TouchableOpacity>
-											<TouchableOpacity onPress={() => {
-												if (showDatePicker) {
-													setFieldValue("date", toIsoDate(iosTempDate));
-													setFieldTouched("date", true);
-												}
-												if (showStartPicker) {
-													setFieldValue("startTime", toTimeLabel(iosTempTime));
-													setFieldTouched("startTime", true);
-												}
-												if (showEndPicker) {
-													setFieldValue("endTime", toTimeLabel(iosTempTime));
-													setFieldTouched("endTime", true);
-												}
-												setShowDatePicker(false);
-												setShowStartPicker(false);
-												setShowEndPicker(false);
-											}} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, backgroundColor: BRAND }}>
-												<Text style={{ fontSize: 13, fontWeight: "700", color: "#fff" }}>Primijeni</Text>
-											</TouchableOpacity>
-										</View>
-									</View>
-								</View>
-							</Modal>
+							<>
+								<DateTimePickerModal
+									isVisible={showDatePicker}
+									mode="date"
+									date={iosTempDate}
+									onConfirm={(selected) => {
+										setFieldValue("date", toIsoDate(selected));
+										setFieldTouched("date", true);
+										setShowDatePicker(false);
+									}}
+									onCancel={() => setShowDatePicker(false)}
+								/>
+								<DateTimePickerModal
+									isVisible={showStartPicker}
+									mode="time"
+									date={iosTempTime}
+									onConfirm={(selected) => {
+										setFieldValue("startTime", toTimeLabel(selected));
+										setFieldTouched("startTime", true);
+										setShowStartPicker(false);
+									}}
+									onCancel={() => setShowStartPicker(false)}
+								/>
+								<DateTimePickerModal
+									isVisible={showEndPicker}
+									mode="time"
+									date={iosTempTime}
+									onConfirm={(selected) => {
+										setFieldValue("endTime", toTimeLabel(selected));
+										setFieldTouched("endTime", true);
+										setShowEndPicker(false);
+									}}
+									onCancel={() => setShowEndPicker(false)}
+								/>
+							</>
 						) : (
 							<>
 								{showDatePicker ? (
