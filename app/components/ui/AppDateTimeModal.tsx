@@ -53,18 +53,20 @@ export function AppDateTimeModal({
 		<Modal visible transparent animationType="fade" onRequestClose={onCancel}>
 			<View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15,23,42,0.35)" }}>
 				<View style={{ backgroundColor: "#F8F9F8", borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 16, paddingHorizontal: 12, paddingBottom: Math.max(insets.bottom, 12) + 10 }}>
-					<DateTimePicker
-						value={tempDate}
-						mode={mode}
-						display="spinner"
-						locale={locale}
-						themeVariant="light"
-						textColor="#0F172A"
-						style={{ width: "100%" }}
-						onChange={(_, selected) => {
-							if (selected) setTempDate(selected);
-						}}
-					/>
+					<View style={{ alignItems: "center" }}>
+						<DateTimePicker
+							value={tempDate}
+							mode={mode}
+							display="spinner"
+							locale={locale}
+							themeVariant="light"
+							textColor="#0F172A"
+							style={{ alignSelf: "center" }}
+							onChange={(_, selected) => {
+								if (selected) setTempDate(selected);
+							}}
+						/>
+					</View>
 					<View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
 						<TouchableOpacity
 							onPress={onCancel}
