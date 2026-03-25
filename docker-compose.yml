@@ -24,8 +24,8 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-    expose:
-      - "3002"
+    ports:
+      - "3002:3002"
 
 volumes:
   postgres_data:
