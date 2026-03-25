@@ -8,15 +8,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   backend:
     build:
@@ -24,8 +15,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       NODE_ENV: production
       PORT: 3002
@@ -36,11 +26,6 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
     expose:
       - "3002"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3002/api >/dev/null 2>&1 || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 10
 
 volumes:
   postgres_data:
