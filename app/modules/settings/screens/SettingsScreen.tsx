@@ -5,7 +5,7 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { AppDateTimeModal, FieldLabel, Input } from "@/components/ui";
 import { ChevronRight, CircleHelp, Lock, LogOut, MoonStar, Pencil, User, Bell, Languages } from "lucide-react-native";
 import { useToast } from "react-native-toast-notifications";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
@@ -18,7 +18,6 @@ import {
 	useUploadLogo,
 } from "@/api/settings/hooks";
 import Text from "@/components/Text";
-import { FieldLabel, Input } from "@/components/ui";
 import { clearSessionTokens } from "@/shared/auth";
 import { usePreferencesState } from "@/shared/state/preferences-state";
 
@@ -513,8 +512,8 @@ export function SettingsScreen() {
 				) : null}
 			</ScrollView>
 			{Platform.OS === "ios" ? (
-				<DateTimePickerModal
-					isVisible={Boolean(pickerTarget)}
+				<AppDateTimeModal
+					visible={Boolean(pickerTarget)}
 					mode="time"
 					date={iosTempTime}
 					onConfirm={(selected) => {
@@ -523,7 +522,6 @@ export function SettingsScreen() {
 						if (pickerTarget === "firstShiftEnd") setFirstShiftEnd(label);
 						if (pickerTarget === "secondShiftStart") setSecondShiftStart(label);
 						if (pickerTarget === "secondShiftEnd") setSecondShiftEnd(label);
-						setPickerTarget(null);
 					}}
 					onCancel={() => setPickerTarget(null)}
 				/>

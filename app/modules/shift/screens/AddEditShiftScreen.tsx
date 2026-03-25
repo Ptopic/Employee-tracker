@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
 import { ActivityIndicator, Platform, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CheckCircle2, X } from "lucide-react-native";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Formik } from "formik";
@@ -14,7 +13,7 @@ import { useSaveShift } from "@/api/shifts/hooks";
 import shiftsRequests from "@/api/shifts/requests";
 import DrawerModal from "@/components/DrawerModal";
 import Text from "@/components/Text";
-import { Button, DatePickerField, EmployeePickerField, FieldError, FieldLabel, TextArea, TimePickerField } from "@/components/ui";
+import { AppDateTimeModal, Button, DatePickerField, EmployeePickerField, FieldError, FieldLabel, TextArea, TimePickerField } from "@/components/ui";
 
 const BRAND = "#5B7B6C";
 const BG = "#F8F9F8";
@@ -353,36 +352,33 @@ export function AddEditShiftScreen() {
 
 						{Platform.OS === "ios" ? (
 							<>
-								<DateTimePickerModal
-									isVisible={showDatePicker}
+								<AppDateTimeModal
+									visible={showDatePicker}
 									mode="date"
 									date={iosTempDate}
 									onConfirm={(selected) => {
 										setFieldValue("date", toIsoDate(selected));
 										setFieldTouched("date", true);
-										setShowDatePicker(false);
 									}}
 									onCancel={() => setShowDatePicker(false)}
 								/>
-								<DateTimePickerModal
-									isVisible={showStartPicker}
+								<AppDateTimeModal
+									visible={showStartPicker}
 									mode="time"
 									date={iosTempTime}
 									onConfirm={(selected) => {
 										setFieldValue("startTime", toTimeLabel(selected));
 										setFieldTouched("startTime", true);
-										setShowStartPicker(false);
 									}}
 									onCancel={() => setShowStartPicker(false)}
 								/>
-								<DateTimePickerModal
-									isVisible={showEndPicker}
+								<AppDateTimeModal
+									visible={showEndPicker}
 									mode="time"
 									date={iosTempTime}
 									onConfirm={(selected) => {
 										setFieldValue("endTime", toTimeLabel(selected));
 										setFieldTouched("endTime", true);
-										setShowEndPicker(false);
 									}}
 									onCancel={() => setShowEndPicker(false)}
 								/>

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Alert, Platform, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { AppDateTimeModal } from "@/components/ui";
 import { Bell, CalendarDays, Clock3, FileText, Plus, Trash2, UserPlus, Users } from "lucide-react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import useGetUserInfo from "@/api/auth/hooks/useGetUserInfo";
@@ -329,14 +329,11 @@ export function HomeScreen() {
 			</ScrollView>
 
 			{Platform.OS === "ios" ? (
-				<DateTimePickerModal
-					isVisible={showDatePicker}
+				<AppDateTimeModal
+					visible={showDatePicker}
 					mode="date"
 					date={iosTempDate}
-					onConfirm={(date) => {
-						setSelectedDate(date);
-						setShowDatePicker(false);
-					}}
+					onConfirm={(date) => setSelectedDate(date)}
 					onCancel={() => setShowDatePicker(false)}
 				/>
 			) : showDatePicker ? (
