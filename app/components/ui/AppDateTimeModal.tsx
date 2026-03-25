@@ -56,6 +56,8 @@ export function AppDateTimeModal({
 						mode={mode}
 						display="spinner"
 						locale={locale}
+						themeVariant="light"
+						textColor="#0F172A"
 						onChange={(_, selected) => {
 							if (selected) setTempDate(selected);
 						}}
