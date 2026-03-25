@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal, Platform, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import Text from "@/components/Text";
 
@@ -21,6 +22,7 @@ export function AppDateTimeModal({
 	onCancel: () => void;
 }) {
 	const [tempDate, setTempDate] = useState(date);
+	const insets = useSafeAreaInsets();
 
 	useEffect(() => {
 		if (visible) setTempDate(date);
@@ -50,7 +52,7 @@ export function AppDateTimeModal({
 	return (
 		<Modal visible transparent animationType="fade" onRequestClose={onCancel}>
 			<View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15,23,42,0.35)" }}>
-				<View style={{ backgroundColor: "#F8F9F8", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 16 }}>
+				<View style={{ backgroundColor: "#F8F9F8", borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 16, paddingHorizontal: 12, paddingBottom: Math.max(insets.bottom, 12) + 10 }}>
 					<DateTimePicker
 						value={tempDate}
 						mode={mode}
@@ -58,6 +60,7 @@ export function AppDateTimeModal({
 						locale={locale}
 						themeVariant="light"
 						textColor="#0F172A"
+						style={{ width: "100%" }}
 						onChange={(_, selected) => {
 							if (selected) setTempDate(selected);
 						}}
