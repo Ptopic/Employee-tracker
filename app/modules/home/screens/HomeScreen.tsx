@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Platform, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, Platform, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Bell, CalendarDays, Clock3, FileText, Plus, Trash2, UserPlus, Users } from "lucide-react-native";
@@ -112,6 +112,7 @@ export function HomeScreen() {
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [selectedDate, setSelectedDate] = useState(new Date());
 	const [showDatePicker, setShowDatePicker] = useState(false);
+	const [iosTempDate, setIosTempDate] = useState(new Date());
 	const selectedDateIso = useMemo(() => toIsoDate(selectedDate), [selectedDate]);
 
 	useEffect(() => {
@@ -207,7 +208,10 @@ export function HomeScreen() {
 						</View>
 						<View className="flex-row items-center" style={{ gap: 8 }}>
 							<TouchableOpacity
-								onPress={() => setShowDatePicker(true)}
+								onPress={() => {
+									setIosTempDate(selectedDate);
+									setShowDatePicker(true);
+								}}
 								className="flex-row items-center rounded-lg bg-white px-3 py-2"
 								style={[CARD_SHADOW, { borderWidth: 1, borderColor: SURFACE_BORDER }]}
 							>
@@ -323,11 +327,35 @@ export function HomeScreen() {
 				</View>
 			</ScrollView>
 
-			{showDatePicker ? (
+			{Platform.OS === "ios" ? (
+				<Modal visible={showDatePicker} transparent animationType="fade" onRequestClose={() => setShowDatePicker(false)}>
+					<View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15,23,42,0.35)" }}>
+						<View style={{ backgroundColor: BG, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 }}>
+							<DateTimePicker
+								value={iosTempDate}
+								mode="date"
+								display="spinner"
+								locale="hr-HR"
+								onChange={(_, date) => {
+									if (date) setIosTempDate(date);
+								}}
+							/>
+							<View className="flex-row" style={{ gap: 10, marginTop: 12 }}>
+								<TouchableOpacity onPress={() => setShowDatePicker(false)} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#fff" }}>
+									<Text style={{ fontSize: 13, fontWeight: "700", color: "#475569" }}>Odustani</Text>
+								</TouchableOpacity>
+								<TouchableOpacity onPress={() => { setSelectedDate(iosTempDate); setShowDatePicker(false); }} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, backgroundColor: BRAND }}>
+									<Text style={{ fontSize: 13, fontWeight: "700", color: "#fff" }}>Primijeni</Text>
+								</TouchableOpacity>
+							</View>
+						</View>
+					</View>
+				</Modal>
+			) : showDatePicker ? (
 				<DateTimePicker
 					value={selectedDate}
 					mode="date"
-					display={Platform.OS === "ios" ? "spinner" : "default"}
+					display="default"
 					locale="hr-HR"
 					onChange={(_, date) => {
 						setShowDatePicker(false);

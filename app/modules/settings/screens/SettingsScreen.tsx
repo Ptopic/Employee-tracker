@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Platform, Pressable, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, Platform, Pressable, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -141,6 +141,7 @@ export function SettingsScreen() {
 	const [secondShiftStart, setSecondShiftStart] = useState("16:00");
 	const [secondShiftEnd, setSecondShiftEnd] = useState("22:00");
 	const [pickerTarget, setPickerTarget] = useState<ShiftPickerTarget | null>(null);
+	const [iosTempTime, setIosTempTime] = useState(new Date());
 	const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 	const [darkModeEnabled, setDarkModeEnabled] = useState(false);
 	const [errorText, setErrorText] = useState<string | null>(null);
@@ -268,6 +269,10 @@ export function SettingsScreen() {
 				return new Date();
 		}
 	}, [pickerTarget, firstShiftStart, firstShiftEnd, secondShiftStart, secondShiftEnd]);
+
+	useEffect(() => {
+		if (pickerTarget) setIosTempTime(pickerValue);
+	}, [pickerTarget, pickerValue]);
 
 	const handleLogout = () => {
 		Alert.alert("Odjava", "Jeste li sigurni da se zelite odjaviti?", [
@@ -506,11 +511,42 @@ export function SettingsScreen() {
 					</View>
 				) : null}
 			</ScrollView>
-			{pickerTarget ? (
+			{Platform.OS === "ios" ? (
+				<Modal visible={Boolean(pickerTarget)} transparent animationType="fade" onRequestClose={() => setPickerTarget(null)}>
+					<View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15,23,42,0.35)" }}>
+						<View style={{ backgroundColor: BG, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 }}>
+							<DateTimePicker
+								value={iosTempTime}
+								mode="time"
+								display="spinner"
+								locale="hr-HR"
+								onChange={(_, selected) => {
+									if (selected) setIosTempTime(selected);
+								}}
+							/>
+							<View className="flex-row" style={{ gap: 10, marginTop: 12 }}>
+								<TouchableOpacity onPress={() => setPickerTarget(null)} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#fff" }}>
+									<Text style={{ fontSize: 13, fontWeight: "700", color: "#475569" }}>Odustani</Text>
+								</TouchableOpacity>
+								<TouchableOpacity onPress={() => {
+									const label = toTimeLabel(iosTempTime);
+									if (pickerTarget === "firstShiftStart") setFirstShiftStart(label);
+									if (pickerTarget === "firstShiftEnd") setFirstShiftEnd(label);
+									if (pickerTarget === "secondShiftStart") setSecondShiftStart(label);
+									if (pickerTarget === "secondShiftEnd") setSecondShiftEnd(label);
+									setPickerTarget(null);
+								}} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, backgroundColor: BRAND }}>
+									<Text style={{ fontSize: 13, fontWeight: "700", color: "#fff" }}>Primijeni</Text>
+								</TouchableOpacity>
+							</View>
+						</View>
+					</View>
+				</Modal>
+			) : pickerTarget ? (
 				<DateTimePicker
 					value={pickerValue}
 					mode="time"
-					display={Platform.OS === "ios" ? "spinner" : "default"}
+					display="default"
 					locale="hr-HR"
 					onChange={(_, selected) => {
 						if (selected) {

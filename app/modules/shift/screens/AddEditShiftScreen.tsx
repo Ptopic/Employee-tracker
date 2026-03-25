@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocalSearchParams, router } from "expo-router";
-import { ActivityIndicator, Platform, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Modal, Platform, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { CheckCircle2, X } from "lucide-react-native";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -80,6 +80,8 @@ export function AddEditShiftScreen() {
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [showStartPicker, setShowStartPicker] = useState(false);
 	const [showEndPicker, setShowEndPicker] = useState(false);
+	const [iosTempDate, setIosTempDate] = useState(baseDate);
+	const [iosTempTime, setIosTempTime] = useState(new Date());
 	const [showEmployeePicker, setShowEmployeePicker] = useState(false);
 	const employeeDrawerRef = useRef<BottomSheet>(null);
 
@@ -163,7 +165,8 @@ export function AddEditShiftScreen() {
 										value={selectedDateLabel}
 										onPress={() => {
 											setFieldTouched("date", true);
-											setShowDatePicker(true);
+											setIosTempDate(selectedDateObj);
+										setShowDatePicker(true);
 										}}
 									/>
 									<FieldError error={touched.date ? (errors.date as string | undefined) : undefined} />
@@ -239,6 +242,7 @@ export function AddEditShiftScreen() {
 													value={values.startTime}
 												onPress={() => {
 													setFieldTouched("startTime", true);
+													setIosTempTime(toDateAtTime(selectedDateObj, values.startTime));
 													setShowStartPicker(true);
 												}}
 											/>
@@ -250,6 +254,7 @@ export function AddEditShiftScreen() {
 													value={values.endTime}
 												onPress={() => {
 													setFieldTouched("endTime", true);
+													setIosTempTime(toDateAtTime(selectedDateObj, values.endTime));
 													setShowEndPicker(true);
 												}}
 											/>
@@ -345,48 +350,102 @@ export function AddEditShiftScreen() {
 							)}
 						</DrawerModal>
 
-						{showDatePicker ? (
-							<DateTimePicker
-								value={selectedDateObj}
-								mode="date"
-								display={Platform.OS === "ios" ? "spinner" : "default"}
-								locale="hr-HR"
-								onChange={(_, selected) => {
-									setShowDatePicker(false);
-									if (!selected) return;
-									setFieldValue("date", toIsoDate(selected));
-									setFieldTouched("date", true);
-								}}
-							/>
-						) : null}
-						{showStartPicker ? (
-							<DateTimePicker
-								value={toDateAtTime(selectedDateObj, values.startTime)}
-								mode="time"
-								display={Platform.OS === "ios" ? "spinner" : "default"}
-								locale="hr-HR"
-								onChange={(_, selected) => {
-									setShowStartPicker(false);
-									if (!selected) return;
-									setFieldValue("startTime", toTimeLabel(selected));
-									setFieldTouched("startTime", true);
-								}}
-							/>
-						) : null}
-						{showEndPicker ? (
-							<DateTimePicker
-								value={toDateAtTime(selectedDateObj, values.endTime)}
-								mode="time"
-								display={Platform.OS === "ios" ? "spinner" : "default"}
-								locale="hr-HR"
-								onChange={(_, selected) => {
-									setShowEndPicker(false);
-									if (!selected) return;
-									setFieldValue("endTime", toTimeLabel(selected));
-									setFieldTouched("endTime", true);
-								}}
-							/>
-						) : null}
+						{Platform.OS === "ios" ? (
+							<Modal visible={showDatePicker || showStartPicker || showEndPicker} transparent animationType="fade" onRequestClose={() => {
+								setShowDatePicker(false);
+								setShowStartPicker(false);
+								setShowEndPicker(false);
+							}}>
+								<View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(15,23,42,0.35)" }}>
+									<View style={{ backgroundColor: BG, borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20 }}>
+										<DateTimePicker
+											value={showDatePicker ? iosTempDate : iosTempTime}
+											mode={showDatePicker ? "date" : "time"}
+											display="spinner"
+											locale="hr-HR"
+											onChange={(_, selected) => {
+												if (!selected) return;
+												if (showDatePicker) setIosTempDate(selected);
+												else setIosTempTime(selected);
+											}}
+										/>
+										<View className="flex-row" style={{ gap: 10, marginTop: 12 }}>
+											<TouchableOpacity onPress={() => {
+												setShowDatePicker(false);
+												setShowStartPicker(false);
+												setShowEndPicker(false);
+											}} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, borderWidth: 1, borderColor: "#E2E8F0", backgroundColor: "#fff" }}>
+												<Text style={{ fontSize: 13, fontWeight: "700", color: "#475569" }}>Odustani</Text>
+											</TouchableOpacity>
+											<TouchableOpacity onPress={() => {
+												if (showDatePicker) {
+													setFieldValue("date", toIsoDate(iosTempDate));
+													setFieldTouched("date", true);
+												}
+												if (showStartPicker) {
+													setFieldValue("startTime", toTimeLabel(iosTempTime));
+													setFieldTouched("startTime", true);
+												}
+												if (showEndPicker) {
+													setFieldValue("endTime", toTimeLabel(iosTempTime));
+													setFieldTouched("endTime", true);
+												}
+												setShowDatePicker(false);
+												setShowStartPicker(false);
+												setShowEndPicker(false);
+											}} className="flex-1 items-center justify-center rounded-xl" style={{ height: 44, backgroundColor: BRAND }}>
+												<Text style={{ fontSize: 13, fontWeight: "700", color: "#fff" }}>Primijeni</Text>
+											</TouchableOpacity>
+										</View>
+									</View>
+								</View>
+							</Modal>
+						) : (
+							<>
+								{showDatePicker ? (
+									<DateTimePicker
+										value={selectedDateObj}
+										mode="date"
+										display="default"
+										locale="hr-HR"
+										onChange={(_, selected) => {
+											setShowDatePicker(false);
+											if (!selected) return;
+											setFieldValue("date", toIsoDate(selected));
+											setFieldTouched("date", true);
+										}}
+									/>
+								) : null}
+								{showStartPicker ? (
+									<DateTimePicker
+										value={toDateAtTime(selectedDateObj, values.startTime)}
+										mode="time"
+										display="default"
+										locale="hr-HR"
+										onChange={(_, selected) => {
+											setShowStartPicker(false);
+											if (!selected) return;
+											setFieldValue("startTime", toTimeLabel(selected));
+											setFieldTouched("startTime", true);
+										}}
+									/>
+								) : null}
+								{showEndPicker ? (
+									<DateTimePicker
+										value={toDateAtTime(selectedDateObj, values.endTime)}
+										mode="time"
+										display="default"
+										locale="hr-HR"
+										onChange={(_, selected) => {
+											setShowEndPicker(false);
+											if (!selected) return;
+											setFieldValue("endTime", toTimeLabel(selected));
+											setFieldTouched("endTime", true);
+										}}
+									/>
+								) : null}
+							</>
+						)}
 					</SafeAreaView>
 				);
 			}}
