@@ -1,13 +1,13 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { performance } from "node:perf_hooks";
 import { PrismaService } from "src/prisma/prisma.service";
 
 type EmployeeWeek = {
   employeeId: string;
   employeeName: string;
-  hourlyRate: number;
-  weeklyHours: number;
-  estimatedCost: number;
+  hourlyRateCents: number;
+  weeklyMinutes: number;
+  estimatedCostCents: number;
   dailyShifts: Record<string, string[]>;
 };
 
@@ -24,29 +24,36 @@ const DAY_LABELS: Record<(typeof DAY_KEYS)[number], string> = {
 
 @Injectable()
 export class ExportService {
+  private readonly logger = new Logger(ExportService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async getWeeklyPreview(managerId: string, weekStart: string) {
     const startedAt = performance.now();
     const data = await this.getWeeklyData(managerId, weekStart);
-    return {
-      ...data,
-      durationMs: Number((performance.now() - startedAt).toFixed(2)),
-    };
+    const durationMs = Number((performance.now() - startedAt).toFixed(2));
+    this.logger.log(`Weekly preview generated in ${durationMs}ms`);
+    return { ...data, durationMs };
   }
 
   async exportWeeklyPdf(managerId: string, weekStart: string) {
     const startedAt = performance.now();
     const data = await this.getWeeklyData(managerId, weekStart);
+    const durationMs = Number((performance.now() - startedAt).toFixed(2));
+    this.logger.log(`Weekly PDF generated in ${durationMs}ms`);
 
     return {
       buffer: buildLandscapeSchedulePdf(data),
-      durationMs: Number((performance.now() - startedAt).toFixed(2)),
+      durationMs,
       fileName: `weekly-${data.weekStart}.pdf`,
     };
   }
 
   private async getWeeklyData(managerId: string, weekStart: string) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(weekStart)) {
+      throw new BadRequestException("Invalid weekStart date. Expected YYYY-MM-DD");
+    }
+
     const start = new Date(`${weekStart}T00:00:00.000Z`);
     if (Number.isNaN(start.getTime())) {
       throw new BadRequestException("Invalid weekStart date. Expected YYYY-MM-DD");
@@ -58,7 +65,7 @@ export class ExportService {
     const [manager, assignments, employeesList] = await Promise.all([
       this.prisma.manager.findUnique({
         where: { id: managerId },
-        select: { companyName: true, companyLogoUrl: true },
+        select: { companyName: true },
       }),
       this.prisma.shiftAssignment.findMany({
         where: {
@@ -80,6 +87,7 @@ export class ExportService {
           },
         },
         orderBy: [{ shift: { date: "asc" } }, { shift: { startTime: "asc" } }],
+        take: 500,
       }),
       this.prisma.employee.findMany({
         where: { managerId },
@@ -90,6 +98,7 @@ export class ExportService {
           hourlyRate: true,
         },
         orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
+        take: 100,
       }),
     ]);
 
@@ -99,9 +108,9 @@ export class ExportService {
       employees.set(employee.id, {
         employeeId: employee.id,
         employeeName: `${employee.firstName} ${employee.lastName ?? ""}`.trim(),
-        hourlyRate: Number(employee.hourlyRate),
-        weeklyHours: 0,
-        estimatedCost: 0,
+        hourlyRateCents: Math.round(Number(employee.hourlyRate) * 100),
+        weeklyMinutes: 0,
+        estimatedCostCents: 0,
         dailyShifts: Object.fromEntries(DAY_KEYS.map((day) => [day, []])) as Record<string, string[]>,
       });
     }
@@ -117,8 +126,9 @@ export class ExportService {
       }
 
       const hours = Number(assignment.calculatedHours);
-      existing.weeklyHours += hours;
-      existing.estimatedCost += hours * existing.hourlyRate;
+      const minutes = Math.round(hours * 60);
+      existing.weeklyMinutes += minutes;
+      existing.estimatedCostCents += Math.round(minutes * (existing.hourlyRateCents / 60));
 
       existing.dailyShifts[day].push(
         `${toHHmm(assignment.shift.startTime)}-${toHHmm(assignment.shift.endTime)}`,
@@ -129,8 +139,8 @@ export class ExportService {
       a.employeeName.localeCompare(b.employeeName),
     );
 
-    const totalHours = employeeRows.reduce((sum, item) => sum + item.weeklyHours, 0);
-    const totalCost = employeeRows.reduce((sum, item) => sum + item.estimatedCost, 0);
+    const totalHours = Number((employeeRows.reduce((sum, item) => sum + item.weeklyMinutes, 0) / 60).toFixed(2));
+    const totalCost = Number((employeeRows.reduce((sum, item) => sum + item.estimatedCostCents, 0) / 100).toFixed(2));
 
     const weekDates = Object.fromEntries(
       DAY_KEYS.map((day, index) => {
@@ -142,7 +152,6 @@ export class ExportService {
 
     return {
       companyName: manager?.companyName || "Tvrtka",
-      logoUrl: manager?.companyLogoUrl || "",
       weekStart,
       weekEnd: end.toISOString().slice(0, 10),
       generatedAt: new Date().toISOString(),
@@ -155,7 +164,7 @@ export class ExportService {
 }
 
 function toHHmm(value: Date | null) {
-  if (!value) return "";
+  if (!value) return "N/A";
   return value.toISOString().slice(11, 16);
 }
 
@@ -328,9 +337,31 @@ function formatDateLabel(value?: string) {
 }
 
 function truncate(value: string, max: number) {
-  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}…`;
+  return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 3))}...`;
 }
 
+const CROATIAN_TO_ASCII: Record<string, string> = {
+  č: "c", Č: "C",
+  ć: "c", Ć: "C",
+  ž: "z", Ž: "Z",
+  š: "s", Š: "S",
+  đ: "dj", Đ: "Dj",
+};
+
 function escapePdfText(value: string) {
-  return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+  let safe = value;
+  // Transliterate Croatian diacritics to ASCII (Helvetica only supports Latin-1)
+  safe = safe.replace(/[čČćĆžŽšŠđĐ]/g, (ch) => CROATIAN_TO_ASCII[ch] ?? ch);
+  // Escape PDF-special characters
+  safe = safe.replace(/\\/g, "\\\\");
+  safe = safe.replace(/\(/g, "\\(");
+  safe = safe.replace(/\)/g, "\\)");
+  // Escape whitespace control characters
+  safe = safe.replace(/\r/g, "\\r");
+  safe = safe.replace(/\n/g, "\\n");
+  safe = safe.replace(/\t/g, "\\t");
+  // Strip remaining control characters and non-Latin-1 characters
+  safe = safe.replace(new RegExp(`[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f]`, "g"), "");
+  safe = safe.replace(new RegExp(`[^\\u0020-\\u00ff\\\\()rn]`, "g"), "");
+  return safe;
 }

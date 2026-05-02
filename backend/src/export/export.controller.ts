@@ -1,4 +1,4 @@
-import { Controller, Get, Header, Query, Req, Res } from "@nestjs/common";
+import { Controller, Get, Query, Req, Res } from "@nestjs/common";
 import { Request, Response } from "express";
 import { Readable } from "node:stream";
 import { JwtAuth } from "src/auth/decorators/jwt-auth.decorator";
@@ -16,15 +16,16 @@ export class ExportController {
 
   @Get("weekly-pdf")
   @JwtAuth()
-  @Header("Content-Type", "application/pdf")
   async exportWeeklyPdf(
     @Req() req: Request,
     @Query("weekStart") weekStart: string,
     @Res() response: Response,
   ) {
     const result = await this.exportService.exportWeeklyPdf(req.user.userId, weekStart);
+    const safeFileName = result.fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+    response.setHeader("Content-Type", "application/pdf");
     response.setHeader("X-Export-Duration-Ms", String(result.durationMs));
-    response.setHeader("Content-Disposition", `attachment; filename="${result.fileName}"`);
+    response.setHeader("Content-Disposition", `attachment; filename="${safeFileName}"`);
     Readable.from(result.buffer).pipe(response);
   }
 }
