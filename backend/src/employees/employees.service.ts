@@ -6,6 +6,7 @@ import {
 import {
 	BadRequestException,
 	Injectable,
+	Logger,
 	NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -18,9 +19,12 @@ import {
 
 @Injectable()
 export class EmployeesService {
+	private readonly logger = new Logger(EmployeesService.name);
+
 	constructor(private readonly prisma: PrismaService) {}
 
 	async list(managerId: string, query: ListEmployeesQueryDto = {}) {
+		this.logger.log(`Listing employees for manager ${managerId}`);
 		const employees = await this.prisma.employee.findMany({
 			where: {
 				managerId,
@@ -48,6 +52,7 @@ export class EmployeesService {
 	}
 
 	async listMonthlyHours(managerId: string) {
+		this.logger.log(`Listing monthly hours for manager ${managerId}`);
 		const employees = await this.prisma.employee.findMany({
 			where: { managerId },
 			orderBy: { firstName: "asc" },
@@ -61,6 +66,7 @@ export class EmployeesService {
 	}
 
 	async getById(managerId: string, employeeId: string) {
+		this.logger.log(`Getting employee ${employeeId} for manager ${managerId}`);
 		const employee = await this.getOwnedEmployee(managerId, employeeId);
 		return {
 			id: employee.id,
@@ -73,6 +79,7 @@ export class EmployeesService {
 	}
 
 	async getStats(managerId: string, employeeId: string, query: EmployeeStatsQueryDto = {}) {
+		this.logger.log(`Getting stats for employee ${employeeId}`);
 		const employee = await this.getOwnedEmployee(managerId, employeeId);
 		const [monthStart, monthEnd] = this.getMonthRange(query.month, query.year);
 		const [weekStart, weekEnd] = this.getWeekRange(query.weekStart);
@@ -102,6 +109,7 @@ export class EmployeesService {
 	}
 
 	create(managerId: string, payload: CreateEmployeeDto) {
+		this.logger.log(`Creating employee for manager ${managerId}`);
 		return this.prisma.employee.create({
 			data: {
 				managerId,
@@ -116,6 +124,7 @@ export class EmployeesService {
 	}
 
 	async update(managerId: string, employeeId: string, payload: UpdateEmployeeDto) {
+		this.logger.log(`Updating employee ${employeeId}`);
 		await this.getOwnedEmployee(managerId, employeeId);
 		return this.prisma.employee.update({
 			where: { id: employeeId },
@@ -134,6 +143,7 @@ export class EmployeesService {
 	}
 
 	async deactivate(managerId: string, employeeId: string) {
+		this.logger.log(`Deactivating employee ${employeeId}`);
 		await this.getOwnedEmployee(managerId, employeeId);
 		return this.prisma.employee.update({
 			where: { id: employeeId },
@@ -144,30 +154,35 @@ export class EmployeesService {
 
 	async remove(managerId: string, employeeId: string) {
 		await this.getOwnedEmployee(managerId, employeeId);
-
-		return this.prisma.$transaction(async (tx) => {
-			await tx.shiftAssignment.deleteMany({
-				where: {
-					employeeId,
-					employee: { managerId },
-				},
-			});
-
-			await tx.shift.deleteMany({
-				where: {
-					managerId,
-					assignments: {
-						none: {},
+		this.logger.log(`Removing employee ${employeeId} for manager ${managerId}`);
+		try {
+			return await this.prisma.$transaction(async (tx) => {
+				await tx.shiftAssignment.deleteMany({
+					where: {
+						employeeId,
+						employee: { managerId },
 					},
-				},
-			});
+				});
 
-			await tx.employee.delete({
-				where: { id: employeeId },
-			});
+				await tx.shift.deleteMany({
+					where: {
+						managerId,
+						assignments: {
+							none: {},
+						},
+					},
+				});
 
-			return { id: employeeId, deleted: true };
-		});
+				await tx.employee.delete({
+					where: { id: employeeId },
+				});
+
+				return { id: employeeId, deleted: true };
+			});
+		} catch (error) {
+			this.logger.error(`Failed to remove employee ${employeeId}`, error instanceof Error ? error.stack : String(error));
+			throw error;
+		}
 	}
 
 	private async getOwnedEmployee(managerId: string, employeeId: string) {
@@ -175,6 +190,7 @@ export class EmployeesService {
 			where: { id: employeeId, managerId },
 		});
 		if (!employee) {
+			this.logger.warn(`Employee ${employeeId} not found for manager ${managerId}`);
 			throw new NotFoundException("Employee not found");
 		}
 		return employee;
@@ -264,6 +280,7 @@ export class EmployeesService {
 
 	private getMonthRange(month?: number, year?: number): [Date, Date] {
 		if ((month && !year) || (!month && year)) {
+			this.logger.warn(`Invalid month/year combination: month=${month}, year=${year}`);
 			throw new BadRequestException("Month and year must be provided together");
 		}
 
@@ -283,6 +300,7 @@ export class EmployeesService {
 
 		const start = new Date(`${weekStart}T00:00:00.000Z`);
 		if (Number.isNaN(start.getTime())) {
+			this.logger.warn(`Invalid weekStart date: ${weekStart}`);
 			throw new BadRequestException("Invalid weekStart date. Expected YYYY-MM-DD");
 		}
 

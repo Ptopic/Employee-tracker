@@ -1,8 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class StatsService {
+	private readonly logger = new Logger(StatsService.name);
+
 	constructor(private readonly prisma: PrismaService) {}
 
 	private getTodayRange() {
@@ -30,6 +32,7 @@ export class StatsService {
 	}
 
 	async getWeeklyHours(managerId: string) {
+		this.logger.log(`Getting weekly hours for manager ${managerId}`);
 		const { start, end } = this.getCurrentWeekRange();
 
 		const shifts = await this.prisma.shift.findMany({
@@ -65,6 +68,7 @@ export class StatsService {
 	}
 
 	async getTodayEmployees(managerId: string) {
+		this.logger.log(`Getting today's employee count for manager ${managerId}`);
 		const { start, end } = this.getTodayRange();
 
 		const assignments = await this.prisma.shiftAssignment.findMany({

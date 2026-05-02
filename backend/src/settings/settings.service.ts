@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import type { Prisma } from "@prisma/client";
 import { CloudinaryService } from "src/cloudinary/cloudinary.service";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -21,12 +21,15 @@ const isValidTime = (value: unknown): value is string =>
 
 @Injectable()
 export class SettingsService {
+	private readonly logger = new Logger(SettingsService.name);
+
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly cloudinaryService: CloudinaryService,
 	) {}
 
 	async getCompany(managerId: string) {
+		this.logger.log(`Getting company settings for manager ${managerId}`);
 		const manager = await this.prisma.manager.findUnique({ where: { id: managerId } });
 		return {
 			companyName: manager?.companyName ?? "",
@@ -35,6 +38,7 @@ export class SettingsService {
 	}
 
 	async updateCompany(managerId: string, payload: UpdateCompanySettingsDto) {
+		this.logger.log(`Updating company settings for manager ${managerId}`);
 		const updated = await this.prisma.manager.update({
 			where: { id: managerId },
 			data: {
@@ -50,15 +54,18 @@ export class SettingsService {
 	}
 
 	async uploadLogo(logo: string) {
+		this.logger.log("Uploading company logo");
 		try {
 			const uploaded = await this.cloudinaryService.uploadImage(logo);
 			return { url: uploaded.url };
-		} catch (_error) {
+		} catch (error) {
+			this.logger.error("Logo upload failed", error instanceof Error ? error.stack : String(error));
 			throw new BadRequestException("Logo upload failed. Please try another image.");
 		}
 	}
 
 	async getPreferences(managerId: string): Promise<UpdatePreferencesDto> {
+		this.logger.log(`Getting preferences for manager ${managerId}`);
 		const manager = await this.prisma.manager.findUnique({ where: { id: managerId } });
 		const current = (manager?.preferences ?? {}) as Partial<UpdatePreferencesDto>;
 
@@ -87,6 +94,7 @@ export class SettingsService {
 	}
 
 	async updatePreferences(managerId: string, payload: UpdatePreferencesDto) {
+		this.logger.log(`Updating preferences for manager ${managerId}`);
 		const existing = await this.getPreferences(managerId);
 		const merged = { ...existing, ...payload };
 

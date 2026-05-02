@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 
 type GoogleProfile = {
@@ -10,21 +10,26 @@ type GoogleProfile = {
 
 @Injectable()
 export class ManagersService {
+	private readonly logger = new Logger(ManagersService.name);
+
 	constructor(private readonly prisma: PrismaService) {}
 
 	list() {
+		this.logger.log("Listing all managers");
 		return this.prisma.manager.findMany({
 			orderBy: { createdAt: "desc" },
 		});
 	}
 
 	findById(id: string) {
+		this.logger.log(`Finding manager by id ${id}`);
 		return this.prisma.manager.findUnique({
 			where: { id },
 		});
 	}
 
 	async bootstrapFromGoogleProfile(profile: GoogleProfile) {
+		this.logger.log(`Bootstrapping manager from Google profile: ${profile.email}`);
 		const existingByGoogleAuthId = await this.prisma.manager.findUnique({
 			where: { googleAuthId: profile.googleAuthId },
 		});

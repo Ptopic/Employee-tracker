@@ -1,7 +1,8 @@
 import {
-	Injectable,
-	UnauthorizedException,
 	BadRequestException,
+	Injectable,
+	Logger,
+	UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import axios from "axios";
@@ -14,6 +15,8 @@ const REFRESH_TOKEN_TTL_SECONDS = 60 * 60 * 24 * 30;
 
 @Injectable()
 export class AuthService {
+	private readonly logger = new Logger(AuthService.name);
+
 	constructor(
 		private prisma: PrismaService,
 		private jwtService: JwtService,
@@ -66,6 +69,7 @@ export class AuthService {
 	}
 
 	async verifyGoogleToken(accessToken: string) {
+		this.logger.log("Verifying Google token");
 		try {
 			const tokenInfoResponse = await axios.get(
 				`https://oauth2.googleapis.com/tokeninfo?access_token=${accessToken}`,
@@ -78,10 +82,12 @@ export class AuthService {
 			const clientId = process.env.GOOGLE_CLIENT_ID;
 
 			if (clientId && aud !== clientId) {
+				this.logger.warn("Google token audience mismatch");
 				throw new UnauthorizedException("Google token audience mismatch");
 			}
 
 			if (!email || !sub || email_verified === "false") {
+				this.logger.warn("Invalid Google token payload: missing email/sub or unverified");
 				throw new UnauthorizedException("Invalid Google token payload");
 			}
 
@@ -107,13 +113,15 @@ export class AuthService {
 				manager,
 			};
 		} catch (error) {
-			console.error("Google token verification failed:", error);
+			this.logger.error("Google token verification failed", error instanceof Error ? error.stack : String(error));
 			throw new UnauthorizedException("Invalid Google access token");
 		}
 	}
 
 	async refreshSession(refreshToken: string) {
+		this.logger.log("Refreshing session");
 		if (!refreshToken) {
+			this.logger.warn("Refresh session attempted without refresh token");
 			throw new BadRequestException("Refresh token is required");
 		}
 
@@ -124,10 +132,12 @@ export class AuthService {
 				secret: process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
 			});
 		} catch {
+			this.logger.warn("JWT refresh token verification failed");
 			throw new UnauthorizedException("Invalid refresh token");
 		}
 
 		if (payload.type !== "refresh") {
+			this.logger.warn(`Invalid refresh token type: ${payload.type}`);
 			throw new UnauthorizedException("Invalid refresh token type");
 		}
 
@@ -143,6 +153,7 @@ export class AuthService {
 			manager.tokenVersion !== payload.tokenVersion ||
 			manager.refreshTokenHash !== this.hashToken(refreshToken)
 		) {
+			this.logger.warn(`Refresh token no longer valid for user ${payload.sub}`);
 			throw new UnauthorizedException("Refresh token is no longer valid");
 		}
 
@@ -154,8 +165,10 @@ export class AuthService {
 	}
 
 	async validateSession(userId: string) {
+		this.logger.log(`Validating session for user ${userId}`);
 		const manager = await this.managersService.findById(userId);
 		if (!manager) {
+			this.logger.warn(`Session invalid for user ${userId}`);
 			throw new UnauthorizedException("Session is invalid");
 		}
 
@@ -163,6 +176,7 @@ export class AuthService {
 	}
 
 	async logout(userId: string) {
+		this.logger.log(`Logging out user ${userId}`);
 		await this.prisma.manager.update({
 			where: { id: userId },
 			data: {
@@ -176,6 +190,7 @@ export class AuthService {
 	}
 
 	async me(userId: string) {
+		this.logger.log(`Getting current user ${userId}`);
 		return this.validateSession(userId);
 	}
 }

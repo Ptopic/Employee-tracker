@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { CloudinaryService } from "src/cloudinary/cloudinary.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { UpdateUserDto } from "./dtos/updateUser.dto";
@@ -6,6 +6,8 @@ import { UpdateUserProfilePictureDto } from "./dtos/updateUserProfilePicture.dto
 
 @Injectable()
 export class UsersService {
+	private readonly logger = new Logger(UsersService.name);
+
 	constructor(
 		private prisma: PrismaService,
 		private cloudinaryService: CloudinaryService,
@@ -15,6 +17,7 @@ export class UsersService {
 		id: string,
 		updateUserProfilePictureDto: UpdateUserProfilePictureDto,
 	) {
+		this.logger.log(`Updating profile picture for user ${id}`);
 		const uploadedImage = await this.cloudinaryService.uploadImage(
 			updateUserProfilePictureDto.picture,
 		);
@@ -26,6 +29,7 @@ export class UsersService {
 	}
 
 	async updateUser(id: string, updateUserDto: UpdateUserDto) {
+		this.logger.log(`Updating user ${id}`);
 		return this.prisma.manager.update({
 			where: { id },
 			data: {

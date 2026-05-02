@@ -2,6 +2,7 @@ import {
 	BadRequestException,
 	ConflictException,
 	Injectable,
+	Logger,
 	NotFoundException,
 } from "@nestjs/common";
 import { calculateDeterministicHours, normalizeDateIso } from "src/common/deterministic-hours";
@@ -10,9 +11,12 @@ import { UpsertShiftDto, ValidateShiftDto } from "./dtos/shift.dto";
 
 @Injectable()
 export class ShiftsService {
+	private readonly logger = new Logger(ShiftsService.name);
+
 	constructor(private readonly prisma: PrismaService) {}
 
 	list(managerId: string, startDate?: string, endDate?: string) {
+		this.logger.log(`Listing shifts for manager ${managerId}`);
 		return this.prisma.shift.findMany({
 			where: {
 				managerId,
@@ -36,6 +40,7 @@ export class ShiftsService {
 	}
 
 	getToday(managerId: string) {
+		this.logger.log(`Getting today's shifts for manager ${managerId}`);
 		const start = new Date();
 		start.setHours(0, 0, 0, 0);
 		const end = new Date(start);
@@ -60,10 +65,12 @@ export class ShiftsService {
 	}
 
 	async create(managerId: string, payload: UpsertShiftDto) {
+		this.logger.log(`Creating shift for manager ${managerId}`);
 		const normalizedPayload = this.normalizePayload(payload);
 		await this.assertPayloadTimes(normalizedPayload);
 		const validation = await this.validateOverlap(managerId, payload);
 		if (!validation.valid) {
+			this.logger.warn(`Shift overlap detected for manager ${managerId}`);
 			throw new ConflictException("Employee overlap detected");
 		}
 
@@ -90,11 +97,13 @@ export class ShiftsService {
 	}
 
 	async update(managerId: string, shiftId: string, payload: UpsertShiftDto) {
+		this.logger.log(`Updating shift ${shiftId} for manager ${managerId}`);
 		await this.assertShiftOwnedByManager(managerId, shiftId);
 		const normalizedPayload = this.normalizePayload(payload);
 		await this.assertPayloadTimes(normalizedPayload);
 		const validation = await this.validateOverlap(managerId, { ...payload, shiftId });
 		if (!validation.valid) {
+			this.logger.warn(`Shift overlap detected on update for shift ${shiftId}`);
 			throw new ConflictException("Employee overlap detected");
 		}
 
@@ -122,6 +131,7 @@ export class ShiftsService {
 	}
 
 	async delete(managerId: string, shiftId: string) {
+		this.logger.log(`Deleting shift ${shiftId} for manager ${managerId}`);
 		await this.assertShiftOwnedByManager(managerId, shiftId);
 		await this.prisma.shift.delete({ where: { id: shiftId } });
 		return { ok: true };
@@ -129,6 +139,7 @@ export class ShiftsService {
 
 	async validateEmployees(managerId: string, payload: ValidateShiftDto) {
 		const employeeIds = payload.employeeIds || [];
+		this.logger.log(`Validating ${employeeIds.length} employees for manager ${managerId}`);
 		if (!employeeIds.length) {
 			return { valid: true, conflictingEmployeeIds: [] };
 		}
@@ -146,6 +157,7 @@ export class ShiftsService {
 	async validateOverlap(managerId: string, payload: ValidateShiftDto) {
 		const normalizedPayload = this.normalizePayload(payload);
 		const employeeIds = normalizedPayload.employeeIds || [];
+		this.logger.log(`Validating overlap for ${employeeIds.length} employees`);
 		if (!employeeIds.length) {
 			return { valid: true, conflicts: [] };
 		}
@@ -200,6 +212,7 @@ export class ShiftsService {
 		});
 
 		if (!shift) {
+			this.logger.warn(`Shift ${shiftId} not found for manager ${managerId}`);
 			throw new NotFoundException("Shift not found");
 		}
 	}
@@ -211,10 +224,12 @@ export class ShiftsService {
 
 		const { startTime, endTime } = payload;
 		if (!startTime || !endTime) {
+			this.logger.warn(`Invalid shift times: ${startTime}/${endTime}`);
 			throw new BadRequestException("Start and end time are required unless shift is a day off");
 		}
 
 		if (startTime === endTime) {
+			this.logger.warn(`Invalid shift times: ${startTime}/${endTime}`);
 			throw new BadRequestException("Start and end time cannot be the same");
 		}
 	}
