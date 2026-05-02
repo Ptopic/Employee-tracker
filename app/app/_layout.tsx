@@ -3,16 +3,16 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Linking,
+	Platform,
 	StatusBar,
 	View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { logger } from "react-native-logs";
-import SharedGroupPreferences from "react-native-shared-group-preferences";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import {
 	clearSessionTokens,
@@ -20,7 +20,7 @@ import {
 	getRefreshToken,
 	saveSessionTokens,
 } from "@/shared/auth";
-import { config } from "@/shared/config";
+import { canUseApiAtStartup, config } from "@/shared/config";
 import { getQueryClient } from "@/shared/queryClient";
 import { AppStateProvider } from "@/shared/state/app-state";
 import { PreferencesBootstrap } from "@/shared/state/PreferencesBootstrap";
@@ -38,6 +38,7 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 const appGroupIdentifier = "group.com.petartopic.saveit.data";
+const log = logger.createLogger();
 
 export default function RootLayout() {
 	const [loaded, error] = useFonts({
@@ -68,80 +69,111 @@ function RootLayoutNav() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-	const log = logger.createLogger();
-
-	const restoreSession = async () => {
-		const accessToken = await getAccessToken();
-		const refreshToken = await getRefreshToken();
-
-		if (!accessToken && !refreshToken) {
+	const restoreSession = useCallback(async () => {
+		if (!canUseApiAtStartup) {
+			log.warn(
+				"[Auth] Skipping session restore because EXPO_PUBLIC_API_URL is missing or invalid for startup.",
+			);
 			setIsAuthenticated(false);
 			setIsLoading(false);
 			return;
 		}
 
-		const validate = async (token: string) => {
-			const response = await fetch(`${config.apiUrl}/auth/session`, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${token}`,
-				},
-			});
+		try {
+			const accessToken = await getAccessToken();
+			const refreshToken = await getRefreshToken();
 
-			if (!response.ok) {
-				return null;
-			}
-
-			return response.json();
-		};
-
-		if (accessToken) {
-			const validSession = await validate(accessToken);
-			if (validSession) {
-				setIsAuthenticated(true);
-				setIsLoading(false);
+			if (!accessToken && !refreshToken) {
+				setIsAuthenticated(false);
 				return;
 			}
-		}
 
-		if (refreshToken) {
-			try {
-				const refreshResponse = await fetch(`${config.apiUrl}/auth/refresh`, {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ refreshToken }),
+			const validate = async (token: string) => {
+				const response = await fetch(`${config.apiUrl}/auth/session`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
 				});
 
-				if (!refreshResponse.ok) {
-					throw new Error("refresh failed");
+				if (!response.ok) {
+					return null;
 				}
 
-				const refreshData = await refreshResponse.json();
-				await saveSessionTokens(
-					refreshData.accessToken,
-					refreshData.refreshToken,
-				);
-				setIsAuthenticated(true);
-			} catch (error) {
-				log.error("[Auth] Session refresh failed", error);
-				await clearSessionTokens();
-				setIsAuthenticated(false);
+				return response.json();
+			};
+
+			if (accessToken) {
+				const validSession = await validate(accessToken);
+				if (validSession) {
+					setIsAuthenticated(true);
+					return;
+				}
 			}
+
+			if (refreshToken) {
+				try {
+					const refreshResponse = await fetch(`${config.apiUrl}/auth/refresh`, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ refreshToken }),
+					});
+
+					if (!refreshResponse.ok) {
+						throw new Error("refresh failed");
+					}
+
+					const refreshData = await refreshResponse.json();
+					await saveSessionTokens(
+						refreshData.accessToken,
+						refreshData.refreshToken,
+					);
+					setIsAuthenticated(true);
+					return;
+				} catch (error) {
+					log.error("[Auth] Session refresh failed", error);
+					await clearSessionTokens();
+				}
+			}
+
+			setIsAuthenticated(false);
+		} catch (error) {
+			log.error("[Auth] Session restore failed", error);
+			await clearSessionTokens();
+			setIsAuthenticated(false);
+		} finally {
+			setIsLoading(false);
 		}
-
-		setIsLoading(false);
-	};
-
-	useEffect(() => {
-		restoreSession();
 	}, []);
 
 	useEffect(() => {
+		restoreSession();
+	}, [restoreSession]);
+
+	useEffect(() => {
 		const syncTokenToAppGroup = async () => {
-			const token = (await getAccessToken()) || "";
+			if (Platform.OS !== "ios") {
+				return;
+			}
+
 			try {
-				await SharedGroupPreferences.setItem(
+				const sharedGroupModule = await import(
+					"react-native-shared-group-preferences"
+				);
+				const sharedGroupPreferences = sharedGroupModule.default;
+
+				if (typeof sharedGroupPreferences?.setItem !== "function") {
+					log.warn(
+						"[Main App] Shared group preferences module is unavailable; skipping token sync.",
+					);
+					return;
+				}
+
+				const token = isAuthenticated
+					? ((await getAccessToken()) ?? "")
+					: "";
+				await sharedGroupPreferences.setItem(
 					"accessToken",
 					token,
 					appGroupIdentifier,
@@ -152,7 +184,7 @@ function RootLayoutNav() {
 		};
 
 		syncTokenToAppGroup();
-	}, [isAuthenticated, log]);
+	}, [isAuthenticated]);
 
 	useEffect(() => {
 		if (isLoading) return;
@@ -160,7 +192,7 @@ function RootLayoutNav() {
 	}, [isAuthenticated, isLoading]);
 
 	useEffect(() => {
-		const handleDeepLink = (event: any) => {
+		const handleDeepLink = (event: { url: string }) => {
 			const { url } = event;
 			if (url?.startsWith("saveit://")) {
 				return;

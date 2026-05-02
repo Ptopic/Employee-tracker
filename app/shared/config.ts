@@ -1,10 +1,13 @@
-const apiUrl = process.env.EXPO_PUBLIC_API_URL!;
+const apiUrl = process.env.EXPO_PUBLIC_API_URL?.trim() ?? "";
+const clientUrl = process.env.EXPO_PUBLIC_CLIENT_URL?.trim() ?? "";
 
-if (!__DEV__ && !apiUrl.startsWith("https://")) {
-	throw new Error("EXPO_PUBLIC_API_URL must be HTTPS in production");
-}
+export const isApiUrlConfigured = apiUrl.length > 0;
+export const isApiUrlValidForProduction =
+	!isApiUrlConfigured || apiUrl.startsWith("https://");
+export const canUseApiAtStartup =
+	isApiUrlConfigured && (__DEV__ || isApiUrlValidForProduction);
 
 export const config = {
 	apiUrl,
-	clientUrl: process.env.EXPO_PUBLIC_CLIENT_URL!,
+	clientUrl,
 };
